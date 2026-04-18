@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Português Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+
+  .flag {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    color: #2b6cb0;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: #718096;
+    font-size: 0.95rem;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a0aec0;
+    margin: 28px 0 12px;
+  }
+
+  .quiz-card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+
+  .quiz-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  }
+
+  .quiz-card.disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .icon-blue   { background: #ebf8ff; }
+  .icon-green  { background: #f0fff4; }
+  .icon-purple { background: #faf5ff; }
+  .icon-orange { background: #fffaf0; }
+  .icon-pink   { background: #fff5f7; }
+
+  .card-body { flex: 1; }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 3px;
+  }
+
+  .card-meta {
+    font-size: 0.82rem;
+    color: #718096;
+  }
+
+  .card-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .badge-ready  { background: #f0fff4; color: #276749; }
+  .badge-coming { background: #f7fafc; color: #a0aec0; }
+
+  footer {
+    text-align: center;
+    padding: 32px 0 20px;
+    font-size: 0.8rem;
+    color: #cbd5e0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="flag">🇵🇹</div>
+    <h1>Português Quiz</h1>
+    <p>Escolhe um tema e começa a praticar!</p>
+  </header>
+
+  <div class="section-title">Disponível agora</div>
+
+  <a class="quiz-card" href="quiz_artigos_verbos.html">
+    <div class="card-icon icon-blue">📝</div>
+    <div class="card-body">
+      <div class="card-title">Artigos & Verbos</div>
+      <div class="card-meta">Artigos definidos/indefinidos · Presente · PPS · 40 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <div class="section-title">Em breve</div>
+
+  <div class="quiz-card disabled">
+    <div class="card-icon icon-green">🗣️</div>
+    <div class="card-body">
+      <div class="card-title">Vocabulário</div>
+      <div class="card-meta">Palavras do dia a dia, temas, expressões</div>
+    </div>
+    <span class="card-badge badge-coming">Em breve</span>
+  </div>
+
+  <div class="quiz-card disabled">
+    <div class="card-icon icon-purple">✍️</div>
+    <div class="card-body">
+      <div class="card-title">Composição -- palavras de ligação</div>
+      <div class="card-meta">Em primeiro lugar, Além disso, No entanto...</div>
+    </div>
+    <span class="card-badge badge-coming">Em breve</span>
+  </div>
+
+  <div class="quiz-card disabled">
+    <div class="card-icon icon-orange">🔄</div>
+    <div class="card-body">
+      <div class="card-title">Trocar / Mudar / Dar / Devolver</div>
+      <div class="card-meta">Verbos de troca e mudança no contexto certo</div>
+    </div>
+    <span class="card-badge badge-coming">Em breve</span>
+  </div>
+
+  <div class="quiz-card disabled">
+    <div class="card-icon icon-pink">🚶</div>
+    <div class="card-body">
+      <div class="card-title">Verbos de movimento</div>
+      <div class="card-meta">Ir / Vir / Levar / Trazer / Ir buscar...</div>
+    </div>
+    <span class="card-badge badge-coming">Em breve</span>
+  </div>
+
+  <footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+</div>
+</body>
+</html>
