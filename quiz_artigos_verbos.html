@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Português Quiz -- Artigos & Verbos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 680px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 30px 0 20px;
+  }
+
+  header h1 {
+    font-size: 1.8rem;
+    color: #2b6cb0;
+    margin-bottom: 6px;
+  }
+
+  header p {
+    color: #718096;
+    font-size: 0.95rem;
+  }
+
+  .progress-bar-wrap {
+    background: #e2e8f0;
+    border-radius: 8px;
+    height: 8px;
+    margin: 20px 0;
+  }
+
+  .progress-bar {
+    height: 8px;
+    border-radius: 8px;
+    background: linear-gradient(90deg, #3182ce, #63b3ed);
+    transition: width 0.4s ease;
+  }
+
+  .progress-label {
+    text-align: right;
+    font-size: 0.82rem;
+    color: #718096;
+    margin-top: 4px;
+  }
+
+  .card {
+    background: white;
+    border-radius: 16px;
+    padding: 30px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 20px;
+  }
+
+  .category-badge {
+    display: inline-block;
+    font-size: 0.75rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 3px 10px;
+    border-radius: 20px;
+    margin-bottom: 14px;
+  }
+
+  .badge-artigos  { background: #ebf8ff; color: #2b6cb0; }
+  .badge-verbos   { background: #f0fff4; color: #276749; }
+  .badge-presente { background: #faf5ff; color: #6b46c1; }
+
+  .question {
+    font-size: 1.15rem;
+    font-weight: 600;
+    line-height: 1.5;
+    margin-bottom: 8px;
+  }
+
+  .hint {
+    font-size: 0.85rem;
+    color: #a0aec0;
+    margin-bottom: 20px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .option-btn {
+    background: #f7fafc;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 13px 18px;
+    font-size: 1rem;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.15s ease;
+    color: #2d3748;
+  }
+
+  .option-btn:hover:not(:disabled) {
+    background: #ebf8ff;
+    border-color: #90cdf4;
+  }
+
+  .option-btn.correct {
+    background: #f0fff4;
+    border-color: #68d391;
+    color: #276749;
+    font-weight: 600;
+  }
+
+  .option-btn.wrong {
+    background: #fff5f5;
+    border-color: #fc8181;
+    color: #c53030;
+  }
+
+  .option-btn:disabled { cursor: default; }
+
+  .feedback {
+    margin-top: 16px;
+    padding: 12px 16px;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    line-height: 1.5;
+    display: none;
+  }
+
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn {
+    display: none;
+    margin-top: 18px;
+    width: 100%;
+    padding: 14px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .next-btn:hover { background: #2b6cb0; }
+  .next-btn.show { display: block; }
+
+  /* Results */
+  .results {
+    display: none;
+    text-align: center;
+    padding: 40px 30px;
+  }
+
+  .results.show { display: block; }
+
+  .score-circle {
+    width: 120px;
+    height: 120px;
+    border-radius: 50%;
+    background: linear-gradient(135deg, #3182ce, #63b3ed);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 20px;
+    color: white;
+  }
+
+  .score-circle .num {
+    font-size: 2.2rem;
+    font-weight: 700;
+    line-height: 1;
+  }
+
+  .score-circle .denom {
+    font-size: 0.85rem;
+    opacity: 0.85;
+  }
+
+  .results h2 {
+    font-size: 1.5rem;
+    margin-bottom: 8px;
+    color: #2d3748;
+  }
+
+  .results p {
+    color: #718096;
+    margin-bottom: 24px;
+  }
+
+  .restart-btn {
+    padding: 14px 40px;
+    background: #3182ce;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .restart-btn:hover { background: #2b6cb0; }
+
+  .mistakes-list {
+    text-align: left;
+    margin-top: 28px;
+  }
+
+  .mistakes-list h3 {
+    font-size: 1rem;
+    color: #c53030;
+    margin-bottom: 12px;
+  }
+
+  .mistake-item {
+    background: #fff5f5;
+    border-radius: 8px;
+    padding: 10px 14px;
+    margin-bottom: 8px;
+    font-size: 0.88rem;
+    line-height: 1.5;
+  }
+
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+
+  @media (max-width: 480px) {
+    .card { padding: 20px; }
+    header h1 { font-size: 1.4rem; }
+    .question { font-size: 1rem; }
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <h1>Português Quiz</h1>
+    <p>Artigos &amp; Verbos -- Presente e PPS</p>
+  </header>
+
+  <div class="progress-bar-wrap">
+    <div class="progress-bar" id="progressBar" style="width:0%"></div>
+  </div>
+  <div class="progress-label" id="progressLabel">Questão 1 de 25</div>
+
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="hint" id="hint"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="score-circle">
+      <span class="num" id="scoreNum"></span>
+      <span class="denom" id="scoreDenom"></span>
+    </div>
+    <h2 id="resultsTitle"></h2>
+    <p id="resultsMsg"></p>
+    <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+
+</div>
+
+<script>
+const questions = [
+  // --- ARTIGOS ---
+  {
+    category: "artigos",
+    q: "Qual é o artigo correto? ___ livro está na mesa.",
+    hint: "livro -- masculino, singular",
+    options: ["a", "o", "um", "os"],
+    answer: 1,
+    explanation: "\"Livro\" é masculino singular → artigo definido \"o\"."
+  },
+  {
+    category: "artigos",
+    q: "Qual é o artigo correto? Eu tenho ___ gata muito bonita.",
+    hint: "primeira menção, feminino",
+    options: ["a", "uma", "umas", "as"],
+    answer: 1,
+    explanation: "Primeira menção → artigo indefinido. Feminino singular → \"uma\"."
+  },
+  {
+    category: "artigos",
+    q: "Completa: Eu gosto ___ livros de aventura.",
+    hint: "de + os = ?",
+    options: ["de os", "dos", "das", "do"],
+    answer: 1,
+    explanation: "de + os = \"dos\". Contração obrigatória em português."
+  },
+  {
+    category: "artigos",
+    q: "Completa: Ela está ___ escola.",
+    hint: "em + a = ?",
+    options: ["em a", "na", "no", "à"],
+    answer: 1,
+    explanation: "em + a = \"na\". Contração obrigatória."
+  },
+  {
+    category: "artigos",
+    q: "Qual está correto?",
+    hint: "nome próprio em português europeu",
+    options: ["Maria está em casa", "A Maria está em casa", "Uma Maria está em casa", "O Maria está em casa"],
+    answer: 1,
+    explanation: "Em PE (português europeu) usa-se artigo definido com nomes próprios: \"A Maria\"."
+  },
+  {
+    category: "artigos",
+    q: "Qual está correto? Vou ___ supermercado.",
+    hint: "a + o = ?",
+    options: ["a o", "ao", "à", "na"],
+    answer: 1,
+    explanation: "a + o = \"ao\". Contração obrigatória."
+  },
+  {
+    category: "artigos",
+    q: "Qual país NÃO usa artigo em português?",
+    hint: "países sem artigo: Portugal, Espanha, França",
+    options: ["o Brasil", "a Rússia", "Portugal", "a Alemanha"],
+    answer: 2,
+    explanation: "Portugal, Espanha e França não usam artigo. Os outros países geralmente usam."
+  },
+  {
+    category: "artigos",
+    q: "Completa: Ela veio ___ Portugal.",
+    hint: "de + Portugal (sem artigo)",
+    options: ["do", "de", "da", "no"],
+    answer: 1,
+    explanation: "Portugal não usa artigo → só \"de\" (sem contração): \"de Portugal\"."
+  },
+  {
+    category: "artigos",
+    q: "Qual é o artigo correto? ___ primavera é linda.",
+    hint: "estações do ano em português",
+    options: ["Um", "Uma", "A", "O"],
+    answer: 2,
+    explanation: "Estações do ano usam artigo definido em português. \"Primavera\" é feminino → \"A primavera\"."
+  },
+  {
+    category: "artigos",
+    q: "Completa: Eu gosto ___ trabalho dele.",
+    hint: "de + o = ?",
+    options: ["de o", "do", "da", "no"],
+    answer: 1,
+    explanation: "de + o = \"do\". Contração obrigatória."
+  },
+  {
+    category: "artigos",
+    q: "Completa: Vou ___ França de comboio.",
+    hint: "a + França (sem artigo) = ?",
+    options: ["à", "ao", "a", "na"],
+    answer: 2,
+    explanation: "França não usa artigo → só \"a\" (sem contração): \"Vou a França\"."
+  },
+  {
+    category: "artigos",
+    q: "Qual está correto? As crianças brincam ___ parque.",
+    hint: "em + o = ?",
+    options: ["em o", "no", "na", "ao"],
+    answer: 1,
+    explanation: "em + o = \"no\". Contração obrigatória."
+  },
+
+  // --- VERBOS IRREGULARES (PPS) ---
+  {
+    category: "verbos",
+    q: "Ontem eu ___ ao cinema. (IR)",
+    hint: "IR -- forma para \"eu\" no PPS",
+    options: ["ia", "fui", "vou", "foi"],
+    answer: 1,
+    explanation: "IR (e SER) têm as mesmas formas no PPS. \"eu\" → \"fui\"."
+  },
+  {
+    category: "verbos",
+    q: "Ontem ele ___ muito cansado. (ESTAR)",
+    hint: "ESTAR -- forma para \"ele\" no PPS",
+    options: ["estava", "esteve", "estiveu", "estou"],
+    answer: 1,
+    explanation: "ESTAR no PPS: eu estive / tu estiveste / ele esteve / nós estivemos / eles estiveram."
+  },
+  {
+    category: "verbos",
+    q: "Na semana passada nós ___ uma reunião. (TER)",
+    hint: "TER -- forma para \"nós\" no PPS",
+    options: ["temos", "tivemos", "tiveram", "teve"],
+    answer: 1,
+    explanation: "TER no PPS: eu tive / tu tiveste / ele teve / nós tivemos / eles tiveram."
+  },
+  {
+    category: "verbos",
+    q: "Ontem eles ___ flores para a mãe. (TRAZER)",
+    hint: "TRAZER -- forma para \"eles\" no PPS",
+    options: ["trouxeram", "trazeram", "trouxeram", "trouxiram"],
+    answer: 0,
+    explanation: "TRAZER no PPS: eu trouxe / tu trouxeste / ele trouxe / nós trouxemos / eles trouxeram."
+  },
+  {
+    category: "verbos",
+    q: "O que é que ela ___? (DIZER) -- ela disse",
+    hint: "DIZER -- forma para \"ela\" no PPS",
+    options: ["dizeu", "dizia", "disse", "diss"],
+    answer: 2,
+    explanation: "DIZER no PPS: eu disse / tu disseste / ele disse / nós dissemos / eles disseram."
+  },
+  {
+    category: "verbos",
+    q: "Tu ___ vir ontem? (PODER)",
+    hint: "PODER -- forma para \"tu\" no PPS",
+    options: ["podeste", "pudeste", "podes", "pudes"],
+    answer: 1,
+    explanation: "PODER no PPS: eu pude / tu pudeste / ele pôde / nós pudemos / eles puderam."
+  },
+  {
+    category: "verbos",
+    q: "Ontem eu ___ um presente ao João. (DAR)",
+    hint: "DAR -- forma para \"eu\" no PPS",
+    options: ["dava", "dei", "deu", "deste"],
+    answer: 1,
+    explanation: "DAR no PPS: eu dei / tu deste / ele deu / nós demos / eles deram."
+  },
+  {
+    category: "verbos",
+    q: "Ele ___ de Lisboa ontem. (VIR)",
+    hint: "VIR -- forma para \"ele\" no PPS",
+    options: ["vinha", "veio", "vim", "vieste"],
+    answer: 1,
+    explanation: "VIR no PPS: eu vim / tu vieste / ele veio / nós viemos / eles vieram."
+  },
+  {
+    category: "verbos",
+    q: "Ontem nós ___ em casa o dia todo. (ESTAR)",
+    hint: "ESTAR -- forma para \"nós\" no PPS",
+    options: ["estivemos", "estamos", "estávamos", "estiveram"],
+    answer: 0,
+    explanation: "ESTAR no PPS: nós estivemos."
+  },
+  {
+    category: "verbos",
+    q: "Eles ___ professores. (SER) -- quando eram crianças, não.",
+    hint: "SER e IR têm as mesmas formas no PPS",
+    options: ["eram", "foram", "são", "foram"],
+    answer: 1,
+    explanation: "SER e IR têm formas idênticas no PPS: eu fui / tu foste / ele foi / nós fomos / eles foram."
+  },
+  {
+    category: "verbos",
+    q: "Tu ___ a verdade? (DIZER)",
+    hint: "DIZER -- forma para \"tu\" no PPS",
+    options: ["dizeste", "disseste", "disse", "dizia"],
+    answer: 1,
+    explanation: "DIZER no PPS: tu disseste."
+  },
+  {
+    category: "verbos",
+    q: "Ela ___ flores do jardim. (TRAZER)",
+    hint: "TRAZER -- forma para \"ela\" no PPS",
+    options: ["trazeu", "trouxe", "trouxeu", "trazia"],
+    answer: 1,
+    explanation: "TRAZER no PPS: eu trouxe / tu trouxeste / ele/ela trouxe."
+  },
+  {
+    category: "verbos",
+    q: "Vocês ___ o dinheiro? (TER)",
+    hint: "TER -- forma para \"vocês\" (= eles) no PPS",
+    options: ["tivemos", "tiveram", "tiveste", "tinham"],
+    answer: 1,
+    explanation: "TER no PPS: vocês / eles tiveram."
+  },
+
+  // --- PRESENTE: REGULARES ---
+  {
+    category: "presente",
+    q: "Eu ___ português todos os dias. (FALAR)",
+    hint: "verbo -AR, forma para \"eu\" no presente",
+    options: ["falas", "falo", "fala", "falam"],
+    answer: 1,
+    explanation: "Verbos -AR no presente: eu falo / tu falas / ele fala / nós falamos / eles falam."
+  },
+  {
+    category: "presente",
+    q: "Eles ___ carne. (COMER)",
+    hint: "verbo -ER, forma para \"eles\" no presente",
+    options: ["come", "comem", "comemos", "comes"],
+    answer: 1,
+    explanation: "Verbos -ER no presente: eu como / tu comes / ele come / nós comemos / eles comem."
+  },
+  {
+    category: "presente",
+    q: "Nós ___ amanhã cedo. (PARTIR)",
+    hint: "verbo -IR, forma para \"nós\" no presente",
+    options: ["partem", "partimos", "parte", "partis"],
+    answer: 1,
+    explanation: "Verbos -IR no presente: eu parto / tu partes / ele parte / nós partimos / eles partem."
+  },
+  {
+    category: "presente",
+    q: "Tu ___ muito bem inglês. (FALAR)",
+    hint: "verbo -AR, forma para \"tu\" no presente",
+    options: ["falo", "fala", "falas", "falam"],
+    answer: 2,
+    explanation: "Verbos -AR no presente: tu falas."
+  },
+  {
+    category: "presente",
+    q: "Ela ___ às 7h todos os dias. (PARTIR)",
+    hint: "verbo -IR, forma para \"ela\" no presente",
+    options: ["partimos", "partem", "parto", "parte"],
+    answer: 3,
+    explanation: "Verbos -IR no presente: ele / ela parte."
+  },
+
+  // --- PRESENTE: IRREGULARES ---
+  {
+    category: "presente",
+    q: "Eu ___ de Lisboa. (SER)",
+    hint: "SER -- forma para \"eu\" no presente",
+    options: ["és", "é", "sou", "somos"],
+    answer: 2,
+    explanation: "SER no presente: eu sou / tu és / ele é / nós somos / eles são."
+  },
+  {
+    category: "presente",
+    q: "Eles ___ professores. (SER)",
+    hint: "SER -- forma para \"eles\" no presente",
+    options: ["somos", "são", "é", "ser"],
+    answer: 1,
+    explanation: "SER no presente: eles são."
+  },
+  {
+    category: "presente",
+    q: "Tu ___ em casa agora? (ESTAR)",
+    hint: "ESTAR -- forma para \"tu\" no presente",
+    options: ["estou", "está", "estás", "estamos"],
+    answer: 2,
+    explanation: "ESTAR no presente: eu estou / tu estás / ele está / nós estamos / eles estão."
+  },
+  {
+    category: "presente",
+    q: "Nós ___ ao supermercado. (IR)",
+    hint: "IR -- forma para \"nós\" no presente",
+    options: ["imos", "vamos", "vão", "vai"],
+    answer: 1,
+    explanation: "IR no presente: eu vou / tu vais / ele vai / nós vamos / eles vão."
+  },
+  {
+    category: "presente",
+    q: "Ele ___ de carro para o trabalho. (VIR)",
+    hint: "VIR -- forma para \"ele\" no presente",
+    options: ["vim", "vem", "vens", "viemos"],
+    answer: 1,
+    explanation: "VIR no presente: eu venho / tu vens / ele vem / nós vimos / eles vêm."
+  },
+  {
+    category: "presente",
+    q: "Eu ___ um irmão mais velho. (TER)",
+    hint: "TER -- forma para \"eu\" no presente",
+    options: ["tem", "tens", "tenho", "temos"],
+    answer: 2,
+    explanation: "TER no presente: eu tenho / tu tens / ele tem / nós temos / eles têm."
+  },
+  {
+    category: "presente",
+    q: "Eles ___ flores frescas. (TRAZER)",
+    hint: "TRAZER -- forma para \"eles\" no presente",
+    options: ["traz", "trazem", "trago", "trazes"],
+    answer: 1,
+    explanation: "TRAZER no presente: eu trago / tu trazes / ele traz / nós trazemos / eles trazem."
+  },
+  {
+    category: "presente",
+    q: "Tu ___ ir ao cinema hoje? (PODER)",
+    hint: "PODER -- forma para \"tu\" no presente",
+    options: ["posso", "podem", "podes", "pode"],
+    answer: 2,
+    explanation: "PODER no presente: eu posso / tu podes / ele pode / nós podemos / eles podem."
+  },
+  {
+    category: "presente",
+    q: "Eu ___ um presente ao meu pai. (DAR)",
+    hint: "DAR -- forma para \"eu\" no presente",
+    options: ["dá", "dás", "dou", "damos"],
+    answer: 2,
+    explanation: "DAR no presente: eu dou / tu dás / ele dá / nós damos / eles dão."
+  },
+  {
+    category: "presente",
+    q: "Eu ___ falar com ele. (CONSEGUIR)",
+    hint: "CONSEGUIR -- forma para \"eu\" no presente",
+    options: ["consegues", "consigo", "consegue", "conseguimos"],
+    answer: 1,
+    explanation: "CONSEGUIR no presente: eu consigo / tu consegues / ele consegue / nós conseguimos / eles conseguem."
+  }
+];
+
+let current = 0;
+let score = 0;
+let answered = false;
+let mistakes = [];
+let shuffled = [];
+
+function shuffle(arr) {
+  return [...arr].sort(() => Math.random() - 0.5);
+}
+
+function start() {
+  shuffled = shuffle(questions);
+  current = 0;
+  score = 0;
+  answered = false;
+  mistakes = [];
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quizCard').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = shuffled[current];
+  const total = shuffled.length;
+
+  document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+  document.getElementById('progressLabel').textContent = `Questão ${current + 1} de ${total}`;
+
+  const badge = document.getElementById('badge');
+  const labelMap = { artigos: 'Artigos', verbos: 'Verbos -- PPS', presente: 'Presente' };
+  badge.textContent = labelMap[q.category] || q.category;
+  const badgeMap = { artigos: 'badge-artigos', verbos: 'badge-verbos', presente: 'badge-presente' };
+  badge.className = 'category-badge ' + (badgeMap[q.category] || 'badge-artigos');
+
+  document.getElementById('question').textContent = q.q;
+  document.getElementById('hint').textContent = q.hint ? '💡 ' + q.hint : '';
+
+  const optDiv = document.getElementById('options');
+  optDiv.innerHTML = '';
+
+  // shuffle options keeping track of correct answer
+  const indices = q.options.map((_, i) => i);
+  const shuffledIdx = shuffle(indices);
+  const newCorrect = shuffledIdx.indexOf(q.answer);
+
+  shuffledIdx.forEach((origIdx, newIdx) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = q.options[origIdx];
+    btn.onclick = () => selectAnswer(newIdx, newCorrect, q);
+    optDiv.appendChild(btn);
+  });
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback';
+  fb.textContent = '';
+
+  const nb = document.getElementById('nextBtn');
+  nb.className = 'next-btn';
+
+  answered = false;
+}
+
+function selectAnswer(chosen, correct, q) {
+  if (answered) return;
+  answered = true;
+
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[correct].classList.add('correct');
+
+  const fb = document.getElementById('feedback');
+
+  if (chosen === correct) {
+    score++;
+    btns[chosen].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = '✓ Correto! ' + q.explanation;
+  } else {
+    btns[chosen].classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = '✗ Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: q.options[chosen] || btns[chosen].textContent, right: q.options[q.answer] });
+  }
+
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current >= shuffled.length) {
+    showResults();
+  } else {
+    renderQuestion();
+  }
+}
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('progressBar').style.width = '100%';
+
+  const total = shuffled.length;
+  const pct = Math.round(score / total * 100);
+
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = 'de ' + total;
+
+  let title, msg;
+  if (pct >= 90) { title = 'Excelente! 🎉'; msg = 'Muito bem! Conheces muito bem os artigos e verbos.'; }
+  else if (pct >= 70) { title = 'Muito bem!'; msg = 'Bom resultado! Revê os erros abaixo para melhorar.'; }
+  else if (pct >= 50) { title = 'Continua a estudar!'; msg = 'Já sabes bastante, mas há espaço para melhorar.'; }
+  else { title = 'Não desistas!'; msg = 'Revê as regras e tenta outra vez!'; }
+
+  document.getElementById('resultsTitle').textContent = title;
+  document.getElementById('resultsMsg').textContent = `${pct}% correto. ${msg}`;
+
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+      `<div class="mistake-item">
+        <div>${m.q}</div>
+        <div>A tua resposta: <strong>${m.wrong}</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">${m.right}</span></div>
+      </div>`
+    ).join('');
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+
+  document.getElementById('results').classList.add('show');
+}
+
+function restart() {
+  start();
+}
+
+start();
+</script>
+</body>
+</html>
