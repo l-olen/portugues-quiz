@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- SER vs ESTAR</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-ser   { background: #fffbeb; color: #92400e; }
+  .badge-estar { background: #ecfdf5; color: #065f46; }
+  .badge-both  { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>SER vs ESTAR</h1>
+    <p>Quando usar cada verbo?</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // SER -- факты, постоянные характеристики
+  { cat:"ser",   q:"Ela ___ médica.", options:["é","está","são","estão"], answer:0, explanation:"Профессия -- постоянный факт → SER. \"Ela é médica.\"" },
+  { cat:"ser",   q:"Eu ___ de Portugal.", options:["estou","sou","és","está"], answer:1, explanation:"Происхождение → SER. \"Eu sou de Portugal.\"" },
+  { cat:"ser",   q:"A mesa ___ de madeira.", options:["está","é","estão","são"], answer:1, explanation:"Материал → SER. \"A mesa é de madeira.\"" },
+  { cat:"ser",   q:"Hoje ___ segunda-feira.", options:["está","é","estão","são"], answer:1, explanation:"День недели / дата → SER. \"Hoje é segunda-feira.\"" },
+  { cat:"ser",   q:"O Ricardo ___ muito inteligente.", options:["está","é","estás","sou"], answer:1, explanation:"Постоянная характеристика личности → SER." },
+  { cat:"ser",   q:"A reunião ___ às 10h.", options:["está","é","estão","são"], answer:1, explanation:"Время события → SER. \"A reunião é às 10h.\"" },
+  { cat:"ser",   q:"Nós ___ portugueses.", options:["estamos","somos","são","estão"], answer:1, explanation:"Национальность → SER. \"Nós somos portugueses.\"" },
+  // ESTAR -- временные состояния, местоположение
+  { cat:"estar", q:"Ela ___ em Lisboa esta semana.", options:["é","está","são","ser"], answer:1, explanation:"Временное местоположение → ESTAR. \"Ela está em Lisboa.\"" },
+  { cat:"estar", q:"Hoje ___ muito calor.", options:["é","ser","está","são"], answer:2, explanation:"Погода → ESTAR. \"Hoje está muito calor.\"" },
+  { cat:"estar", q:"Eu ___ cansada hoje.", options:["sou","és","estou","é"], answer:2, explanation:"Временное состояние → ESTAR. \"Eu estou cansada.\"" },
+  { cat:"estar", q:"O café ___ fechado aos domingos.", options:["é","está","ser","estar"], answer:1, explanation:"Временное состояние (закрыт) → ESTAR. \"O café está fechado.\"" },
+  { cat:"estar", q:"Tu ___ bem?", options:["és","sou","estás","é"], answer:2, explanation:"Самочувствие / временное состояние → ESTAR. \"Tu estás bem?\"" },
+  { cat:"estar", q:"Os livros ___ na mesa.", options:["são","é","estão","estar"], answer:2, explanation:"Местоположение предметов → ESTAR. \"Os livros estão na mesa.\"" },
+  // SER vs ESTAR -- ловушки с прилагательными
+  { cat:"both",  q:"Ela ___ bonita hoje. (временно, для события)", options:["é","sou","está","são"], answer:2, explanation:"Временное -- для конкретного случая → ESTAR. \"Ela está bonita hoje.\" (постоянно было бы: \"Ela é bonita.\")" },
+  { cat:"both",  q:"Qual é a diferença? \"Ele é nervoso\" vs \"Ele está nervoso\"", options:["Nenhuma diferença","É nervoso = carácter; Está nervoso = agora","Está nervoso = carácter; É nervoso = agora","As duas formas são erradas"], answer:1, explanation:"\"É nervoso\" -- характер, всегда так. \"Está nervoso\" -- сейчас, временно." },
+  { cat:"both",  q:"O leite ___ quente. (сейчас, только что подогрели)", options:["é","sou","está","são"], answer:2, explanation:"Временное состояние (сейчас горячее) → ESTAR. \"O leite está quente.\"" },
+  { cat:"both",  q:"O fogo ___ quente. (это свойство огня)", options:["está","ser","é","estou"], answer:2, explanation:"Постоянное свойство → SER. \"O fogo é quente.\"" },
+  { cat:"both",  q:"A sopa ___ salgada. (пересолили -- в этот раз)", options:["é","sou","está","são"], answer:2, explanation:"Временное состояние конкретного блюда → ESTAR." },
+  { cat:"both",  q:"Qual frase está correta?", options:["Eu estou português.","Eu sou português.","Eu sou em Lisboa.","Eu estou médico."], answer:1, explanation:"Національность → SER. Місцезнаходження → ESTAR. \"Eu sou português.\" -- правильно." },
+  { cat:"both",  q:"O João ___ muito bem hoje. (самочувствие)", options:["é","sou","está","ser"], answer:2, explanation:"Самочувствие → ESTAR. \"O João está muito bem hoje.\"" },
+  { cat:"both",  q:"A casa ___ grande.", options:["está","estou","é","estão"], answer:2, explanation:"Постоянная характеристика (размер) → SER. \"A casa é grande.\"" },
+];
+const labelMap = { ser:"SER", estar:"ESTAR", both:"SER ou ESTAR?" };
+const classMap = { ser:"badge-ser", estar:"badge-estar", both:"badge-both" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat];badge.className='category-badge '+classMap[q.cat];
+  document.getElementById('question').textContent=q.q;
+  const optDiv=document.getElementById('options');optDiv.innerHTML='';
+  const si=shuffle(q.options.map((_,i)=>i));const nc=si.indexOf(q.answer);
+  si.forEach((oi,ni)=>{const btn=document.createElement('button');btn.className='option-btn';btn.textContent=q.options[oi];btn.onclick=()=>selectAnswer(ni,nc,q);optDiv.appendChild(btn);});
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').className='next-btn';
+  answered=false;
+}
+function selectAnswer(chosen,correct,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');btns.forEach(b=>b.disabled=true);
+  btns[correct].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  if(chosen===correct){score++;btns[chosen].classList.add('correct');fb.className='feedback ok show';fb.textContent='✓ Correto! '+q.explanation;}
+  else{btns[chosen].classList.add('wrong');fb.className='feedback err show';fb.textContent='✗ Incorreto. '+q.explanation;mistakes.push({q:q.q,wrong:btns[chosen].textContent,right:q.options[q.answer]});}
+  document.getElementById('nextBtn').className='next-btn show';
+}
+function nextQuestion(){current++;if(current>=shuffled.length)showResults();else renderQuestion();}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  document.getElementById('progressBar').style.width='100%';
+  const total=shuffled.length,pct=Math.round(score/total*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='de '+total;
+  const msgs=[['Não desistas!','Revê as regras de SER e ESTAR e tenta outra vez!'],['Continua!','Já percebes a lógica, mas revê os casos difíceis.'],['Muito bem!','Bom resultado! Revê os erros abaixo.'],['Excelente!','Dominas SER e ESTAR muito bem!']];
+  const m=msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultsTitle').textContent=m[0];
+  document.getElementById('resultsMsg').textContent=`${pct}% correto. ${m[1]}`;
+  const ml=document.getElementById('mistakesList');
+  ml.innerHTML=mistakes.length>0?'<h3>Erros para rever:</h3>'+mistakes.map(m=>`<div class="mistake-item"><div>${m.q}</div><div>A tua resposta: <strong>${m.wrong}</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">${m.right}</span></div></div>`).join(''):'<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>

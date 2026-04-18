@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Preposições</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #9b2c2c; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #9b2c2c; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #e53e3e, #fc8181); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-lugar    { background: #fff5f5; color: #9b2c2c; }
+  .badge-verbo    { background: #ebf8ff; color: #2b6cb0; }
+  .badge-transporte { background: #f0fff4; color: #276749; }
+  .badge-outro    { background: #faf5ff; color: #6b46c1; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fff5f5; border-color: #feb2b2; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #e53e3e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #9b2c2c; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #e53e3e, #fc8181); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #e53e3e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Preposições</h1>
+    <p>em · de · a · para · com · por · sem</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // Местоположение: em vs para vs a
+  { cat:"lugar", q:"Eu moro ___ Lisboa.", options:["para","em","a","de"], answer:1, explanation:"EM = где находится (местоположение, место жительства). \"Eu moro em Lisboa.\"" },
+  { cat:"lugar", q:"Vou ___ casa agora. (направление, домой)", options:["em","de","para","com"], answer:2, explanation:"PARA = направление / цель движения. \"Vou para casa\" = иду домой (и останусь там)." },
+  { cat:"lugar", q:"Ela trabalha ___ centro da cidade.", options:["para","de","no","a"], answer:2, explanation:"No = em + o. \"Ela trabalha no centro da cidade.\"" },
+  { cat:"lugar", q:"Eu venho ___ escola. (откуда)", options:["em","para","de","com"], answer:2, explanation:"DE = откуда / происхождение. \"Venho da escola\" = иду из школы." },
+  { cat:"lugar", q:"Qual é a diferença: \"Vou a Lisboa\" vs \"Vou para Lisboa\"?", options:["Нет разницы","Vou a = ненадолго; Vou para = насовсем / надолго","Vou para = ненадолго; Vou a = насовсем","Обе формы неправильные"], answer:1, explanation:"\"Vou a Lisboa\" = еду в Лиссабон (ненадолго, вернусь). \"Vou para Lisboa\" = переезжаю / еду надолго." },
+  { cat:"lugar", q:"Os livros estão ___ mesa.", options:["em a","na","para a","da"], answer:1, explanation:"Na = em + a. \"Os livros estão na mesa.\"" },
+  // Средство передвижения
+  { cat:"transporte", q:"Ela vai para o trabalho ___ metro.", options:["em","com","de","para"], answer:2, explanation:"DE + транспорт = на чём едет. \"De metro, de carro, de autocarro, de avião.\"" },
+  { cat:"transporte", q:"Nós viemos ___ pé.", options:["com","de","em","para"], answer:1, explanation:"A pé = пешком. Это устойчивое выражение: \"a pé\" (не \"de pé\" -- это значит \"стоя\")." },
+  { cat:"transporte", q:"Ele foi ___ avião para o Brasil.", options:["em","a","de","para"], answer:2, explanation:"De avião = на самолёте. Транспорт всегда с DE." },
+  // Verbo + preposição
+  { cat:"verbo", q:"Eu gosto ___ música portuguesa.", options:["com","a","de","em"], answer:2, explanation:"Gostar DE = любить что-то. \"Eu gosto de música.\"" },
+  { cat:"verbo", q:"Ela precisa ___ ajuda.", options:["a","com","em","de"], answer:3, explanation:"Precisar DE = нуждаться в. \"Ela precisa de ajuda.\"" },
+  { cat:"verbo", q:"Eu falo ___ ela todos os dias.", options:["de","a","com","para"], answer:2, explanation:"Falar COM = разговаривать с кем-то. \"Falo com ela.\"" },
+  { cat:"verbo", q:"Nós pensamos ___ viajar este verão.", options:["de","com","a","em"], answer:3, explanation:"Pensar EM = думать о. \"Pensamos em viajar.\"" },
+  { cat:"verbo", q:"Ele depende ___ família.", options:["com","em","a","da"], answer:3, explanation:"Depender DE = зависеть от. \"Ele depende da família\" = da = de + a." },
+  { cat:"verbo", q:"Eu concordo ___ você.", options:["de","em","com","a"], answer:2, explanation:"Concordar COM = соглашаться с. \"Concordo com você.\"" },
+  { cat:"verbo", q:"Ela casou ___ o João.", options:["de","a","com","em"], answer:2, explanation:"Casar COM = жениться / выйти замуж за. \"Ela casou com o João.\"" },
+  // Outros
+  { cat:"outro", q:"Ele saiu ___ ficar em casa.", options:["sem","com","de","por"], answer:0, explanation:"SEM = без. \"Saiu sem ficar em casa\" (не остался дома)." },
+  { cat:"outro", q:"Fiz isto ___ ti. (ради тебя)", options:["com","sem","por","de"], answer:2, explanation:"POR = ради / из-за / через. \"Fiz por ti\" = сделал ради тебя." },
+  { cat:"outro", q:"Ela comprou o livro ___ 10 euros.", options:["com","a","por","de"], answer:2, explanation:"POR = за (цена). \"Comprou por 10 euros\" = купила за 10 евро." },
+  { cat:"outro", q:"Eu saio ___ casa às 8h.", options:["em","de","para","com"], answer:1, explanation:"Sair DE = выходить из. \"Saio de casa\" = выхожу из дома." },
+  { cat:"outro", q:"Completa: Vou buscar o meu filho ___ escola.", options:["da","na","para a","em a"], answer:0, explanation:"\"Vou buscar à escola\" (a + a = à) ou \"vou buscar da escola\" (de + a = da). Mais comum: \"à escola\"." },
+];
+const labelMap = { lugar:"Lugar e movimento", transporte:"Transporte", verbo:"Verbo + preposição", outro:"Outros usos" };
+const classMap = { lugar:"badge-lugar", transporte:"badge-transporte", verbo:"badge-verbo", outro:"badge-outro" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat];badge.className='category-badge '+classMap[q.cat];
+  document.getElementById('question').textContent=q.q;
+  const optDiv=document.getElementById('options');optDiv.innerHTML='';
+  const si=shuffle(q.options.map((_,i)=>i));const nc=si.indexOf(q.answer);
+  si.forEach((oi,ni)=>{const btn=document.createElement('button');btn.className='option-btn';btn.textContent=q.options[oi];btn.onclick=()=>selectAnswer(ni,nc,q);optDiv.appendChild(btn);});
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').className='next-btn';
+  answered=false;
+}
+function selectAnswer(chosen,correct,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');btns.forEach(b=>b.disabled=true);
+  btns[correct].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  if(chosen===correct){score++;btns[chosen].classList.add('correct');fb.className='feedback ok show';fb.textContent='✓ Correto! '+q.explanation;}
+  else{btns[chosen].classList.add('wrong');fb.className='feedback err show';fb.textContent='✗ Incorreto. '+q.explanation;mistakes.push({q:q.q,wrong:btns[chosen].textContent,right:q.options[q.answer]});}
+  document.getElementById('nextBtn').className='next-btn show';
+}
+function nextQuestion(){current++;if(current>=shuffled.length)showResults();else renderQuestion();}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  document.getElementById('progressBar').style.width='100%';
+  const total=shuffled.length,pct=Math.round(score/total*100);
+  document.getElementById('scoreNum').textContent=score;document.getElementById('scoreDenom').textContent='de '+total;
+  const msgs=[['Não desistas!','As preposições são difíceis! Revê e tenta outra vez.'],['Continua!','Já percebes alguns casos, mas há espaço para melhorar.'],['Muito bem!','Bom resultado! Revê os erros abaixo.'],['Excelente!','Dominas muito bem as preposições!']];
+  const m=msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultsTitle').textContent=m[0];document.getElementById('resultsMsg').textContent=`${pct}% correto. ${m[1]}`;
+  const ml=document.getElementById('mistakesList');
+  ml.innerHTML=mistakes.length>0?'<h3>Erros para rever:</h3>'+mistakes.map(m=>`<div class="mistake-item"><div>${m.q}</div><div>A tua resposta: <strong>${m.wrong}</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">${m.right}</span></div></div>`).join(''):'<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
