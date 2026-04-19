@@ -1,0 +1,585 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Prática de Escrita</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 760px; margin: 0 auto; }
+
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #2c7a7b; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #2c7a7b; }
+
+  /* Prompt card */
+  .prompt-card {
+    background: white;
+    border-radius: 16px;
+    padding: 24px 28px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+    position: relative;
+  }
+  .prompt-label {
+    font-size: 0.72rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #81e6d9;
+    background: #e6fffa;
+    padding: 3px 10px;
+    border-radius: 20px;
+    display: inline-block;
+    margin-bottom: 14px;
+  }
+  .prompt-text {
+    font-size: 1.05rem;
+    font-weight: 600;
+    line-height: 1.6;
+    color: #2d3748;
+  }
+  .prompt-instruction {
+    margin-top: 10px;
+    font-size: 0.88rem;
+    color: #718096;
+    line-height: 1.5;
+  }
+  .new-topic-btn {
+    margin-top: 16px;
+    padding: 9px 20px;
+    background: #e6fffa;
+    color: #2c7a7b;
+    border: 2px solid #81e6d9;
+    border-radius: 10px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .new-topic-btn:hover { background: #b2f5ea; }
+
+  /* Layout: editor + sidebar */
+  .editor-layout { display: flex; gap: 16px; align-items: flex-start; }
+  .editor-main { flex: 1; min-width: 0; }
+  .sidebar { width: 220px; flex-shrink: 0; }
+
+  @media (max-width: 600px) {
+    .editor-layout { flex-direction: column; }
+    .sidebar { width: 100%; }
+  }
+
+  /* Textarea */
+  .editor-card {
+    background: white;
+    border-radius: 16px;
+    padding: 20px;
+    box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+    margin-bottom: 16px;
+  }
+  .editor-card label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: #a0aec0;
+    display: block;
+    margin-bottom: 10px;
+  }
+  textarea {
+    width: 100%;
+    min-height: 280px;
+    border: 2px solid #e2e8f0;
+    border-radius: 10px;
+    padding: 14px;
+    font-size: 0.97rem;
+    font-family: 'Segoe UI', Arial, sans-serif;
+    line-height: 1.6;
+    color: #2d3748;
+    resize: vertical;
+    outline: none;
+    transition: border-color 0.15s;
+  }
+  textarea:focus { border-color: #81e6d9; }
+
+  /* Word counter */
+  .word-counter {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-top: 10px;
+  }
+  .word-count-badge {
+    font-size: 0.9rem;
+    font-weight: 700;
+    padding: 4px 14px;
+    border-radius: 20px;
+    transition: all 0.2s;
+  }
+  .wc-low  { background: #fff5f5; color: #c53030; }
+  .wc-ok   { background: #f0fff4; color: #276749; }
+  .word-count-hint { font-size: 0.82rem; color: #718096; }
+
+  /* Copy button */
+  .copy-btn {
+    margin-top: 14px;
+    width: 100%;
+    padding: 13px;
+    background: #2c7a7b;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 1rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+  .copy-btn:hover { background: #285e61; }
+  .copy-confirm {
+    text-align: center;
+    font-size: 0.85rem;
+    color: #2c7a7b;
+    margin-top: 8px;
+    height: 18px;
+  }
+
+  /* Checklist */
+  .sidebar-card {
+    background: white;
+    border-radius: 14px;
+    padding: 16px 18px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    margin-bottom: 12px;
+  }
+  .sidebar-card h3 {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.07em;
+    color: #a0aec0;
+    margin-bottom: 12px;
+  }
+  .checklist { list-style: none; display: flex; flex-direction: column; gap: 8px; }
+  .checklist li {
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+    font-size: 0.87rem;
+    color: #4a5568;
+    line-height: 1.4;
+    cursor: pointer;
+    user-select: none;
+  }
+  .checklist li input[type=checkbox] { margin-top: 2px; accent-color: #2c7a7b; cursor: pointer; }
+  .checklist li.done { color: #a0aec0; text-decoration: line-through; }
+
+  /* Structure guide */
+  .struct-block { margin-bottom: 10px; }
+  .struct-part {
+    font-size: 0.78rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    padding: 2px 8px;
+    border-radius: 6px;
+    display: inline-block;
+    margin-bottom: 4px;
+  }
+  .sp-intro { background: #ebf8ff; color: #2b6cb0; }
+  .sp-dev   { background: #f0fff4; color: #276749; }
+  .sp-conc  { background: #faf5ff; color: #6b46c1; }
+  .struct-desc { font-size: 0.83rem; color: #718096; line-height: 1.4; }
+
+  /* Connectors */
+  .connectors-list { display: flex; flex-direction: column; gap: 5px; }
+  .connector-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    font-size: 0.83rem;
+    gap: 6px;
+  }
+  .conn-pt { font-weight: 600; color: #2d3748; }
+  .conn-ru { color: #a0aec0; font-size: 0.78rem; }
+
+  /* Example modal */
+  .example-btn {
+    width: 100%;
+    padding: 10px;
+    background: #faf5ff;
+    color: #6b46c1;
+    border: 2px solid #e9d8fd;
+    border-radius: 10px;
+    font-size: 0.88rem;
+    font-weight: 600;
+    cursor: pointer;
+    transition: all 0.15s;
+  }
+  .example-btn:hover { background: #e9d8fd; }
+
+  .modal-overlay {
+    display: none;
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.45);
+    z-index: 100;
+    align-items: center;
+    justify-content: center;
+    padding: 20px;
+  }
+  .modal-overlay.show { display: flex; }
+  .modal {
+    background: white;
+    border-radius: 16px;
+    padding: 28px;
+    max-width: 560px;
+    width: 100%;
+    max-height: 80vh;
+    overflow-y: auto;
+    box-shadow: 0 8px 40px rgba(0,0,0,0.2);
+  }
+  .modal h2 { font-size: 1.1rem; color: #6b46c1; margin-bottom: 6px; }
+  .modal .modal-prompt { font-size: 0.85rem; color: #718096; margin-bottom: 16px; font-style: italic; }
+  .modal-text {
+    font-size: 0.93rem;
+    line-height: 1.7;
+    color: #2d3748;
+    white-space: pre-wrap;
+  }
+  .modal-parts { display: flex; gap: 6px; flex-wrap: wrap; margin: 14px 0 10px; }
+  .close-modal {
+    margin-top: 20px;
+    width: 100%;
+    padding: 11px;
+    background: #6b46c1;
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-size: 0.95rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .close-modal:hover { background: #553c9a; }
+
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+
+  <header>
+    <h1>Prática de Escrita</h1>
+    <p>Escreve um texto e copia para o chat para corrigir</p>
+  </header>
+
+  <!-- Prompt -->
+  <div class="prompt-card" id="promptCard">
+    <span class="prompt-label">Tema</span>
+    <div class="prompt-text" id="promptText"></div>
+    <div class="prompt-instruction" id="promptInstruction"></div>
+    <button class="new-topic-btn" onclick="newTopic()">Novo tema</button>
+  </div>
+
+  <div class="editor-layout">
+
+    <div class="editor-main">
+
+      <!-- Editor -->
+      <div class="editor-card">
+        <label>O teu texto</label>
+        <textarea id="essayArea" placeholder="Escreve o teu texto aqui..." oninput="updateWordCount()"></textarea>
+
+        <div class="word-counter">
+          <span class="word-count-badge wc-low" id="wcBadge">0 palavras</span>
+          <span class="word-count-hint" id="wcHint">Mínimo 90 palavras</span>
+        </div>
+
+        <button class="copy-btn" onclick="copyText()">Copiar texto para o chat</button>
+        <div class="copy-confirm" id="copyConfirm"></div>
+      </div>
+
+    </div>
+
+    <div class="sidebar">
+
+      <!-- Structure -->
+      <div class="sidebar-card">
+        <h3>Estrutura</h3>
+        <div class="struct-block">
+          <span class="struct-part sp-intro">Introdução</span>
+          <div class="struct-desc">Apresenta o tema e a tua opinião geral</div>
+        </div>
+        <div class="struct-block">
+          <span class="struct-part sp-dev">Desenvolvimento</span>
+          <div class="struct-desc">2 razões com exemplos ou explicações</div>
+        </div>
+        <div class="struct-block">
+          <span class="struct-part sp-conc">Conclusão</span>
+          <div class="struct-desc">Resume e reforça a tua opinião</div>
+        </div>
+      </div>
+
+      <!-- Checklist -->
+      <div class="sidebar-card">
+        <h3>Checklist</h3>
+        <ul class="checklist" id="checklist">
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Mínimo 90 palavras</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Introdução com opinião</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Razão 1 explicada</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Razão 2 explicada</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Conclusão clara</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Palavras de ligação usadas</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Verbos conjugados corretamente</li>
+          <li onclick="toggleCheck(this)"><input type="checkbox"> Artigos corretos</li>
+        </ul>
+      </div>
+
+      <!-- Connectors -->
+      <div class="sidebar-card">
+        <h3>Palavras de ligação</h3>
+        <div class="connectors-list">
+          <div class="connector-item"><span class="conn-pt">Em primeiro lugar,</span><span class="conn-ru">во-первых</span></div>
+          <div class="connector-item"><span class="conn-pt">Além disso,</span><span class="conn-ru">кроме того</span></div>
+          <div class="connector-item"><span class="conn-pt">Por outro lado,</span><span class="conn-ru">с другой стороны</span></div>
+          <div class="connector-item"><span class="conn-pt">No entanto,</span><span class="conn-ru">однако</span></div>
+          <div class="connector-item"><span class="conn-pt">Por isso,</span><span class="conn-ru">поэтому</span></div>
+          <div class="connector-item"><span class="conn-pt">Assim,</span><span class="conn-ru">таким образом</span></div>
+          <div class="connector-item"><span class="conn-pt">Na verdade,</span><span class="conn-ru">на самом деле</span></div>
+          <div class="connector-item"><span class="conn-pt">Apesar de,</span><span class="conn-ru">несмотря на</span></div>
+          <div class="connector-item"><span class="conn-pt">Uma vez que,</span><span class="conn-ru">поскольку</span></div>
+          <div class="connector-item"><span class="conn-pt">Em conclusão,</span><span class="conn-ru">в заключение</span></div>
+        </div>
+      </div>
+
+      <!-- Example -->
+      <button class="example-btn" onclick="showExample()">Ver exemplo de resposta</button>
+
+    </div>
+  </div>
+
+</div>
+
+<!-- Modal -->
+<div class="modal-overlay" id="modalOverlay" onclick="closeModalOutside(event)">
+  <div class="modal">
+    <h2>Exemplo de resposta</h2>
+    <div class="modal-prompt" id="modalPromptText"></div>
+    <div class="modal-parts">
+      <span class="struct-part sp-intro">Introdução</span>
+      <span class="struct-part sp-dev">Desenvolvimento</span>
+      <span class="struct-part sp-conc">Conclusão</span>
+    </div>
+    <div class="modal-text" id="modalText"></div>
+    <button class="close-modal" onclick="closeModal()">Fechar</button>
+  </div>
+</div>
+
+<footer>Português Europeu (PE) · Nível A2–B1 · PLNM</footer>
+
+<script>
+const topics = [
+  {
+    prompt: "Achas que os jovens passam demasiado tempo no telemóvel? Escreve um texto de opinião.",
+    instruction: "Inclui uma introdução, duas razões para a tua opinião e uma conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "Achas que os jovens passam demasiado tempo no telemóvel?",
+      text: `Hoje em dia, muitos jovens passam horas e horas no telemóvel. Na minha opinião, isto é um problema sério que tem consequências para a saúde e para as relações pessoais.
+
+Em primeiro lugar, usar o telemóvel durante muito tempo é mau para a saúde. As pessoas dormem menos, têm dores de cabeça e não fazem exercício físico. Além disso, os jovens ficam dependentes das redes sociais e sentem-se mal quando não têm o telemóvel.
+
+Por outro lado, o telemóvel pode ser útil para estudar e para comunicar com a família. No entanto, é importante ter limites e saber quando desligar.
+
+Em conclusão, acho que os jovens devem usar o telemóvel com moderação. É importante encontrar um equilíbrio entre o mundo digital e o mundo real.`
+    }
+  },
+  {
+    prompt: "Na tua opinião, é importante aprender línguas estrangeiras? Porquê?",
+    instruction: "Escreve um texto de opinião com introdução, duas razões e conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "É importante aprender línguas estrangeiras?",
+      text: `Vivemos num mundo globalizado onde as pessoas comunicam com pessoas de outros países. Por isso, na minha opinião, aprender línguas estrangeiras é muito importante e útil.
+
+Em primeiro lugar, saber outras línguas ajuda a encontrar trabalho. Muitas empresas precisam de funcionários que falem inglês ou outra língua. Além disso, é mais fácil viajar e conhecer outras culturas quando percebemos o que as pessoas dizem.
+
+Uma vez que aprender uma língua nova também exercita o cérebro, ficamos mais inteligentes e melhoramos a memória.
+
+Em conclusão, as línguas estrangeiras abrem portas no trabalho e na vida pessoal. Por isso, devemos aprender pelo menos uma língua estrangeira.`
+    }
+  },
+  {
+    prompt: "Preferes viver numa cidade grande ou numa cidade pequena? Explica a tua opinião.",
+    instruction: "Escreve um texto de opinião com introdução, duas razões e conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "Preferes viver numa cidade grande ou numa cidade pequena?",
+      text: `É uma questão muito interessante porque as duas opções têm vantagens e desvantagens. Na minha opinião, prefiro viver numa cidade grande porque oferece mais oportunidades.
+
+Em primeiro lugar, nas cidades grandes há mais trabalho e mais possibilidades de fazer carreira. Além disso, há mais transportes, hospitais, escolas e serviços que facilitam a vida quotidiana.
+
+Por outro lado, as cidades pequenas são mais tranquilas e as pessoas conhecem-se melhor. No entanto, para mim, as vantagens da cidade grande são mais importantes.
+
+Em conclusão, prefiro a vida agitada da cidade grande, mas compreendo quem prefere a tranquilidade de uma cidade pequena.`
+    }
+  },
+  {
+    prompt: "Achas que é importante fazer desporto regularmente? Escreve um texto de opinião.",
+    instruction: "Inclui uma introdução, duas razões e uma conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "É importante fazer desporto regularmente?",
+      text: `Hoje em dia, muitas pessoas têm um estilo de vida sedentário porque trabalham sentadas e usam muito o computador. Na minha opinião, fazer desporto regularmente é fundamental para ter uma vida saudável.
+
+Em primeiro lugar, o desporto é muito bom para a saúde física. Quando fazemos exercício, o coração fica mais forte e temos mais energia. Além disso, o desporto ajuda a controlar o peso e previne muitas doenças.
+
+Uma vez que o exercício físico também melhora o humor, as pessoas que fazem desporto ficam menos stressadas e mais felizes.
+
+Em conclusão, acho que todos devemos fazer pelo menos 30 minutos de desporto por dia. A saúde é o mais importante.`
+    }
+  },
+  {
+    prompt: "Na tua opinião, as crianças devem ter responsabilidades em casa? Porquê?",
+    instruction: "Escreve um texto de opinião com introdução, duas razões e conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "As crianças devem ter responsabilidades em casa?",
+      text: `Muitos pais pensam que os filhos devem concentrar-se nos estudos e não precisam de ajudar em casa. No entanto, na minha opinião, as crianças devem ter responsabilidades domésticas desde pequenas.
+
+Em primeiro lugar, quando as crianças ajudam em casa, aprendem a ser responsáveis e independentes. Por exemplo, podem fazer a cama, arrumar o quarto ou pôr a mesa. Além disso, sentem que são parte importante da família e ficam mais confiantes.
+
+Por outro lado, é importante que as tarefas sejam adequadas à idade. Não devemos pedir às crianças coisas que são difíceis demais para elas.
+
+Em conclusão, as responsabilidades em casa são uma parte essencial da educação das crianças.`
+    }
+  },
+  {
+    prompt: "Achas que as redes sociais são boas ou más para as relações entre as pessoas?",
+    instruction: "Escreve um texto de opinião com introdução, duas razões e conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "As redes sociais são boas ou más para as relações?",
+      text: `As redes sociais fazem parte da vida de quase toda a gente. Há quem diga que são boas para comunicar, mas na minha opinião, as redes sociais têm mais desvantagens do que vantagens nas relações pessoais.
+
+Em primeiro lugar, as pessoas passam muito tempo a ver o telemóvel em vez de falar com a família e os amigos. Isso cria distância entre as pessoas. Além disso, nas redes sociais nem sempre dizemos a verdade sobre a nossa vida, e isso cria expectativas falsas.
+
+No entanto, as redes sociais também podem ser úteis para manter contacto com amigos que vivem longe.
+
+Em conclusão, devemos usar as redes sociais com cuidado e não deixar que substituam as relações reais.`
+    }
+  },
+  {
+    prompt: "É mais importante ter amigos ou ter sucesso no trabalho? Dá a tua opinião.",
+    instruction: "Escreve um texto de opinião com introdução, duas razões e conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "É mais importante ter amigos ou ter sucesso no trabalho?",
+      text: `Esta é uma questão difícil porque tanto os amigos como o trabalho são importantes na vida. No entanto, na minha opinião, ter bons amigos é mais importante do que ter sucesso profissional.
+
+Em primeiro lugar, os amigos estão presentes nos momentos difíceis. Quando temos problemas, são os amigos que nos apoiam e nos ajudam a sentir melhor. Além disso, passar tempo com amigos faz-nos felizes e melhora a nossa saúde mental.
+
+Por outro lado, o sucesso no trabalho dá-nos estabilidade financeira e satisfação pessoal. Uma vez que trabalhamos muitas horas por semana, é importante gostar do que fazemos.
+
+Em conclusão, acho que precisamos de equilíbrio entre as duas coisas, mas a amizade é o valor mais importante.`
+    }
+  },
+  {
+    prompt: "Na tua opinião, o que é mais importante na escolha de uma profissão: o dinheiro ou a paixão pelo trabalho?",
+    instruction: "Escreve um texto de opinião com introdução, duas razões e conclusão. Mínimo 90 palavras.",
+    example: {
+      prompt: "O que é mais importante: o dinheiro ou a paixão pelo trabalho?",
+      text: `Quando escolhemos uma profissão, pensamos em muitos fatores: o salário, as oportunidades, o ambiente de trabalho. Na minha opinião, a paixão pelo trabalho é mais importante do que o dinheiro.
+
+Em primeiro lugar, se gostarmos do nosso trabalho, ficamos mais motivados e fazemos as coisas com mais qualidade. As pessoas que trabalham com paixão são geralmente mais criativas e bem-sucedidas. Além disso, passamos muitas horas no trabalho, por isso é essencial sentirmo-nos bem com o que fazemos.
+
+No entanto, também precisamos de ganhar o suficiente para viver bem. Por isso, o ideal é encontrar um trabalho que nos apaixone e que pague bem.
+
+Em conclusão, acho que devemos procurar um equilíbrio, mas a satisfação pessoal deve ser a prioridade.`
+    }
+  }
+];
+
+let currentIndex = 0;
+
+function newTopic() {
+  let next;
+  do { next = Math.floor(Math.random() * topics.length); } while (next === currentIndex && topics.length > 1);
+  currentIndex = next;
+  loadTopic(currentIndex);
+  document.getElementById('essayArea').value = '';
+  updateWordCount();
+  // reset checklist
+  document.querySelectorAll('.checklist li').forEach(li => {
+    li.classList.remove('done');
+    li.querySelector('input').checked = false;
+  });
+}
+
+function loadTopic(i) {
+  document.getElementById('promptText').textContent = topics[i].prompt;
+  document.getElementById('promptInstruction').textContent = topics[i].instruction;
+}
+
+function updateWordCount() {
+  const text = document.getElementById('essayArea').value.trim();
+  const count = text === '' ? 0 : text.split(/\s+/).length;
+  const badge = document.getElementById('wcBadge');
+  const hint = document.getElementById('wcHint');
+  badge.textContent = count + (count === 1 ? ' palavra' : ' palavras');
+  if (count >= 90) {
+    badge.className = 'word-count-badge wc-ok';
+    hint.textContent = 'Bom! Minimo atingido.';
+  } else {
+    badge.className = 'word-count-badge wc-low';
+    hint.textContent = 'Minimo 90 palavras (faltam ' + (90 - count) + ')';
+  }
+}
+
+function copyText() {
+  const topic = topics[currentIndex];
+  const essay = document.getElementById('essayArea').value.trim();
+  if (!essay) {
+    document.getElementById('copyConfirm').textContent = 'Escreve o texto primeiro.';
+    return;
+  }
+  const full = 'Tema: ' + topic.prompt + '\n\n' + essay;
+  navigator.clipboard.writeText(full).then(() => {
+    document.getElementById('copyConfirm').textContent = 'Copiado! Cola no chat para corrigir.';
+    setTimeout(() => { document.getElementById('copyConfirm').textContent = ''; }, 3000);
+  }).catch(() => {
+    // fallback
+    const ta = document.createElement('textarea');
+    ta.value = full;
+    document.body.appendChild(ta);
+    ta.select();
+    document.execCommand('copy');
+    document.body.removeChild(ta);
+    document.getElementById('copyConfirm').textContent = 'Copiado!';
+    setTimeout(() => { document.getElementById('copyConfirm').textContent = ''; }, 3000);
+  });
+}
+
+function toggleCheck(li) {
+  const cb = li.querySelector('input');
+  cb.checked = !cb.checked;
+  li.classList.toggle('done', cb.checked);
+}
+
+function showExample() {
+  const ex = topics[currentIndex].example;
+  document.getElementById('modalPromptText').textContent = ex.prompt;
+  document.getElementById('modalText').textContent = ex.text;
+  document.getElementById('modalOverlay').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('modalOverlay').classList.remove('show');
+}
+
+function closeModalOutside(e) {
+  if (e.target === document.getElementById('modalOverlay')) closeModal();
+}
+
+// init
+loadTopic(0);
+</script>
+</body>
+</html>
