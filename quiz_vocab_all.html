@@ -1,0 +1,573 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Vocabulário Completo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #4c51bf; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #4c51bf; }
+
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .mode-btn { flex: 1; padding: 9px 6px; border: none; background: transparent; border-radius: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; line-height: 1.3; }
+  .mode-btn.active { background: #4c51bf; color: white; }
+
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="Todos"].active-f      { background: #edf2f7; }
+  .filter-btn[data-cat="Natureza"]            { color: #276749; }
+  .filter-btn[data-cat="Natureza"].active-f   { background: #f0fff4; }
+  .filter-btn[data-cat="Ações"]               { color: #2c7a7b; }
+  .filter-btn[data-cat="Ações"].active-f      { background: #e6fffa; }
+  .filter-btn[data-cat="Adjetivos"]           { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos"].active-f  { background: #faf5ff; }
+  .filter-btn[data-cat="Comida"]              { color: #c05621; }
+  .filter-btn[data-cat="Comida"].active-f     { background: #fffaf0; }
+  .filter-btn[data-cat="Corpo"]               { color: #b83280; }
+  .filter-btn[data-cat="Corpo"].active-f      { background: #fff0f3; }
+  .filter-btn[data-cat="Emoções"]             { color: #b7791f; }
+  .filter-btn[data-cat="Emoções"].active-f    { background: #fefcbf; }
+  .filter-btn[data-cat="Caráter"]             { color: #c53030; }
+  .filter-btn[data-cat="Caráter"].active-f    { background: #fff5f0; }
+  .filter-btn[data-cat="Conceitos"]           { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f  { background: #eef2ff; }
+  .filter-btn[data-cat="Expressões"]          { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .filter-btn[data-cat="Objetos"]             { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos"].active-f    { background: #f5f0ff; }
+
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #4c51bf, #7f9cf5); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-nat      { background: #f0fff4; color: #276749; }
+  .badge-acoes    { background: #e6fffa; color: #2c7a7b; }
+  .badge-adj      { background: #faf5ff; color: #6b46c1; }
+  .badge-com      { background: #fffaf0; color: #c05621; }
+  .badge-corp     { background: #fff0f3; color: #b83280; }
+  .badge-emocoes  { background: #fefcbf; color: #b7791f; }
+  .badge-carater  { background: #fff5f0; color: #c53030; }
+  .badge-conceitos{ background: #eef2ff; color: #4c51bf; }
+  .badge-expressoes{ background: #ebf8ff; color: #2b6cb0; }
+  .badge-objetos  { background: #f5f0ff; color: #7e3af2; }
+
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #eef2ff; border-color: #c3dafe; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  .ru-display { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .ru-hint-line { font-size: 0.83rem; color: #a0aec0; margin-bottom: 22px; }
+  .write-prompt { font-size: 0.88rem; color: #718096; margin-bottom: 10px; }
+  .accent-note { font-size: 0.78rem; color: #b7791f; background: #fefcbf; padding: 5px 10px; border-radius: 6px; margin-bottom: 14px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #7f9cf5; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #434190; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+
+  .sentence-display { font-size: 1.05rem; font-weight: 500; line-height: 1.9; margin-bottom: 6px; color: #2d3748; }
+  .sentence-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid #4c51bf; color: #4c51bf; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .frase-hint { font-size: 0.83rem; color: #a0aec0; margin-bottom: 18px; }
+  .frase-hint span { color: #718096; font-style: italic; }
+
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #434190; }
+  .next-btn.show { display: block; }
+
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4c51bf, #7f9cf5); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item .mq { font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .mistake-item .ma { color: #276749; }
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Vocabulário Completo</h1>
+    <p>~135 palavras · 10 temas · Escolher · Escrever · Frase</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher<br><small style="font-weight:400;opacity:.8">варианты RU</small></button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever<br><small style="font-weight:400;opacity:.8">RU → пиши PT</small></button>
+    <button class="mode-btn" id="btnFrase" onclick="setMode('frase')">Frase<br><small style="font-weight:400;opacity:.8">вставь в предложение</small></button>
+  </div>
+
+  <div class="filter-wrap">
+    <span class="filter-label">Tema</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active-f" data-cat="Todos" onclick="setFilter('Todos',this)">Todos</button>
+      <button class="filter-btn" data-cat="Natureza" onclick="setFilter('Natureza',this)">Natureza</button>
+      <button class="filter-btn" data-cat="Ações" onclick="setFilter('Ações',this)">Ações</button>
+      <button class="filter-btn" data-cat="Adjetivos" onclick="setFilter('Adjetivos',this)">Adjetivos</button>
+      <button class="filter-btn" data-cat="Comida" onclick="setFilter('Comida',this)">Comida</button>
+      <button class="filter-btn" data-cat="Corpo" onclick="setFilter('Corpo',this)">Corpo</button>
+      <button class="filter-btn" data-cat="Emoções" onclick="setFilter('Emoções',this)">Emoções</button>
+      <button class="filter-btn" data-cat="Caráter" onclick="setFilter('Caráter',this)">Caráter</button>
+      <button class="filter-btn" data-cat="Conceitos" onclick="setFilter('Conceitos',this)">Conceitos</button>
+      <button class="filter-btn" data-cat="Expressões" onclick="setFilter('Expressões',this)">Expressões</button>
+      <button class="filter-btn" data-cat="Objetos" onclick="setFilter('Objetos',this)">Objetos</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">1 / ?</div>
+
+  <div class="card" id="quizCard">
+    <span class="category-badge" id="catBadge"></span>
+    <div id="choiceArea">
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsDiv"></div>
+    </div>
+    <div id="writeArea" style="display:none">
+      <div class="ru-display" id="ruDisplay"></div>
+      <div class="ru-hint-line" id="ruHintLine"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos (ex.: coração, água, ação)</div>
+      <div class="write-prompt">Escreve em português:</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnW" onclick="checkWrite()">OK</button>
+      </div>
+    </div>
+    <div id="fraseArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="frase-hint" id="fraseHint"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="fraseInput" placeholder="palavra em português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnF" onclick="checkFrase()">OK</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <div class="score-circle"><div class="num" id="scoreNum">0</div><div class="denom" id="scoreDenom">/ 0</div></div>
+    <h2 id="resultTitle"></h2><p id="resultMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+<script>
+const allQ = [
+  // ===== NATUREZA (12) =====
+  { cat:"Natureza", badge:"badge-nat", q:"passear", hint:"v.", answers:["гулять","прогуливаться"], options:["гулять","бегать","плавать","ехать"], answer:0, ptAnswers:["passear"], sentence:"No fim de semana gostamos de ___ no parque.", sentenceAnswers:["passear"], explanation:"Passear = гулять. Ex.: Gosto de passear no parque ao fim de semana." },
+  { cat:"Natureza", badge:"badge-nat", q:"percorrer", hint:"v.", answers:["проходить","проезжать"], options:["проходить/проезжать","останавливаться","возвращаться","подниматься"], answer:0, ptAnswers:["percorrer"], sentence:"Vamos ___ toda a ilha de bicicleta.", sentenceAnswers:["percorrer"], explanation:"Percorrer = проходить, объезжать расстояние. Ex.: Percorremos 20 km a pé." },
+  { cat:"Natureza", badge:"badge-nat", q:"serra", hint:"f.", answers:["горная цепь","горы"], options:["горная цепь","пустыня","побережье","равнина"], answer:0, ptAnswers:["serra"], sentence:"Subimos à ___ da Estrela no inverno.", sentenceAnswers:["serra"], explanation:"Serra = горная цепь. Ex.: A Serra da Estrela é a montanha mais alta de Portugal." },
+  { cat:"Natureza", badge:"badge-nat", q:"lagoa", hint:"f.", answers:["озеро","лагуна"], options:["озёра/лагуны","реки","моря","болота"], answer:0, ptAnswers:["lagoa","lagoas"], sentence:"As lagoas dos Açores têm origem vulcânica.", sentenceAnswers:["lagoas"], explanation:"Lagoa = озеро или лагуна. Ex.: As lagoas dos Açores são de origem vulcânica." },
+  { cat:"Natureza", badge:"badge-nat", q:"cratera", hint:"f.", answers:["кратер"], options:["кратеры","пещеры","горы","острова"], answer:0, ptAnswers:["cratera","crateras"], sentence:"As ___ estão cheias de água quente.", sentenceAnswers:["crateras"], explanation:"Cratera = кратер. Ex.: As crateras dos Açores são espetaculares." },
+  { cat:"Natureza", badge:"badge-nat", q:"furna", hint:"f.", answers:["пещера","грот"], options:["пещеры/гроты","кратеры","лагуны","водопады"], answer:0, ptAnswers:["furna","furnas"], sentence:"Visitámos as ___ da ilha e vimos fontes quentes.", sentenceAnswers:["furnas"], explanation:"Furna = пещера, грот. Furnas — место на Азорских островах с горячими источниками." },
+  { cat:"Natureza", badge:"badge-nat", q:"fogueira", hint:"f.", answers:["костёр"], options:["костёр","лампа","свеча","факел"], answer:0, ptAnswers:["fogueira"], sentence:"Fizemos uma ___ na praia e assámos peixe.", sentenceAnswers:["fogueira"], explanation:"Fogueira = костёр. Ex.: Fizemos uma fogueira na praia à noite." },
+  { cat:"Natureza", badge:"badge-nat", q:"erva", hint:"f.", answers:["трава","зелень"], options:["травы","цветы","деревья","кусты"], answer:0, ptAnswers:["erva","ervas"], sentence:"Fizeram um chá de ___ aromáticas.", sentenceAnswers:["ervas"], explanation:"Erva = трава. Ervas aromáticas = ароматные травы. Chá de ervas = травяной чай." },
+  { cat:"Natureza", badge:"badge-nat", q:"girassol", hint:"m.", answers:["подсолнух"], options:["подсолнух","тюльпан","ромашка","роза"], answer:0, ptAnswers:["girassol"], sentence:"Plantei um ___ no jardim e cresceu muito alto.", sentenceAnswers:["girassol"], explanation:"Girassol = подсолнух. Ex.: Os campos de girassóis são lindos no verão." },
+  { cat:"Natureza", badge:"badge-nat", q:"cardume", hint:"m.", answers:["косяк рыб","стая рыб"], options:["косяк рыб","стая птиц","стадо","рой пчёл"], answer:0, ptAnswers:["cardume"], sentence:"Vimos um ___ enorme no fundo do mar.", sentenceAnswers:["cardume"], explanation:"Cardume = косяк рыб. Ex.: Vimos um cardume enorme no fundo do mar." },
+  { cat:"Natureza", badge:"badge-nat", q:"alcateia", hint:"f.", answers:["волчья стая","стая волков"], options:["волчья стая","рой пчёл","косяк рыб","стадо коров"], answer:0, ptAnswers:["alcateia"], sentence:"A ___ caçava em grupo durante a noite.", sentenceAnswers:["alcateia"], explanation:"Alcateia = стая волков. Ex.: A alcateia caçava durante a noite." },
+  { cat:"Natureza", badge:"badge-nat", q:"ao relento", hint:"выражение", answers:["под открытым небом"], options:["под открытым небом","в тени","у костра","в лесу"], answer:0, ptAnswers:["ao relento"], sentence:"Durante a viagem dormiram ___.", sentenceAnswers:["ao relento"], explanation:"Ao relento = под открытым небом. Ex.: Dormir ao relento = спать под открытым небом." },
+
+  // ===== AÇÕES (36) =====
+  { cat:"Ações", badge:"badge-acoes", q:"subir", hint:"v.", answers:["подниматься"], options:["подниматься","спускаться","гулять","бегать"], answer:0, ptAnswers:["subir"], sentence:"Temos de ___ até ao cume da montanha.", sentenceAnswers:["subir"], explanation:"Subir = подниматься. Ex.: Subimos a serra a pé. / O preço subiu = цена поднялась." },
+  { cat:"Ações", badge:"badge-acoes", q:"seguir", hint:"v.", answers:["следовать","продолжать"], options:["следовать/продолжать","остановиться","вернуться","подниматься"], answer:0, ptAnswers:["seguir"], sentence:"Vamos ___ em frente até ao semáforo.", sentenceAnswers:["seguir"], explanation:"Seguir = следовать, продолжать. Ex.: Segue em frente = иди прямо." },
+  { cat:"Ações", badge:"badge-acoes", q:"sonhar", hint:"v.", answers:["мечтать","видеть сны"], options:["мечтать/видеть сны","думать","смотреть","слушать"], answer:0, ptAnswers:["sonhar"], sentence:"Ela adora ___ com viagens a países distantes.", sentenceAnswers:["sonhar"], explanation:"Sonhar = мечтать или видеть сны. Ex.: Sonhei contigo = я видел(а) тебя во сне." },
+  { cat:"Ações", badge:"badge-acoes", q:"adormecer", hint:"v.", answers:["засыпать","заснуть"], options:["засыпать","просыпаться","спать","мечтать"], answer:0, ptAnswers:["adormecer"], sentence:"O bebé começou a ___ no colo da mãe.", sentenceAnswers:["adormecer"], explanation:"Adormecer = засыпать. Ex.: Ele adormeceu no sofá = он заснул на диване." },
+  { cat:"Ações", badge:"badge-acoes", q:"regressar", hint:"v.", answers:["возвращаться","вернуться"], options:["вернулся/ась","ушёл","уехал","прибыл"], answer:0, ptAnswers:["regressar","regressou"], sentence:"Ela ___ de Lisboa ontem à tarde.", sentenceAnswers:["regressou"], explanation:"Regressar = возвращаться. Regressou = он/она вернулся/ась (PPS)." },
+  { cat:"Ações", badge:"badge-acoes", q:"atravessar", hint:"v.", answers:["пересекать","перейти"], options:["пересекать","объезжать","подниматься","следовать"], answer:0, ptAnswers:["atravessar"], sentence:"Cuidado ao ___ a estrada com trânsito!", sentenceAnswers:["atravessar"], explanation:"Atravessar = пересекать. Ex.: Atravessar a rua = перейти улицу." },
+  { cat:"Ações", badge:"badge-acoes", q:"agitar", hint:"v.", answers:["трясти","взбалтывать"], options:["трясти/взбалтывать","бросать","толкать","класть"], answer:0, ptAnswers:["agitar"], sentence:"É preciso ___ bem a garrafa antes de usar.", sentenceAnswers:["agitar"], explanation:"Agitar = трясти, взбалтывать. Ex.: Agitar antes de usar = взбалтывать перед употреблением." },
+  { cat:"Ações", badge:"badge-acoes", q:"empurrar", hint:"v.", answers:["толкать","пихать"], options:["толкать","тянуть","бросать","поднимать"], answer:0, ptAnswers:["empurrar"], sentence:"Para abrir esta porta, deves ___ com força.", sentenceAnswers:["empurrar"], explanation:"Empurrar = толкать. Oposto: puxar = тянуть." },
+  { cat:"Ações", badge:"badge-acoes", q:"colocar", hint:"v.", answers:["класть","ставить"], options:["класть/ставить","брать","убирать","бросать"], answer:0, ptAnswers:["colocar"], sentence:"Podes ___ o livro na prateleira, por favor?", sentenceAnswers:["colocar"], explanation:"Colocar = класть, ставить. Синоним: pôr." },
+  { cat:"Ações", badge:"badge-acoes", q:"acontecer", hint:"v.", answers:["случаться","происходить"], options:["случилось","началось","закончилось","изменилось"], answer:0, ptAnswers:["acontecer","aconteceu"], sentence:"O que ___? — Caí e magoei o joelho.", sentenceAnswers:["aconteceu"], explanation:"Acontecer = случаться. Aconteceu = случилось (PPS). Ex.: O que aconteceu? = Что случилось?" },
+  { cat:"Ações", badge:"badge-acoes", q:"obedecer", hint:"v.", answers:["слушаться","подчиняться"], options:["слушаться","учить","помогать","уходить"], answer:0, ptAnswers:["obedecer"], sentence:"É importante ___ às regras de trânsito.", sentenceAnswers:["obedecer"], explanation:"Obedecer = слушаться. Ex.: As crianças devem obedecer aos pais." },
+  { cat:"Ações", badge:"badge-acoes", q:"agradecer", hint:"v.", answers:["благодарить"], options:["благодарить","извиняться","просить","отвечать"], answer:0, ptAnswers:["agradecer"], sentence:"Quero ___ a tua ajuda durante o exame.", sentenceAnswers:["agradecer"], explanation:"Agradecer = благодарить. Ex.: Agradeço a tua ajuda = благодарю за помощь." },
+  { cat:"Ações", badge:"badge-acoes", q:"detestar", hint:"v.", answers:["ненавидеть","терпеть не мочь"], options:["ненавидеть","любить","терпеть","игнорировать"], answer:0, ptAnswers:["detestar"], sentence:"Ela diz que ___ acordar cedo e prefere a noite.", sentenceAnswers:["detestar"], explanation:"Detestar = ненавидеть. Mais forte que «não gostar». Ex.: Detesto acordar cedo." },
+  { cat:"Ações", badge:"badge-acoes", q:"pôr (pusemos)", hint:"v.", answers:["класть (мы положили)","pôr = класть/ставить"], options:["мы положили/поставили","мы взяли","мы убрали","мы нашли"], answer:0, ptAnswers:["pusemos","pôr","por"], sentence:"Nós ___ a mesa para o jantar.", sentenceAnswers:["pusemos"], explanation:"Pôr = класть, ставить. Nós pusemos = мы положили (PPS). Ex.: Pusemos a mesa = накрыли стол." },
+  { cat:"Ações", badge:"badge-acoes", q:"magoar", hint:"v.", answers:["обидеть","причинить боль"], options:["мы обидели","мы помогли","мы услышали","мы забыли"], answer:0, ptAnswers:["magoar","magoamos"], sentence:"Sem querer, nós ___ os sentimentos dela.", sentenceAnswers:["magoamos"], explanation:"Magoar = обидеть, причинить боль. Magoei-me = я ушиб(ла)ся." },
+  { cat:"Ações", badge:"badge-acoes", q:"emprestar", hint:"v.", answers:["одалживать","давать взаймы"], options:["одалживает","берёт взаймы","покупает","дарит"], answer:0, ptAnswers:["emprestar","empresta"], sentence:"Ela sempre ___ os seus livros aos amigos.", sentenceAnswers:["empresta"], explanation:"Emprestar = одалживать. Ex.: Podes emprestar-me o livro?" },
+  { cat:"Ações", badge:"badge-acoes", q:"despedir-se", hint:"v.", answers:["прощаться","попрощаться"], options:["прощаться","встречаться","уходить","приходить"], answer:0, ptAnswers:["despedir-se","despedir-nos","despedirmo-nos"], sentence:"Fomos ___ dele antes da viagem.", sentenceAnswers:["despedir-nos","despedirmo-nos"], explanation:"Despedir-se = прощаться. Ex.: Fomos despedir-nos dele = мы пошли с ним проститься." },
+  { cat:"Ações", badge:"badge-acoes", q:"esquiar", hint:"v.", answers:["кататься на лыжах"], options:["катался на лыжах","катался на велосипеде","плавал","бегал"], answer:0, ptAnswers:["esquiar","esquiei"], sentence:"No inverno passado ___ pela primeira vez na vida.", sentenceAnswers:["esquiei"], explanation:"Esquiar = кататься на лыжах. Eu esquiei = я катался/ась (PPS)." },
+  { cat:"Ações", badge:"badge-acoes", q:"andar de patins", hint:"выражение", answers:["кататься на коньках","кататься на роликах"], options:["кататься на коньках/роликах","кататься на лыжах","ехать на велосипеде","прыгать"], answer:0, ptAnswers:["andar de patins"], sentence:"Ao fim de semana gosto de ___ no parque.", sentenceAnswers:["andar de patins"], explanation:"Andar de patins = кататься на коньках или роликах. Patins de gelo = коньки." },
+  { cat:"Ações", badge:"badge-acoes", q:"conviver", hint:"v.", answers:["общаться","жить вместе"], options:["общаться/жить вместе","trabalhar","учиться","путешествовать"], answer:0, ptAnswers:["conviver"], sentence:"É muito importante ___ com a família e os amigos.", sentenceAnswers:["conviver"], explanation:"Conviver = общаться, жить вместе. Ex.: É importante conviver com a família." },
+  { cat:"Ações", badge:"badge-acoes", q:"fugir", hint:"v.", answers:["сбежать","убежать"], options:["сбежать","узнать","управлять","реагировать"], answer:0, ptAnswers:["fugir"], sentence:"O ladrão tentou ___ da polícia.", sentenceAnswers:["fugir"], explanation:"Fugir = сбежать, убежать. Ex.: O ladrão tentou fugir da polícia." },
+  { cat:"Ações", badge:"badge-acoes", q:"descobrir", hint:"v.", answers:["узнать","открыть","обнаружить"], options:["узнать/открыть","зажечь","заменить","бросить"], answer:0, ptAnswers:["descobrir"], sentence:"Ela ___ a verdade por acidente.", sentenceAnswers:["descobriu"], explanation:"Descobrir = узнать, открыть, обнаружить. Ex.: Ela descobriu a verdade por acidente." },
+  { cat:"Ações", badge:"badge-acoes", q:"acender", hint:"v.", answers:["зажечь","включить (свет)"], options:["зажечь/включить","убежать","заменить","светить"], answer:0, ptAnswers:["acender"], sentence:"Podes ___ a luz, por favor?", sentenceAnswers:["acender"], explanation:"Acender = зажечь, включить (свет). Apagar = выключить." },
+  { cat:"Ações", badge:"badge-acoes", q:"reagir", hint:"v.", answers:["реагировать"], options:["реагировать","управлять","бросать","отправлять"], answer:0, ptAnswers:["reagir"], sentence:"Como é que ela vai ___ à notícia?", sentenceAnswers:["reagir"], explanation:"Reagir = реагировать. Ex.: Como é que ela vai reagir à notícia?" },
+  { cat:"Ações", badge:"badge-acoes", q:"substituir", hint:"v.", answers:["заменить"], options:["заменить","объединить","передать","назначить"], answer:0, ptAnswers:["substituir"], sentence:"Temos de ___ o professor que ficou doente.", sentenceAnswers:["substituir"], explanation:"Substituir = заменить. Ex.: Temos de substituir o professor que ficou doente." },
+  { cat:"Ações", badge:"badge-acoes", q:"atirar", hint:"v.", answers:["бросать","стрелять"], options:["бросать/стрелять","зажигать","управлять","узнавать"], answer:0, ptAnswers:["atirar"], sentence:"Ela ___ a bola para ele.", sentenceAnswers:["atirou","atirar"], explanation:"Atirar = бросать или стрелять. Ex.: Ela atirou a bola para ele." },
+  { cat:"Ações", badge:"badge-acoes", q:"enfrentar", hint:"v.", answers:["противостоять","встретить лицом к лицу"], options:["противостоять","убежать","заменить","потерять"], answer:0, ptAnswers:["enfrentar"], sentence:"Temos de ___ os nossos medos.", sentenceAnswers:["enfrentar"], explanation:"Enfrentar = противостоять, встретить лицом к лицу. Enfrentar um problema = справиться с проблемой." },
+  { cat:"Ações", badge:"badge-acoes", q:"enviar", hint:"v.", answers:["отправить"], options:["отправить","наблюдать","собрать","искать"], answer:0, ptAnswers:["enviar"], sentence:"Podes ___ o documento por email?", sentenceAnswers:["enviar"], explanation:"Enviar = отправить. Ex.: Podes enviar o documento por email?" },
+  { cat:"Ações", badge:"badge-acoes", q:"surgir", hint:"v.", answers:["возникнуть","появиться"], options:["возникнуть/появиться","исчезнуть","остаться","бежать"], answer:0, ptAnswers:["surgir"], sentence:"___ um problema inesperado no sistema.", sentenceAnswers:["surgiu"], explanation:"Surgir = возникнуть, появиться. Ex.: Surgiu um problema inesperado." },
+  { cat:"Ações", badge:"badge-acoes", q:"lidar com", hint:"выражение", answers:["справляться с"], options:["справляться с","убегать от","бросить","объединить"], answer:0, ptAnswers:["lidar"], sentence:"É difícil ___ com o stress do trabalho.", sentenceAnswers:["lidar"], explanation:"Lidar com = справляться с чем-то. Ex.: Não sei lidar com esta situação." },
+  { cat:"Ações", badge:"badge-acoes", q:"procurar", hint:"v.", answers:["искать"], options:["искать","помнить","учить","наблюдать"], answer:0, ptAnswers:["procurar"], sentence:"Estou a ___ as minhas chaves.", sentenceAnswers:["procurar"], explanation:"Procurar = искать. Ex.: Estou a procurar as minhas chaves." },
+  { cat:"Ações", badge:"badge-acoes", q:"brilhar", hint:"v.", answers:["сиять","блестеть"], options:["сиять/блестеть","гореть","светить","темнеть"], answer:0, ptAnswers:["brilhar"], sentence:"Os olhos dela ___ de alegria.", sentenceAnswers:["brilhavam","brilhar"], explanation:"Brilhar = сиять, блестеть. Ex.: Os olhos dela brilhavam de alegria." },
+  { cat:"Ações", badge:"badge-acoes", q:"transmitir", hint:"v.", answers:["передать","транслировать"], options:["передать","получить","отправить","наблюдать"], answer:0, ptAnswers:["transmitir"], sentence:"Ele conseguiu ___ a sua emoção ao público.", sentenceAnswers:["transmitir"], explanation:"Transmitir = передать. Ex.: Ele conseguiu transmitir a sua emoção ao público." },
+  { cat:"Ações", badge:"badge-acoes", q:"lembrar", hint:"v.", answers:["помнить","вспоминать"], options:["помнить","забыть","искать","знать"], answer:0, ptAnswers:["lembrar","lembrar-se"], sentence:"Não me ___ do nome dele.", sentenceAnswers:["lembro"], explanation:"Lembrar = помнить. Não me lembro = не помню. Lembrar-se de = вспомнить о чём-то." },
+  { cat:"Ações", badge:"badge-acoes", q:"combinar", hint:"v.", answers:["договориться","объединить"], options:["объединить/договориться","отменить","разделить","сравнить"], answer:0, ptAnswers:["combinar"], sentence:"Vamos ___ um encontro para a próxima semana.", sentenceAnswers:["combinar"], explanation:"Combinar = объединить, сочетать, договориться. Ex.: Vamos combinar um encontro." },
+  { cat:"Ações", badge:"badge-acoes", q:"tornar-se", hint:"v.", answers:["стать","сделаться"], options:["стать/сделать","вернуть","повернуть","дать"], answer:0, ptAnswers:["tornar-se","tornar"], sentence:"Ela ___ famosa com o primeiro livro.", sentenceAnswers:["tornou-se"], explanation:"Tornar(-se) = стать. Ex.: Ela tornou-se famosa. Tornar possível = сделать возможным." },
+
+  // ===== ADJETIVOS (13) =====
+  { cat:"Adjetivos", badge:"badge-adj", q:"imenso", hint:"adj.", answers:["огромный","бескрайний"], options:["огромный","маленький","близкий","лёгкий"], answer:0, ptAnswers:["imenso","imensa"], sentence:"O oceano Atlântico é ___ e muito profundo.", sentenceAnswers:["imenso"], explanation:"Imenso = огромный, бескрайний. Ex.: Uma paisagem imensa = бескрайний пейзаж." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"suave", hint:"adj.", answers:["мягкий","нежный","плавный"], options:["мягкий/нежный","грубый","резкий","громкий"], answer:0, ptAnswers:["suave"], sentence:"A música era muito ___ e relaxante.", sentenceAnswers:["suave"], explanation:"Suave = мягкий, нежный, плавный. Ex.: Uma voz suave = нежный голос." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"tenro", hint:"adj.", answers:["нежный","молодой","мягкий"], options:["нежный/молодой","старый","жёсткий","суровый"], answer:0, ptAnswers:["tenro","tenra"], sentence:"O bife estava muito ___ e fácil de cortar.", sentenceAnswers:["tenro"], explanation:"Tenro = нежный, молодой. О мясе: мягкий. Ex.: Carne tenra = мягкое мясо." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"meigo", hint:"adj.", answers:["ласковый","нежный"], options:["ласковая/нежная","строгая","грубая","холодная"], answer:0, ptAnswers:["meiga","meigo"], sentence:"A professora é muito ___ com os alunos mais novos.", sentenceAnswers:["meiga"], explanation:"Meigo/a = ласковый/ая, нежный/ая. Ex.: Ela é muito meiga com as crianças." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"encantado", hint:"adj.", answers:["очарованный","очень приятно!"], options:["очень приятно!/очарованный","расстроенный","скучающий","удивлённый"], answer:0, ptAnswers:["encantado","encantada"], sentence:"— Olá, sou a Maria. — ___! Sou o João.", sentenceAnswers:["encantado"], explanation:"Encantado! = Очень приятно! (при знакомстве). Encantado com = восхищённый чем-то." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"feroz", hint:"adj.", answers:["свирепый","жестокий"], options:["свирепый/жестокий","нежный","послушный","добрый"], answer:0, ptAnswers:["feroz"], sentence:"O cão parecia ___ mas era muito amigo.", sentenceAnswers:["feroz"], explanation:"Feroz = свирепый, жестокий. Ex.: Um animal feroz = свирепое животное." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"imponente", hint:"adj.", answers:["внушительный","величественный"], options:["внушительный/величественный","маленький","обычный","хрупкий"], answer:0, ptAnswers:["imponente"], sentence:"O castelo tem uma torre muito ___ e antiga.", sentenceAnswers:["imponente"], explanation:"Imponente = внушительный, величественный. Ex.: Um edifício imponente." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"apreensivo", hint:"adj.", answers:["тревожный","беспокойный"], options:["тревожный/беспокойный","уверенный","спокойный","весёлый"], answer:0, ptAnswers:["apreensivo","apreensiva"], sentence:"Fiquei ___ com a notícia do acidente.", sentenceAnswers:["apreensivo","apreensiva"], explanation:"Apreensivo = тревожный, обеспокоенный. Ex.: Fiquei apreensivo com a notícia." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"confiante", hint:"adj.", answers:["уверенный","уверенный в себе"], options:["уверенный","тревожный","робкий","нерешительный"], answer:0, ptAnswers:["confiante"], sentence:"Ela entrou na sala ___ e começou a falar.", sentenceAnswers:["confiante"], explanation:"Confiante = уверенный в себе. Ex.: Ela entrou confiante." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"maldisposto", hint:"adj.", answers:["в плохом настроении","не в духе"], options:["в плохом настроении","весёлый","бодрый","злой"], answer:0, ptAnswers:["maldisposto","maldisposta"], sentence:"Hoje estou ___ e prefiro ficar em casa.", sentenceAnswers:["maldisposto","maldisposta"], explanation:"Maldisposto = в плохом настроении, нездоровый. Ex.: Hoje estou maldisposto." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"constipado", hint:"adj.", answers:["простуженный","насморк (у меня)"], options:["простуженный/насморк","сытый","усталый","сонный"], answer:0, ptAnswers:["constipado","constipada"], sentence:"Estou ___ há dois dias e tenho muito nariz.", sentenceAnswers:["constipado","constipada"], explanation:"Constipado = простуженный или насморк. Atenção: не значит 'constipated'! Estou constipado = у меня насморк." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"pontual", hint:"adj.", answers:["пунктуальный"], options:["пунктуальные","опаздывающие","усердные","строгие"], answer:0, ptAnswers:["pontual","pontuais"], sentence:"Os alemães são conhecidos por ser muito ___.", sentenceAnswers:["pontuais"], explanation:"Pontual = пунктуальный. Ex.: Os portugueses não são muito pontuais." },
+  { cat:"Adjetivos", badge:"badge-adj", q:"aquecido", hint:"adj.", answers:["нагретый","тёплый"], options:["нагретые/тёплые","холодные","влажные","сухие"], answer:0, ptAnswers:["aquecido","aquecida","aquecidas"], sentence:"Nas Furnas há piscinas de águas termais ___.", sentenceAnswers:["aquecidas"], explanation:"Aquecido/a = нагретый/ая, тёплый/ая. Águas aquecidas = тёплые воды." },
+
+  // ===== COMIDA E ANIMAIS (10) =====
+  { cat:"Comida", badge:"badge-com", q:"cozido", hint:"m./adj.", answers:["тушёное мясо","варёный","кузиду"], options:["португальское рагу/варёный","жареный","запечённый","сырой"], answer:0, ptAnswers:["cozido"], sentence:"Ao domingo, a avó faz sempre ___ à portuguesa.", sentenceAnswers:["cozido"], explanation:"Cozido = варёный (adj.) или cozido à portuguesa = традиционное португальское рагу." },
+  { cat:"Comida", badge:"badge-com", q:"nabo", hint:"m.", answers:["репа"], options:["репа","морковь","картофель","лук"], answer:0, ptAnswers:["nabo"], sentence:"O caldo leva cenoura, batata e ___.", sentenceAnswers:["nabo"], explanation:"Nabo = репа. Ex.: O cozido leva nabo = в кузиду есть репа." },
+  { cat:"Comida", badge:"badge-com", q:"couve", hint:"f.", answers:["капуста","кейл"], options:["капуста","шпинат","петрушка","укроп"], answer:0, ptAnswers:["couve"], sentence:"O caldo verde tem ___ cortada fininha e batata.", sentenceAnswers:["couve"], explanation:"Couve = капуста. Caldo verde = суп с зелёной капустой — национальное блюдо." },
+  { cat:"Comida", badge:"badge-com", q:"amêijoa", hint:"f.", answers:["моллюск","ракушка"], options:["моллюски/ракушки","креветки","осьминог","рыба"], answer:0, ptAnswers:["amêijoa","amêijoas","ameijoas"], sentence:"As ___ à Bulhão Pato são um prato típico português.", sentenceAnswers:["amêijoas","ameijoas"], explanation:"Amêijoa = моллюск. Amêijoas à Bulhão Pato — классическое блюдо." },
+  { cat:"Comida", badge:"badge-com", q:"milho assado", hint:"выражение", answers:["жареная кукуруза","печёная кукуруза"], options:["жареная кукуруза","варёная кукуруза","кукурузная каша","кукурузный хлеб"], answer:0, ptAnswers:["milho assado"], sentence:"Na feira, comprámos ___ e ficámos a comer.", sentenceAnswers:["milho assado"], explanation:"Milho assado = жареная кукуруза. Milho = кукуруза. Assado = жареный/печёный." },
+  { cat:"Comida", badge:"badge-com", q:"refrigerante", hint:"m.", answers:["газированный напиток","газировка"], options:["газированный напиток","сок","чай","вода"], answer:0, ptAnswers:["refrigerante"], sentence:"Queres um ___ ou preferes água?", sentenceAnswers:["refrigerante"], explanation:"Refrigerante = газированный напиток. Ex.: Queres um refrigerante?" },
+  { cat:"Comida", badge:"badge-com", q:"burro", hint:"m./adj.", answers:["осёл","глупый"], options:["осёл/глупый","лошадь","корова","свинья"], answer:0, ptAnswers:["burro"], sentence:"O ___ é um animal muito paciente e trabalhador.", sentenceAnswers:["burro"], explanation:"Burro = осёл (животное) или глупый (adj.). Ex.: Não sejas burro! = Не будь ослом!" },
+  { cat:"Comida", badge:"badge-com", q:"melro", hint:"m.", answers:["дрозд","чёрный дрозд"], options:["дрозд","ворон","воробей","ласточка"], answer:0, ptAnswers:["melro"], sentence:"Ouço um ___ a cantar todas as manhãs no jardim.", sentenceAnswers:["melro"], explanation:"Melro = дрозд (птица). Ex.: O melro canta muito bem." },
+  { cat:"Comida", badge:"badge-com", q:"rena", hint:"f.", answers:["северный олень"], options:["северный олень","лось","косуля","кабан"], answer:0, ptAnswers:["rena","renas"], sentence:"As ___ puxam o trenó do Pai Natal no Natal.", sentenceAnswers:["renas","rena"], explanation:"Rena = северный олень. Ex.: As renas puxam o trenó do Pai Natal." },
+  { cat:"Comida", badge:"badge-com", q:"abelha", hint:"f.", answers:["пчела"], options:["пчела","оса","borboleta","formiga"], answer:0, ptAnswers:["abelha"], sentence:"A ___ picou-me no braço quando estava no jardim.", sentenceAnswers:["abelha"], explanation:"Abelha = пчела. Ex.: As abelhas produzem mel = пчёлы производят мёд." },
+
+  // ===== CORPO E SAÚDE (5) =====
+  { cat:"Corpo", badge:"badge-corp", q:"nariz", hint:"m.", answers:["нос"], options:["нос","ухо","глаз","рот"], answer:0, ptAnswers:["nariz"], sentence:"Estou constipado e tenho o ___ entupido.", sentenceAnswers:["nariz"], explanation:"Nariz = нос. Ex.: Estou com o nariz entupido = у меня заложен нос." },
+  { cat:"Corpo", badge:"badge-corp", q:"ouvido", hint:"m.", answers:["ухо","слух"], options:["уши/слух","глаза","руки","ноги"], answer:0, ptAnswers:["ouvido","ouvidos"], sentence:"Tenho dores de ___ desde ontem à tarde.", sentenceAnswers:["ouvidos"], explanation:"Ouvido = ухо; слух. Ter bom ouvido = иметь хороший слух." },
+  { cat:"Corpo", badge:"badge-corp", q:"garganta", hint:"f.", answers:["горло"], options:["горло","нос","грудь","живот"], answer:0, ptAnswers:["garganta"], sentence:"Tenho dores de ___ e dificuldade em engolir.", sentenceAnswers:["garganta"], explanation:"Garganta = горло. Ex.: Tenho dores de garganta = у меня болит горло." },
+  { cat:"Corpo", badge:"badge-corp", q:"gesso", hint:"m.", answers:["гипс"], options:["гипс","бинт","пластырь","шина"], answer:0, ptAnswers:["gesso"], sentence:"Ele partiu o braço e ficou com ___ durante seis semanas.", sentenceAnswers:["gesso"], explanation:"Gesso = гипс. Ex.: Ele tem o braço no gesso = у него рука в гипсе." },
+  { cat:"Corpo", badge:"badge-corp", q:"medir a febre", hint:"выражение", answers:["измерять температуру","мерить температуру"], options:["измерять температуру","вызвать врача","принять таблетку","лечь в постель"], answer:0, ptAnswers:["medir a febre","medir"], sentence:"Antes de ir ao médico, vou ___.", sentenceAnswers:["medir a febre"], explanation:"Medir a febre = измерять температуру. Ter febre = иметь температуру." },
+
+  // ===== EMOÇÕES (10) =====
+  { cat:"Emoções", badge:"badge-emocoes", q:"apaixonar-se", hint:"v.refl.", answers:["влюбляться","влюбиться"], options:["влюбляться","убегать","узнавать","зажигать"], answer:0, ptAnswers:["apaixonar-se"], sentence:"Ela ___ por ele à primeira vista.", sentenceAnswers:["apaixonou-se"], explanation:"Apaixonar-se = влюбиться. Ex.: Ela apaixonou-se por ele à primeira vista." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"coragem", hint:"f.", answers:["храбрость","смелость"], options:["храбрость","желание","красота","одиночество"], answer:0, ptAnswers:["coragem"], sentence:"Teve ___ de dizer a verdade.", sentenceAnswers:["coragem"], explanation:"Coragem = храбрость, смелость. Ex.: Teve coragem de dizer a verdade." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"solidão", hint:"f.", answers:["одиночество"], options:["одиночество","грусть","скука","усталость"], answer:0, ptAnswers:["solidão"], sentence:"Sentia muita ___ depois de se mudar para Lisboa.", sentenceAnswers:["solidão"], explanation:"Solidão = одиночество. Ex.: Sentia muita solidão depois de se mudar para Lisboa." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"alegria", hint:"f.", answers:["радость"], options:["радость","злость","страх","удивление"], answer:0, ptAnswers:["alegria"], sentence:"As crianças gritavam de ___.", sentenceAnswers:["alegria"], explanation:"Alegria = радость. Ex.: As crianças gritavam de alegria." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"desconfiança", hint:"f.", answers:["недоверие"], options:["недоверие","разочарование","стыд","зависть"], answer:0, ptAnswers:["desconfiança"], sentence:"Ele olhou com ___ para o estranho.", sentenceAnswers:["desconfiança"], explanation:"Desconfiança = недоверие. Ex.: Ele olhou com desconfiança para o estranho." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"impressão", hint:"f.", answers:["впечатление"], options:["впечатление","действие","влияние","ссылка"], answer:0, ptAnswers:["impressão"], sentence:"Causou uma boa ___ na entrevista.", sentenceAnswers:["impressão"], explanation:"Impressão = впечатление. Causar boa impressão = произвести хорошее впечатление." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"paixão", hint:"f.", answers:["страсть"], options:["страсть","грусть","тоска","обида"], answer:0, ptAnswers:["paixão"], sentence:"A música é a sua grande ___.", sentenceAnswers:["paixão"], explanation:"Paixão = страсть. Ex.: A música é a sua grande paixão." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"desejo", hint:"m.", answers:["желание"], options:["желание","радость","страсть","тоска"], answer:0, ptAnswers:["desejo"], sentence:"O meu maior ___ é viajar pelo mundo.", sentenceAnswers:["desejo"], explanation:"Desejo = желание. Desejar = хотеть, желать. Ex.: O meu maior desejo é viajar." },
+  { cat:"Emoções", badge:"badge-emocoes", q:"beleza", hint:"f.", answers:["красота"], options:["красота","реальность","влияние","действие"], answer:0, ptAnswers:["beleza"], sentence:"A ___ da natureza impressiona-me.", sentenceAnswers:["beleza"], explanation:"Beleza = красота. Que beleza! = Как красиво!" },
+  { cat:"Emoções", badge:"badge-emocoes", q:"compassivo", hint:"adj.", answers:["сострадательный"], options:["сострадательный","рассеянный","хрупкий","далёкий"], answer:0, ptAnswers:["compassivo","compassiva"], sentence:"Ela é muito ___ com quem sofre.", sentenceAnswers:["compassiva","compassivo"], explanation:"Compassivo = сострадательный. Ex.: Ela é muito compassiva com quem sofre." },
+
+  // ===== CARÁTER (13) =====
+  { cat:"Caráter", badge:"badge-carater", q:"distraído", hint:"adj.", answers:["рассеянный"], options:["рассеянный","сострадательный","необычный","хрупкий"], answer:0, ptAnswers:["distraído","distraída"], sentence:"Ele é tão ___ que esquece sempre as chaves.", sentenceAnswers:["distraído"], explanation:"Distraído = рассеянный, отвлечённый. Ex.: Ele é tão distraído que esquece sempre as chaves." },
+  { cat:"Caráter", badge:"badge-carater", q:"sonhador", hint:"m./f.", answers:["мечтатель","мечтательница"], options:["мечтатель","реалист","режиссёр","наблюдатель"], answer:0, ptAnswers:["sonhador","sonhadora"], sentence:"Ela é uma ___ — quer mudar o mundo.", sentenceAnswers:["sonhadora","sonhador"], explanation:"Sonhador = мечтатель. Ex.: Ela é uma sonhadora — quer mudar o mundo." },
+  { cat:"Caráter", badge:"badge-carater", q:"inútil", hint:"adj.", answers:["бесполезный"], options:["бесполезный","необычный","важный","подходящий"], answer:0, ptAnswers:["inútil"], sentence:"Este objeto é completamente ___ para mim.", sentenceAnswers:["inútil"], explanation:"Inútil = бесполезный. Ex.: Este objeto é completamente inútil para mim." },
+  { cat:"Caráter", badge:"badge-carater", q:"invulgar", hint:"adj.", answers:["необычный","редкий"], options:["необычный/редкий","бесполезный","хрупкий","круглый"], answer:0, ptAnswers:["invulgar"], sentence:"Ela tem um talento ___.", sentenceAnswers:["invulgar"], explanation:"Invulgar = необычный, редкий. Ex.: Uma pessoa invulgar = необычный человек." },
+  { cat:"Caráter", badge:"badge-carater", q:"marcante", hint:"adj.", answers:["поразительный","незабываемый"], options:["поразительный/незабываемый","обычный","скучный","простой"], answer:0, ptAnswers:["marcante"], sentence:"Foi uma experiência muito ___.", sentenceAnswers:["marcante"], explanation:"Marcante = поразительный, незабываемый. Ex.: Foi uma experiência muito marcante." },
+  { cat:"Caráter", badge:"badge-carater", q:"adequado", hint:"adj.", answers:["подходящий","соответствующий"], options:["подходящий","необходимый","важный","обязательный"], answer:0, ptAnswers:["adequado","adequada"], sentence:"Esta roupa não é ___ para o trabalho.", sentenceAnswers:["adequada","adequado"], explanation:"Adequado = подходящий, соответствующий. Ex.: Esta roupa não é adequada para o trabalho." },
+  { cat:"Caráter", badge:"badge-carater", q:"realizador", hint:"m.", answers:["режиссёр"], options:["режиссёр","мечтатель","наблюдатель","исследователь"], answer:0, ptAnswers:["realizador"], sentence:"O ___ ganhou um prémio no festival.", sentenceAnswers:["realizador"], explanation:"Realizador = режиссёр (кино/театра). Ex.: O realizador ganhou um prémio no festival." },
+  { cat:"Caráter", badge:"badge-carater", q:"frágil", hint:"adj.", answers:["хрупкий"], options:["хрупкий","мягкий","тонкий","лёгкий"], answer:0, ptAnswers:["frágil"], sentence:"Cuidado! O vaso é muito ___.", sentenceAnswers:["frágil"], explanation:"Frágil = хрупкий. Ex.: Cuidado! O vaso é muito frágil." },
+  { cat:"Caráter", badge:"badge-carater", q:"profundo", hint:"adj.", answers:["глубокий"], options:["глубокий","круглый","далёкий","бесполезный"], answer:0, ptAnswers:["profundo","profunda"], sentence:"Ele tem um ___ conhecimento de história.", sentenceAnswers:["profundo"], explanation:"Profundo = глубокий. Profundo conhecimento = глубокое знание." },
+  { cat:"Caráter", badge:"badge-carater", q:"longínquo", hint:"adj.", answers:["далёкий","отдалённый"], options:["далёкий","близкий","древний","загадочный"], answer:0, ptAnswers:["longínquo","longínqua"], sentence:"Vivem numa terra ___.", sentenceAnswers:["longínqua","longínquo"], explanation:"Longínquo = далёкий, отдалённый. Ex.: Vivem numa terra longínqua." },
+  { cat:"Caráter", badge:"badge-carater", q:"inimaginável", hint:"adj.", answers:["невообразимый"], options:["невообразимый","невозможный","нереальный","невидимый"], answer:0, ptAnswers:["inimaginável"], sentence:"A sua coragem é ___.", sentenceAnswers:["inimaginável"], explanation:"Inimaginável = невообразимый. Ex.: A sua coragem é inimaginável." },
+  { cat:"Caráter", badge:"badge-carater", q:"essencial", hint:"adj.", answers:["важный","необходимый"], options:["важный/необходимый","полезный","достаточный","обычный"], answer:0, ptAnswers:["essencial"], sentence:"A água é ___ para a vida.", sentenceAnswers:["essencial"], explanation:"Essencial = важный, необходимый, существенный. Ex.: A água é essencial para a vida." },
+  { cat:"Caráter", badge:"badge-carater", q:"desalinhado", hint:"adj.", answers:["взлохмаченный","неопрятный"], options:["взлохмаченный/неопрятный","рассеянный","строгий","усталый"], answer:0, ptAnswers:["desalinhado","desalinhada"], sentence:"Ele chegou ___ à reunião.", sentenceAnswers:["desalinhado"], explanation:"Desalinhado = взлохмаченный, неопрятный, растрёпанный. Ex.: Ele chegou desalinhado à reunião." },
+
+  // ===== CONCEITOS (12) =====
+  { cat:"Conceitos", badge:"badge-conceitos", q:"influência", hint:"f.", answers:["влияние"], options:["влияние","действие","результат","распределение"], answer:0, ptAnswers:["influência"], sentence:"Ele tem muita ___ na empresa.", sentenceAnswers:["influência"], explanation:"Influência = влияние. Ex.: Ele tem muita influência na empresa." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"propósito", hint:"m.", answers:["цель","намерение"], options:["цель/намерение","действие","результат","влияние"], answer:0, ptAnswers:["propósito"], sentence:"Com que ___ fizeste isso?", sentenceAnswers:["propósito"], explanation:"Propósito = цель, намерение. Com que propósito fizeste isso? = Зачем ты это сделал?" },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"consequência", hint:"f.", answers:["последствие","результат"], options:["последствие/результат","причина","решение","влияние"], answer:0, ptAnswers:["consequência","consequências"], sentence:"Não pensou nas ___ das suas ações.", sentenceAnswers:["consequências","consequência"], explanation:"Consequência = последствие, результат. Por consequência = в результате, следовательно." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"percurso", hint:"m.", answers:["путь","маршрут"], options:["путь/маршрут","намерение","усилие","тайна"], answer:0, ptAnswers:["percurso"], sentence:"Foi um longo ___ até chegar aqui.", sentenceAnswers:["percurso"], explanation:"Percurso = путь, маршрут. Ex.: O percurso do autocarro passa pela escola." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"inspiração", hint:"f.", answers:["вдохновение"], options:["вдохновение","воображение","мечта","мысль"], answer:0, ptAnswers:["inspiração"], sentence:"A natureza é a minha grande ___.", sentenceAnswers:["inspiração"], explanation:"Inspiração = вдохновение. Ex.: A natureza é a minha grande inspiração." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"mistério", hint:"m.", answers:["тайна","загадка"], options:["тайна","легенда","секрет","вопрос"], answer:0, ptAnswers:["mistério"], sentence:"A sua desaparição continua a ser um ___.", sentenceAnswers:["mistério"], explanation:"Mistério = тайна, загадка. Ex.: A sua desaparição continua a ser um mistério." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"esforço", hint:"m.", answers:["усилие"], options:["усилие","результат","действие","влияние"], answer:0, ptAnswers:["esforço"], sentence:"Ela fala cinco línguas sem ___.", sentenceAnswers:["esforço"], explanation:"Esforço = усилие. Sem esforço = без усилий, легко." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"experiência", hint:"f.", answers:["опыт"], options:["опыт","практика","знание","умение"], answer:0, ptAnswers:["experiência"], sentence:"Ela tem muita ___ na área.", sentenceAnswers:["experiência"], explanation:"Experiência = опыт. Ex.: Ela tem muita experiência na área." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"realidade", hint:"f.", answers:["реальность"], options:["реальность","влияние","действие","последствие"], answer:0, ptAnswers:["realidade"], sentence:"Na ___, as coisas são mais complicadas.", sentenceAnswers:["realidade"], explanation:"Realidade = реальность. Na realidade = на самом деле, в реальности." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"duração", hint:"f.", answers:["продолжительность"], options:["продолжительность","длина","ширина","высота"], answer:0, ptAnswers:["duração"], sentence:"Qual é a ___ do filme?", sentenceAnswers:["duração"], explanation:"Duração = продолжительность. Ex.: Qual é a duração do filme?" },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"distribuição", hint:"f.", answers:["распределение"], options:["распределение","влияние","связь","действие"], answer:0, ptAnswers:["distribuição"], sentence:"A ___ de recursos é desigual.", sentenceAnswers:["distribuição"], explanation:"Distribuição = распределение. Ex.: A distribuição de recursos é desigual." },
+  { cat:"Conceitos", badge:"badge-conceitos", q:"referência", hint:"f.", answers:["ссылка","ориентир","рекомендация"], options:["ссылка/ориентир","результат","влияние","цель"], answer:0, ptAnswers:["referência"], sentence:"Podes dar-me uma ___?", sentenceAnswers:["referência"], explanation:"Referência = ссылка, ориентир, отсылка. Podes dar-me uma referência? = Можешь дать рекомендацию?" },
+
+  // ===== EXPRESSÕES (22) =====
+  { cat:"Expressões", badge:"badge-expressoes", q:"porém", hint:"conj.", answers:["однако","тем не менее"], options:["однако","поэтому","кроме того","например"], answer:0, ptAnswers:["porém"], sentence:"Gosto dela; ___, ela mente muito.", sentenceAnswers:["porém"], explanation:"Porém = однако, тем не менее. Синоним: No entanto. Ex.: Gosto dela; porém, ela mente muito." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por enquanto", hint:"выражение", answers:["пока","на данный момент"], options:["пока/на данный момент","иногда","недавно","наконец"], answer:0, ptAnswers:["por enquanto"], sentence:"___, está tudo bem.", sentenceAnswers:["por enquanto"], explanation:"Por enquanto = пока, на данный момент. Ex.: Por enquanto, está tudo bem." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por acaso", hint:"выражение", answers:["случайно","кстати"], options:["случайно/кстати","поэтому","кроме того","однако"], answer:0, ptAnswers:["por acaso"], sentence:"___, conheces o João?", sentenceAnswers:["por acaso"], explanation:"Por acaso = случайно; в вопросах = вообще, кстати. Ex.: Por acaso tens o número dela?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"demasiado", hint:"adv.", answers:["слишком"], options:["слишком","очень","немного","достаточно"], answer:0, ptAnswers:["demasiado"], sentence:"Isto é ___ difícil para mim.", sentenceAnswers:["demasiado"], explanation:"Demasiado = слишком. Ex.: Isto é demasiado difícil para mim." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"talvez", hint:"adv.", answers:["возможно","может быть"], options:["возможно/может быть","точно","наверное","никогда"], answer:0, ptAnswers:["talvez"], sentence:"___ venha amanhã, não sei.", sentenceAnswers:["talvez"], explanation:"Talvez = возможно, может быть. Ex.: Talvez venha amanhã, não sei." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"além disso", hint:"выражение", answers:["кроме того","помимо этого"], options:["кроме того","однако","лишь","поэтому"], answer:0, ptAnswers:["além disso","além"], sentence:"___ disso, há outro problema.", sentenceAnswers:["além"], explanation:"Além de = помимо, кроме. Além disso = кроме того." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"apenas", hint:"adv.", answers:["только","лишь"], options:["только/лишь","иногда","немного","почти"], answer:0, ptAnswers:["apenas"], sentence:"Quero ___ um copo de água.", sentenceAnswers:["apenas"], explanation:"Apenas = только, лишь. Ex.: Quero apenas um copo de água." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"na altura", hint:"выражение", answers:["в то время","тогда"], options:["в то время/тогда","на высоте","вовремя","сразу"], answer:0, ptAnswers:["na altura"], sentence:"___, não percebi o que aconteceu.", sentenceAnswers:["na altura"], explanation:"Na altura = в то время, тогда. Ex.: Na altura, não percebi o que aconteceu." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"tanto", hint:"adv.", answers:["так сильно (с глаголом)"], options:["так сильно (с глаголом)","так (с прилагательным)","лишь","помимо"], answer:0, ptAnswers:["tanto"], sentence:"Ela ri ___ que chorou.", sentenceAnswers:["tanto"], explanation:"Tanto = так сильно (с глаголом). Tão = так (с прилагательным)." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"de acordo com", hint:"выражение", answers:["согласно","по словам"], options:["согласно/по словам","несмотря на","вместо","благодаря"], answer:0, ptAnswers:["de acordo com"], sentence:"___ o professor, o exame é difícil.", sentenceAnswers:["de acordo com"], explanation:"De acordo com = согласно, в соответствии с, по словам." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por consequência", hint:"выражение", answers:["в результате","следовательно"], options:["в результате/следовательно","по причине","несмотря на","благодаря"], answer:0, ptAnswers:["por consequência","por isso","portanto"], sentence:"O sistema falhou; ___, perdemos os dados.", sentenceAnswers:["por consequência","por isso","portanto"], explanation:"Por consequência = в результате, следовательно. Синонимы: Por isso, Portanto." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"sem esforço", hint:"выражение", answers:["без усилий","легко"], options:["без усилий/легко","без опыта","без знаний","без помощи"], answer:0, ptAnswers:["sem esforço"], sentence:"Ela fala cinco línguas ___.", sentenceAnswers:["sem esforço"], explanation:"Sem esforço = без усилий, легко." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"Até breve!", hint:"выражение", answers:["до скорого","до скорой встречи"], options:["до скорого!","до свидания","добрый день","пока"], answer:0, ptAnswers:["até breve","ate breve"], sentence:"— Obrigado pela visita! — ___! Até para a semana.", sentenceAnswers:["até breve","ate breve"], explanation:"Até breve! = До скорого! Até logo = до скорого (в тот же день)." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"que delícia!", hint:"выражение", answers:["как вкусно!","какое удовольствие!"], options:["как вкусно!/какое удовольствие!","какой ужас!","как скучно!","как странно!"], answer:0, ptAnswers:["que delícia","que delicia"], sentence:"Provei o pastel de nata e pensei: ___!", sentenceAnswers:["que delícia","que delicia"], explanation:"Que delícia! = Как вкусно! Какое удовольствие!" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"saudades", hint:"f.pl.", answers:["тоска","ностальгия"], options:["тоска/ностальгия","радость","грусть","одиночество"], answer:0, ptAnswers:["saudades"], sentence:"Tenho muitas ___ da minha família em Portugal.", sentenceAnswers:["saudades"], explanation:"Saudades = тоска, ностальгия (непереводимое слово). Tenho saudades de ti = я скучаю по тебе." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"de repente", hint:"adv.", answers:["вдруг","внезапно","неожиданно"], options:["вдруг/внезапно","медленно","иногда","часто"], answer:0, ptAnswers:["de repente"], sentence:"___, o céu ficou negro e começou a chover.", sentenceAnswers:["de repente"], explanation:"De repente = вдруг, внезапно. Ex.: De repente, começou a chover." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"recentemente", hint:"adv.", answers:["недавно"], options:["недавно","давно","иногда","обычно"], answer:0, ptAnswers:["recentemente"], sentence:"Ela ___ mudou de emprego e está muito feliz.", sentenceAnswers:["recentemente"], explanation:"Recentemente = недавно. Ex.: Regressou recentemente de Lisboa." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ordeiramente", hint:"adv.", answers:["послушно","спокойно","упорядоченно"], options:["послушно/спокойно","громко","быстро","грустно"], answer:0, ptAnswers:["ordeiramente"], sentence:"As crianças sentaram-se ___ e esperaram pela professora.", sentenceAnswers:["ordeiramente"], explanation:"Ordeiramente = послушно, спокойно. Ordeiro = послушный." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"recado", hint:"m.", answers:["сообщение","поручение","записка"], options:["сообщение/поручение","письмо","звонок","встреча"], answer:0, ptAnswers:["recado"], sentence:"Deixa um ___ para o João que chegou a encomenda.", sentenceAnswers:["recado"], explanation:"Recado = сообщение, поручение. Deixar recado = оставить сообщение." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"careta", hint:"f.", answers:["гримаса","рожица"], options:["гримаса","улыбка","взгляд","жест"], answer:0, ptAnswers:["careta"], sentence:"A criança fez uma ___ quando provou o limão.", sentenceAnswers:["careta"], explanation:"Careta = гримаса. Fazer careta = корчить гримасы." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"torneira", hint:"f.", answers:["кран","водопроводный кран"], options:["кран","труба","раковина","душ"], answer:0, ptAnswers:["torneira"], sentence:"Fecha a ___ da cozinha, a água está a correr.", sentenceAnswers:["torneira"], explanation:"Torneira = водопроводный кран. Ex.: Fecha a torneira = закрой кран." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"gorro", hint:"m.", answers:["вязаная шапка"], options:["вязаная шапка","шляпа","кепка","платок"], answer:0, ptAnswers:["gorro"], sentence:"No inverno, uso sempre um ___ para não ter frio.", sentenceAnswers:["gorro"], explanation:"Gorro = вязаная шапка." },
+
+  // ===== OBJETOS E LUGAR (10) =====
+  { cat:"Objetos", badge:"badge-objetos", q:"subúrbios", hint:"m.pl.", answers:["пригород","окраины"], options:["пригород/окраины","центр","деревня","улица"], answer:0, ptAnswers:["subúrbios"], sentence:"Ele mora nos ___ de Lisboa.", sentenceAnswers:["subúrbios"], explanation:"Subúrbios = пригород, окраины города. Ex.: Ele mora nos subúrbios de Lisboa." },
+  { cat:"Objetos", badge:"badge-objetos", q:"no fundo", hint:"выражение", answers:["на самом деле","в глубине"], options:["на самом деле/в глубине","на дне","в конце","в начале"], answer:0, ptAnswers:["no fundo"], sentence:"___, ele é uma boa pessoa.", sentenceAnswers:["no fundo"], explanation:"No fundo = на самом деле (переносное). Ex.: No fundo, ele é uma boa pessoa." },
+  { cat:"Objetos", badge:"badge-objetos", q:"cérebro", hint:"m.", answers:["мозг"], options:["мозг","сердце","голова","разум"], answer:0, ptAnswers:["cérebro"], sentence:"O ___ humano é muito complexo.", sentenceAnswers:["cérebro"], explanation:"Cérebro = мозг. Ex.: O cérebro humano é muito complexo." },
+  { cat:"Objetos", badge:"badge-objetos", q:"concurso", hint:"m.", answers:["конкурс","соревнование"], options:["конкурс/соревнование","встреча","мероприятие","урок"], answer:0, ptAnswers:["concurso"], sentence:"Ela ganhou o ___ de canto.", sentenceAnswers:["concurso"], explanation:"Concurso = конкурс, соревнование. Ex.: Ela ganhou o concurso de canto." },
+  { cat:"Objetos", badge:"badge-objetos", q:"fuga", hint:"f.", answers:["побег"], options:["побег","путь","движение","поиск"], answer:0, ptAnswers:["fuga"], sentence:"Fizeram uma ___ da prisão.", sentenceAnswers:["fuga"], explanation:"Fuga = побег. Fugir = сбежать. Ex.: Fizeram uma fuga da prisão." },
+  { cat:"Objetos", badge:"badge-objetos", q:"espada", hint:"f.", answers:["меч"], options:["меч","нож","копьё","щит"], answer:0, ptAnswers:["espada"], sentence:"O cavaleiro usava uma ___ grande.", sentenceAnswers:["espada"], explanation:"Espada = меч. Ex.: O cavaleiro usava uma espada grande." },
+  { cat:"Objetos", badge:"badge-objetos", q:"gesto", hint:"m.", answers:["жест","поступок"], options:["жест/поступок","движение","взгляд","слово"], answer:0, ptAnswers:["gesto"], sentence:"Foi um ___ muito simpático da parte dele.", sentenceAnswers:["gesto"], explanation:"Gesto = жест (рукой) или поступок (перен.). Ex.: Foi um gesto muito simpático." },
+  { cat:"Objetos", badge:"badge-objetos", q:"pedra", hint:"f.", answers:["камень"], options:["камень","земля","песок","скала"], answer:0, ptAnswers:["pedra"], sentence:"A casa era construída em ___.", sentenceAnswers:["pedra"], explanation:"Pedra = камень. Ex.: A casa era construída em pedra." },
+  { cat:"Objetos", badge:"badge-objetos", q:"ar", hint:"m.", answers:["вид","выражение лица"], options:["вид/выражение лица","воздух","дыхание","пространство"], answer:0, ptAnswers:["ar"], sentence:"Ela tinha um ___ pensativo.", sentenceAnswers:["ar"], explanation:"Ar = вид, выражение лица. Ter um ar = выглядеть. Ex.: Ela tinha um ar triste." },
+  { cat:"Objetos", badge:"badge-objetos", q:"meia", hint:"f.", answers:["носок","чулок"], options:["носок","перчатка","шапка","шарф"], answer:0, ptAnswers:["meia","meias"], sentence:"Preciso de comprar ___ novas.", sentenceAnswers:["meias","meia"], explanation:"Meia = носок (или чулок). Meias = носки. Ex.: Preciso de comprar meias novas." },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// Strict matching: case-insensitive, accents required
+function matchPT(input, accepted) {
+  const raw = input.toLowerCase().trim();
+  return accepted.some(a => a.toLowerCase() === raw);
+}
+
+let mode = 'choice';
+let activeFilter = 'Todos';
+let questions = [];
+let current = 0;
+let score = 0;
+let mistakes = [];
+let answered = false;
+let shuffledOpts = [];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'Todos' ? allQ : allQ.filter(q => q.cat === activeFilter);
+  questions = shuffle(pool);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('resultsCard').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + questions.length;
+
+  const badge = document.getElementById('catBadge');
+  badge.textContent = q.cat;
+  badge.className = 'category-badge ' + q.badge;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  ['choiceArea','writeArea','fraseArea'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('questionText').textContent = '\u00ab' + q.q + '\u00bb \u2014 \u0447\u0442\u043e \u044d\u0442\u043e?';
+    const indexed = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+    shuffledOpts = shuffle(indexed);
+    const div = document.getElementById('optionsDiv');
+    div.innerHTML = '';
+    shuffledOpts.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = item.opt;
+      btn.onclick = () => checkChoice(i, btn);
+      div.appendChild(btn);
+    });
+
+  } else if (mode === 'write') {
+    document.getElementById('writeArea').style.display = 'block';
+    document.getElementById('ruDisplay').textContent = q.answers[0];
+    document.getElementById('ruHintLine').textContent = q.hint + (q.answers.length > 1 ? '  \u00b7  ' + q.answers.slice(1).join(' / ') : '');
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnW').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+
+  } else {
+    document.getElementById('fraseArea').style.display = 'block';
+    const parts = q.sentence.split('___');
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blank = document.createElement('span');
+    blank.className = 'sentence-blank'; blank.textContent = '___'; blank.id = 'blankSpan';
+    sd.appendChild(blank);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('fraseHint').innerHTML = '\u041f\u0435\u0440\u0435\u0432\u043e\u0434: <span>' + q.answers[0] + '</span>  \u00b7  ' + q.hint;
+    const inp = document.getElementById('fraseInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnF').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function checkChoice(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (shuffledOpts[i].correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('feedback');
+  if (shuffledOpts[idx].correct) {
+    score++; btn.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. ' + q.explanation;
+    mistakes.push({ q: q.q, explanation: q.explanation });
+  }
+  showNext();
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnW').disabled = true;
+  const correct = matchPT(raw, q.ptAnswers);
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.ptAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.answers[0] + ' (' + q.hint + ')', explanation: 'Correto: ' + q.ptAnswers[0] });
+  }
+  showNext();
+}
+
+function checkFrase() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('fraseInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnF').disabled = true;
+  const correct = matchPT(raw, q.sentenceAnswers);
+  const blank = document.getElementById('blankSpan');
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++;
+    blank.textContent = raw; blank.style.color = '#276749'; blank.style.borderColor = '#68d391';
+    inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    blank.textContent = q.sentenceAnswers[0]; blank.style.color = '#c53030'; blank.style.borderColor = '#fc8181';
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.sentenceAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.sentence.replace('___', '___'), explanation: 'Correto: ' + q.sentenceAnswers[0] });
+  }
+  showNext();
+}
+
+function showNext() {
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current < questions.length - 1 ? 'Pr\u00f3xima \u2192' : 'Ver resultados \u2192';
+  btn.classList.add('show');
+}
+
+function nextQuestion() { current++; showQuestion(); }
+
+function showResults() {
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('resultsCard').classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  const msgs = [['Continua!','Revê as palavras e tenta outra vez.'],['Bom esforço!','Continua a praticar estas palavras.'],['Muito bem!','Só mais um pouco de prática.'],['Excelente!','Vocabulário dominado!']];
+  const m = msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultTitle').textContent = m[0];
+  document.getElementById('resultMsg').textContent = pct + '% correto. ' + m[1];
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Rever (' + mistakes.length + '):</h3>';
+    mistakes.forEach(m => { ml.innerHTML += '<div class="mistake-item"><div class="mq">' + m.q + '</div><div class="ma">' + m.explanation + '</div></div>'; });
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!answered) {
+      if (mode === 'write') checkWrite();
+      else if (mode === 'frase') checkFrase();
+    } else if (document.getElementById('nextBtn').classList.contains('show')) {
+      nextQuestion();
+    }
+  }
+});
+
+restart();
+</script>
+</body>
+</html>
