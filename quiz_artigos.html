@@ -199,6 +199,60 @@ const questions = [
     options: ["ao", "à", "na", "a a"],
     answer: 1,
     explanation: "a + a = \"à\". \"Vou à farmácia\"."
+  },
+  {
+    q: "Qual frase está correta? (pedido direto / vocativo)",
+    options: ["João, pode abrir a janela?", "O João, pode abrir a janela?", "Um João pode abrir a janela?", "João pode abrir o janela?"],
+    answer: 0,
+    explanation: "Em vocativo (pedido, obrigação) não se usa artigo: \"João, pode abrir a janela?\" Com artigo é afirmação sobre terceira pessoa: \"O João pode abrir a janela.\""
+  },
+  {
+    q: "Como se diz 'durante o inverno' (tempo habitual)?",
+    options: ["em inverno", "no inverno", "o inverno", "este inverno"],
+    answer: 1,
+    explanation: "em + o = \"no\". Para situar no tempo: \"no inverno\". \"Este inverno\" é o inverno específico deste ano."
+  },
+  {
+    q: "Completa: Eu nasci ___ julho.",
+    options: ["no", "em", "na", "ao"],
+    answer: 1,
+    explanation: "Os meses não usam artigo: \"em julho\", \"em agosto\". Nunca \"no julho\"."
+  },
+  {
+    q: "Qual está correto? (gostar -- sentido geral)",
+    options: ["Eu gosto da massa.", "Eu gosto de massa.", "Eu gosto do massa.", "Eu gosto massa."],
+    answer: 1,
+    explanation: "Sentido genérico → sem artigo: \"gosto de massa\". Com artigo é referência específica: \"Eu gostei da massa que pedi\"."
+  },
+  {
+    q: "Qual está correto? (gostar -- referência específica)",
+    options: ["Eu gosto de comida da minha mãe.", "Eu gosto da comida da minha mãe.", "Eu gosto comida da minha mãe.", "Eu gosto do comida da minha mãe."],
+    answer: 1,
+    explanation: "Referência específica → artigo definido: \"da comida\". de + a = \"da\"."
+  },
+  {
+    q: "Completa: Ela é ___ boa médica.",
+    options: ["a", "uma", "---", "as"],
+    answer: 1,
+    explanation: "Profissão simples → sem artigo: \"Ela é médica.\" Com adjetivo → artigo indefinido: \"Ela é uma boa médica.\""
+  },
+  {
+    q: "Superlativo: 'Lisboa é a cidade ___ bonita de todas.'",
+    options: ["mais", "muito", "tão", "bem"],
+    answer: 0,
+    explanation: "Superlativo relativo: artigo + mais + adjetivo. \"a cidade mais bonita de todas\"."
+  },
+  {
+    q: "Como se diz 'trabalhar em casa' (home -- sem artigo)?",
+    options: ["Eu trabalho em a casa.", "Eu trabalho em casa.", "Eu trabalho na casa.", "Eu trabalho ao casa."],
+    answer: 1,
+    explanation: "\"em casa\" (home como conceito) nunca usa artigo. \"Na casa\" seria numa casa específica."
+  },
+  {
+    q: "Como se diz '(the city of) Porto'?",
+    options: ["Porto", "o Porto", "ao Porto", "um Porto"],
+    answer: 1,
+    explanation: "Porto usa artigo: \"o Porto\", \"fui ao Porto\". Lisboa não usa: \"fui a Lisboa\"."
   }
 ];
 
