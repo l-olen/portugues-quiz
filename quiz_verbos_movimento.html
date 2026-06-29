@@ -1,0 +1,154 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Verbos de Movimento</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #2c7a7b; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #2c7a7b; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #319795, #81e6d9); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-ir-vir   { background: #e6fffa; color: #234e52; }
+  .badge-levar    { background: #ebf8ff; color: #2c5282; }
+  .badge-buscar   { background: #faf5ff; color: #553c9a; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #e6fffa; border-color: #81e6d9; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #319795; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #2c7a7b; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #319795, #81e6d9); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #319795; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Verbos de Movimento</h1>
+    <p>Ir · Vir · Levar · Trazer · Ir buscar · Ir ter com</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // IR vs VIR
+  { cat:"ir-vir", q:"Eu ___ ao supermercado agora. (движение от себя)", options:["venho","vou","vim","trago"], answer:1, explanation:"IR = движение от говорящего (идти/ехать). \"Eu vou ao supermercado.\"" },
+  { cat:"ir-vir", q:"Ela ___ de Lisboa amanhã. (движение к говорящему)", options:["vai","leva","vem","traz"], answer:2, explanation:"VIR = движение к говорящему (прийти/приехать). \"Ela vem de Lisboa.\"" },
+  { cat:"ir-vir", q:"Qual frase está correta? (ты звонишь другу и говоришь, что едешь к нему)", options:["Eu venho aí já.","Eu vou aí já.","Eu levo aí já.","Eu trago aí já."], answer:0, explanation:"Когда едешь К собеседнику -- используй VIR (с его точки зрения ты приходишь). \"Eu venho aí já.\"" },
+  { cat:"ir-vir", q:"Tu ___ à festa esta noite?", options:["vens","vais","levas","trazes"], answer:0, explanation:"Говорящий уже на месте (или едет туда же) → VIR. \"Tu vens à festa?\" Если бы ты звал с собой: \"Tu vais à festa?\"" },
+
+  // LEVAR vs TRAZER
+  { cat:"levar", q:"Qual é a diferença entre LEVAR e TRAZER?", options:["Нет разницы","Levar = нести от себя; Trazer = нести к себе","Trazer = нести от себя; Levar = нести к себе","Оба значат 'нести'"], answer:1, explanation:"LEVAR = нести/везти ОТ говорящего (away). TRAZER = нести/везти К говорящему (here). Как go/come, но для предметов." },
+  { cat:"levar", q:"Vou ao supermercado. Posso ___ alguma coisa? (принести тебе что-нибудь -- я возвращаюсь)", options:["levar","ir buscar","trazer","vir"], answer:2, explanation:"TRAZER = принести к говорящему / к тому, кто спрашивает. \"Posso trazer alguma coisa?\"" },
+  { cat:"levar", q:"Ela ___ os filhos à escola todos os dias. (отвозит детей)", options:["traz","vem","leva","vai buscar"], answer:2, explanation:"LEVAR = везти кого-то ОТ себя (в другое место). \"Ela leva os filhos à escola.\"" },
+  { cat:"levar", q:"Ele ___ flores para a namorada. (принёс к ней)", options:["levou","foi","trouxe","veio"], answer:2, explanation:"TRAZER (PPS: trouxe) = принести к кому-то. \"Ele trouxe flores para a namorada.\"" },
+  { cat:"levar", q:"Não te esqueças de ___ o casaco! Está frio lá fora.", options:["trazer","vir","levar","trazes"], answer:2, explanation:"LEVAR = взять с собой (ты уходишь). \"Leva o casaco\" = возьми пальто (с собой, уходя)." },
+  { cat:"levar", q:"\"Podes ___ a casa?\" O que significa esta frase?", options:["Можешь принести домой?","Можешь подвезти домой?","Можешь забрать из дома?","Можешь пойти домой?"], answer:1, explanation:"Levar a casa = dar boleia = подвезти домой. \"Podes levar-me a casa?\"" },
+
+  // IR BUSCAR vs VIR BUSCAR
+  { cat:"buscar", q:"Vou ___ o meu filho à escola. O que significa?", options:["Везу сына в школу","Забираю сына из школы","Прихожу в школу с сыном","Иду в школу"], answer:1, explanation:"Ir buscar = забрать (поехать и забрать). \"Vou buscar o meu filho à escola\" = еду забирать сына из школы." },
+  { cat:"buscar", q:"Qual é a diferença: \"Levar à escola\" vs \"Ir buscar à escola\"?", options:["Нет разницы","Levar = отвезти в школу; Ir buscar = забрать из школы","Ir buscar = отвезти в школу; Levar = забрать из школы","Оба значат забрать"], answer:1, explanation:"Levar = везти ТУДА. Ir buscar = ехать ЗАБИРАТЬ (оттуда)." },
+  { cat:"buscar", q:"\"Eu venho buscar-te às 21h.\" Что это значит?", options:["Я жду тебя в 21:00","Я заберу тебя в 21:00","Приходи ко мне в 21:00","Встретимся в 21:00"], answer:1, explanation:"Vir buscar = приехать забрать (с точки зрения того, кого забирают). \"Venho buscar-te\" = приеду за тобой." },
+
+  // IR TER COM
+  { cat:"buscar", q:"\"Hoje vou ter com os meus amigos.\" Что это значит?", options:["Сегодня друзья придут ко мне","Сегодня я встречусь с друзьями","Сегодня у меня есть друзья","Сегодня я иду к друзьям домой"], answer:1, explanation:"Ir ter com = встретиться с кем-то (пойти туда, где они есть). \"Vou ter com os amigos\" = иду встречаться с друзьями." },
+  { cat:"ir-vir", q:"Qual frase é INCORRETA?", options:["Eu vou ao médico amanhã.","Ela vem de Lisboa hoje.","Eu venho ao supermercado agora. (говоришь другу по телефону, ты идёшь один)","Eles vêm à festa connosco."], answer:2, explanation:"Если идёшь один и не к собеседнику -- используй IR: \"Eu vou ao supermercado\". VIR используется когда движение К собеседнику." },
+];
+
+const labelMap = { "ir-vir":"IR vs VIR", "levar":"LEVAR vs TRAZER", "buscar":"IR BUSCAR · IR TER COM" };
+const classMap = { "ir-vir":"badge-ir-vir", "levar":"badge-levar", "buscar":"badge-buscar" };
+
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat];badge.className='category-badge '+classMap[q.cat];
+  document.getElementById('question').textContent=q.q;
+  const optDiv=document.getElementById('options');optDiv.innerHTML='';
+  const si=shuffle(q.options.map((_,i)=>i));const nc=si.indexOf(q.answer);
+  si.forEach((oi,ni)=>{const btn=document.createElement('button');btn.className='option-btn';btn.textContent=q.options[oi];btn.onclick=()=>selectAnswer(ni,nc,q);optDiv.appendChild(btn);});
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').className='next-btn';
+  answered=false;
+}
+function selectAnswer(chosen,correct,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');btns.forEach(b=>b.disabled=true);
+  btns[correct].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  if(chosen===correct){score++;btns[chosen].classList.add('correct');fb.className='feedback ok show';fb.textContent='✓ Correto! '+q.explanation;}
+  else{btns[chosen].classList.add('wrong');fb.className='feedback err show';fb.textContent='✗ Incorreto. '+q.explanation;mistakes.push({q:q.q,wrong:btns[chosen].textContent,right:q.options[q.answer]});}
+  document.getElementById('nextBtn').className='next-btn show';
+}
+function nextQuestion(){current++;if(current>=shuffled.length)showResults();else renderQuestion();}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  document.getElementById('progressBar').style.width='100%';
+  const total=shuffled.length,pct=Math.round(score/total*100);
+  document.getElementById('scoreNum').textContent=score;document.getElementById('scoreDenom').textContent='de '+total;
+  const msgs=[['Não desistas!','Estes verbos são difíceis! Revê e tenta outra vez.'],['Continua!','Já percebes a lógica básica, continua a praticar!'],['Muito bem!','Bom resultado! Revê os erros abaixo.'],['Excelente!','Dominas muito bem os verbos de movimento!']];
+  const m=msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultsTitle').textContent=m[0];document.getElementById('resultsMsg').textContent=`${pct}% correto. ${m[1]}`;
+  const ml=document.getElementById('mistakesList');
+  ml.innerHTML=mistakes.length>0?'<h3>Erros para rever:</h3>'+mistakes.map(m=>`<div class="mistake-item"><div>${m.q}</div><div>A tua resposta: <strong>${m.wrong}</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">${m.right}</span></div></div>`).join(''):'<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>

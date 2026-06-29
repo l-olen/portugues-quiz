@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Verbos Reflexivos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-conjugacao { background: #fffbeb; color: #744210; }
+  .badge-negacao    { background: #fff5f5; color: #c53030; }
+  .badge-uso        { background: #f0fff4; color: #276749; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6e05e; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Verbos Reflexivos</h1>
+    <p>chamar-se · levantar-se · vestir-se · esquecer-se · lembrar-se</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // Conjugacao
+  { cat:"conjugacao", q:"Como te ___ ? (как тебя зовут?)", options:["chamas","chama","chamo","chamam"], answer:0, explanation:"CHAMAR-SE: eu chamo-me, tu chamas-te, ele chama-se. \"Como te chamas?\" = как тебя зовут?" },
+  { cat:"conjugacao", q:"Eu ___ muito tarde ao fim de semana. (встаю поздно)", options:["levanta-se","levanto-me","levanto","me levanto"], answer:1, explanation:"LEVANTAR-SE: eu levanto-me. Местоимение после глагола через дефис." },
+  { cat:"conjugacao", q:"Ela ___ muito rápido de manhã. (одевается быстро)", options:["viste-se","visto-se","veste-se","vestimo-nos"], answer:2, explanation:"VESTIR-SE: ele/ela veste-se. Внимание: e→i только в eu (visto-me)." },
+  { cat:"conjugacao", q:"Nós ___ muito bem aqui. (чувствуем себя хорошо)", options:["sentimos-nos","sentimo-nos","se sentimos","nos sentimos"], answer:1, explanation:"SENTIR-SE: nós sentimo-nos. Atenção: os verbos em -IR perdem o s final em nós: sentimo-nos, vestimo-nos." },
+  { cat:"conjugacao", q:"Eles ___ no sofá depois do jantar. (садятся)", options:["sentam-se","sentem-se","se sentam","sentamo-nos"], answer:0, explanation:"SENTAR-SE: eles sentam-se. Não confundir com SENTIR-SE (чувствовать себя)." },
+  { cat:"conjugacao", q:"Eu ___ sempre das chaves. (всегда забываю ключи)", options:["esqueço-me","esqueço","me esqueço","esquece-se"], answer:0, explanation:"ESQUECER-SE de: eu esqueço-me. Обратите внимание на написание esqueço (ç перед o)." },
+  { cat:"conjugacao", q:"Tu ___ do aniversário dela? (помнишь её день рождения?)", options:["lembraste-te","lembras-te","te lembras","lembramos-nos"], answer:1, explanation:"LEMBRAR-SE de: tu lembras-te. \"Lembras-te do aniversário dela?\"" },
+  { cat:"conjugacao", q:"Ela ___ muito com o filho. (очень беспокоится о сыне)", options:["preocupa-se","preocupo-me","preocupas-te","se preocupa"], answer:0, explanation:"PREOCUPAR-SE com: ela preocupa-se. = estar preocupada com." },
+  // Negacao
+  { cat:"negacao", q:"Как правильно сказать \"Я не встаю рано\"?", options:["Não levanto-me cedo.","Eu não me levanto cedo.","Eu levanto-me não cedo.","Não me levanto-me cedo."], answer:1, explanation:"При NEGAÇÃO местоимение ставится ПЕРЕД глаголом: não me levanto. Также: nunca me levanto, nada me levanta." },
+  { cat:"negacao", q:"\"Eles não ___ ontem.\" (они не оделись вчера -- PPS)", options:["vestiram-se","se vestiram","não se vestiram","vestimo-nos"], answer:1, explanation:"При отрицании в PPS: eles não se vestiram. Местоимение перед глаголом после слова отрицания." },
+  { cat:"negacao", q:"Qual frase está correta? (я никогда не забываю о встречах)", options:["Nunca esqueço-me das reuniões.","Nunca me esqueço das reuniões.","Eu esqueço-me nunca das reuniões.","Eu não esqueço-me nunca."], answer:1, explanation:"Nunca/Não/Nada/Ninguém → местоимение перед глаголом: nunca me esqueço." },
+  // Uso
+  { cat:"uso", q:"\"Hoje sinto-me bem.\" Что означает эта фраза?", options:["Сегодня я сижу хорошо.","Сегодня я чувствую себя хорошо.","Сегодня я чувствую что-то хорошее.","Сегодня я нахожусь в хорошем месте."], answer:1, explanation:"SENTIR-SE = чувствовать себя. \"Sinto-me bem/mal/cansado/feliz.\"" },
+  { cat:"uso", q:"Qual é a diferença: SENTAR-SE vs ESTAR SENTADO?", options:["Нет разницы","Sentar-se = процесс садиться; Estar sentado = состояние сидеть","Estar sentado = процесс; Sentar-se = состояние","Sentar-se используется только в presente"], answer:1, explanation:"SENTAR-SE = действие (садиться). ESTAR SENTADO = состояние (сидеть). \"Ela senta-se\" = она садится. \"Ela está sentada\" = она сидит." },
+  { cat:"uso", q:"\"Deita-te!\" Что это значит?", options:["Встань!","Оденься!","Ложись!","Проснись!"], answer:2, explanation:"DEITAR-SE = ложиться. \"Deita-te\" (tu, повелит.) = ложись. ESTAR DEITADO = лежать (состояние)." },
+  { cat:"uso", q:"\"Ela preparou-se para a festa.\" Что это значит?", options:["Она подготовила праздник.","Она приготовила еду для праздника.","Она собралась/приготовилась к празднику.","Она пошла на праздник."], answer:2, explanation:"PREPARAR-SE = собраться/приготовиться (о себе). \"Ela preparou-se para a festa\" = она собралась на праздник (ПСД: preparou-se)." },
+  { cat:"uso", q:"Выберите правильный вариант: (расчесывается перед зеркалом)", options:["Ela penteia o cabelo.","Ela penteia-se.","Ela penteia a Maria.","Ela está penteada."], answer:1, explanation:"PENTEAR-SE = расчёсываться. Если действие направлено на себя -- рефлексивный глагол. \"Ela penteia-se\" = она расчёсывается." },
+  { cat:"uso", q:"\"Calça-te!\" Что это значит?", options:["Обувайся!","Одевайся!","Снимай обувь!","Садись!"], answer:0, explanation:"CALÇAR-SE = обуваться (надевать обувь). \"Calça-te\" = обувайся. Также: calçar os sapatos = надеть туфли." },
+  { cat:"uso", q:"Qual é a diferença: LAVAR-SE vs TOMAR BANHO?", options:["Нет разницы","Lavar-se = умываться (лицо/руки); Tomar banho = принимать душ/ванну","Tomar banho = умываться; Lavar-se = принимать ванну","Lavar-se используется только в presente"], answer:1, explanation:"Lavar-se = умываться/мыться (часть тела). Tomar banho = принимать душ или ванну (полностью). Обычно говорят: Eu tomo banho de manhã." },
+  { cat:"uso", q:"\"Não te esqueças das chaves!\" Что это значит?", options:["Вспомни ключи!","Не забудь ключи!","Возьми ключи!","Где ключи?"], answer:1, explanation:"Não te esqueças = повелительное с отрицанием (не забудь, ты). ESQUECER-SE de = забывать о чём-то." },
+  { cat:"uso", q:"Как спросить \"Ты себя хорошо чувствуешь?\"", options:["Estás bem?","Sentes-te bem?","Como sentes?","Estás a sentir bem?"], answer:1, explanation:"SENTIR-SE: tu sentes-te. \"Sentes-te bem?\" = Ты чувствуешь себя хорошо? Также возможно: \"Estás bem?\" (более разговорно)." }
+];
+
+let current = 0, score = 0, mistakes = [];
+const badges = { conjugacao:"Conjugação", negacao:"Negação", uso:"Uso" };
+const badgeClass = { conjugacao:"badge-conjugacao", negacao:"badge-negacao", uso:"badge-uso" };
+
+function shuffle(arr) { return arr.sort(() => Math.random() - 0.5); }
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = `Questão ${current + 1} de ${questions.length}`;
+  const badge = document.getElementById('badge');
+  badge.textContent = badges[q.cat];
+  badge.className = 'category-badge ' + badgeClass[q.cat];
+  document.getElementById('question').textContent = q.q;
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('feedback').textContent = '';
+  document.getElementById('nextBtn').className = 'next-btn';
+}
+
+function selectAnswer(i) {
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  if (i === q.answer) {
+    score++;
+    btns[i].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, yours: q.options[i], correct: q.options[q.answer] });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) { loadQuestion(); }
+  else { showResults(); }
+}
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  const r = document.getElementById('results');
+  r.className = 'card results show';
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  document.getElementById('resultsTitle').textContent = pct >= 80 ? 'Muito bem!' : pct >= 60 ? 'Bom trabalho!' : 'Continua a praticar!';
+  document.getElementById('resultsMsg').textContent = `Acertaste ${score} de ${questions.length} questões (${pct}%).`;
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length) {
+    ml.innerHTML = '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+      `<div class="mistake-item"><strong>${m.q}</strong><br>A tua resposta: ${m.yours}<br><span class="correct-ans">Correto: ${m.correct}</span></div>`
+    ).join('');
+  }
+}
+
+function restart() {
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('results').className = 'card results';
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+</body>
+</html>

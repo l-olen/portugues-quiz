@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Trocar / Mudar / Dar / Devolver</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.7rem; color: #6b46c1; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #6b46c1; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #805ad5, #d6bcfa); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-trocar   { background: #faf5ff; color: #553c9a; }
+  .badge-mudar    { background: #ebf8ff; color: #2b6cb0; }
+  .badge-devolver { background: #f0fff4; color: #276749; }
+  .badge-dar      { background: #fffbeb; color: #92400e; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #faf5ff; border-color: #d6bcfa; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #805ad5; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #6b46c1; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #805ad5, #d6bcfa); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #805ad5; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Trocar · Mudar · Dar · Devolver</h1>
+    <p>O verbo certo no contexto certo</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // TROCAR -- обмен (A на B)
+  { cat:"trocar", q:"Quero ___ este casaco por um tamanho maior. (обменять)", options:["mudar","devolver","trocar","dar"], answer:2, explanation:"TROCAR = обменять (A на B). \"Trocar por\" = поменять на что-то другое." },
+  { cat:"trocar", q:"Podemos ___ os dias? Eu trabalho na quinta e tu na sexta. (поменяться)", options:["mudar","trocar","devolver","dar"], answer:1, explanation:"TROCAR os dias = поменяться днями. Обмен между двумя людьми." },
+  { cat:"trocar", q:"Preciso de ___ dinheiro. Tens euros? (разменять / обменять)", options:["mudar","devolver","dar","trocar"], answer:3, explanation:"TROCAR dinheiro = разменять / обменять деньги." },
+  { cat:"trocar", q:"Qual frase usa TROCAR corretamente?", options:["Quero trocar de cidade.","Quero trocar este livro por outro.","Quero trocar o meu cabelo.","Quero trocar para Lisboa."], answer:1, explanation:"TROCAR = обменять A на B. \"Trocar por\" -- правильная конструкция. Сменить город -- это MUDAR de cidade." },
+
+  // MUDAR -- изменить (без обмена)
+  { cat:"mudar", q:"Ela quer ___ de emprego. (сменить работу)", options:["trocar","devolver","dar","mudar"], answer:3, explanation:"MUDAR de = сменить (без обмена). Mudar de emprego / de cidade / de roupa / de operadora." },
+  { cat:"mudar", q:"Eles ___ para Lisboa no ano passado. (переехали)", options:["trocaram","mudaram-se","devolveram","deram"], answer:1, explanation:"MUDAR-SE = переехать. \"Mudaram-se para Lisboa\" = переехали в Лиссабон." },
+  { cat:"mudar", q:"Preciso de ___ a senha. Não me lembro dela. (изменить пароль)", options:["trocar","devolver","mudar","dar"], answer:2, explanation:"MUDAR = изменить (что-то конкретное). \"Mudar a senha / o cabelo / o plano.\"" },
+  { cat:"mudar", q:"Qual é a diferença: \"mudar de roupa\" vs \"trocar de roupa\"?", options:["Нет разницы, оба правильны","Mudar de roupa = переодеться; Trocar -- только обмен с другим человеком","Trocar de roupa = правильно; Mudar -- нет","Оба неправильны"], answer:0, explanation:"В разговорном языке оба варианта используются для 'переодеться'. Строго: MUDAR de roupa = сменить одежду (переодеться); TROCAR -- обмен с кем-то." },
+
+  // DEVOLVER -- вернуть (товар/вещь)
+  { cat:"devolver", q:"Esta camisa tem um defeito. Quero ___ . (вернуть в магазин)", options:["trocar","mudar","devolver","dar"], answer:2, explanation:"DEVOLVER = вернуть товар. \"Quero devolver esta camisa\" = хочу вернуть эту рубашку (в магазин)." },
+  { cat:"devolver", q:"Podes ___ o livro que te emprestei? (вернуть то, что одолжили)", options:["trocar","mudar","dar","devolver"], answer:3, explanation:"DEVOLVER = вернуть то, что было одолжено. \"Devolve o livro\" = верни книгу." },
+  { cat:"devolver", q:"Qual frase usa DEVOLVER corretamente?", options:["Quero devolver de cidade.","Quero devolver este produto -- não funciona.","Quero devolver o meu cabelo.","Quero devolver-me para Lisboa."], answer:1, explanation:"DEVOLVER = вернуть товар или одолженную вещь. \"Devolver um produto\" -- правильно." },
+
+  // DAR -- давать
+  { cat:"dar", q:"Ela ___ um presente ao filho. (подарила)", options:["trocou","mudou","deu","devolveu"], answer:2, explanation:"DAR = давать / дарить. PPS: eu dei / tu deste / ele deu / nós demos / eles deram." },
+  { cat:"dar", q:"\"Podes ___ uma boleia?\" O que significa?", options:["Можешь одолжить машину?","Можешь подвезти?","Можешь вернуть поездку?","Можешь поменяться поездками?"], answer:1, explanation:"Dar uma boleia = подвезти. \"Podes dar-me uma boleia?\" = Можешь подвезти?" },
+  { cat:"dar", q:"Qual verbo completa: \"___ as boas-vindas\" (приветствовать)?", options:["Trocar","Mudar","Dar","Devolver"], answer:2, explanation:"Dar as boas-vindas = приветствовать / добро пожаловать. DAR используется во многих устойчивых выражениях." },
+
+  // Смешанные -- выбери правильный глагол
+  { cat:"trocar", q:"No supermercado: comprei leite mas estava estragado. Quero ___.", options:["mudar o leite","trocar o leite por um bom","devolver o leite","dar o leite"], answer:1, explanation:"В магазине при замене товара: TROCAR (por outro) = обменять на другой. DEVOLVER = просто вернуть без замены." },
+  { cat:"mudar", q:"\"Não gosto desta cidade. Vou ___ de cidade.\" Qual verbo?", options:["trocar","devolver","mudar","dar"], answer:2, explanation:"MUDAR DE = сменить (место, работу, оператора и т.д.). \"Mudar de cidade\" = сменить город." },
+  { cat:"devolver", q:"Emprestei o meu carro ao vizinho. Amanhã ele vai ___ . (вернёт)", options:["trocar","mudar","dar","devolver"], answer:3, explanation:"DEVOLVER = вернуть то, что было одолжено. \"Vai devolver o carro\" = вернёт машину." },
+];
+
+const labelMap = { trocar:"TROCAR", mudar:"MUDAR / MUDAR-SE", devolver:"DEVOLVER", dar:"DAR" };
+const classMap = { trocar:"badge-trocar", mudar:"badge-mudar", devolver:"badge-devolver", dar:"badge-dar" };
+
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat];badge.className='category-badge '+classMap[q.cat];
+  document.getElementById('question').textContent=q.q;
+  const optDiv=document.getElementById('options');optDiv.innerHTML='';
+  const si=shuffle(q.options.map((_,i)=>i));const nc=si.indexOf(q.answer);
+  si.forEach((oi,ni)=>{const btn=document.createElement('button');btn.className='option-btn';btn.textContent=q.options[oi];btn.onclick=()=>selectAnswer(ni,nc,q);optDiv.appendChild(btn);});
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('nextBtn').className='next-btn';
+  answered=false;
+}
+function selectAnswer(chosen,correct,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');btns.forEach(b=>b.disabled=true);
+  btns[correct].classList.add('correct');
+  const fb=document.getElementById('feedback');
+  if(chosen===correct){score++;btns[chosen].classList.add('correct');fb.className='feedback ok show';fb.textContent='✓ Correto! '+q.explanation;}
+  else{btns[chosen].classList.add('wrong');fb.className='feedback err show';fb.textContent='✗ Incorreto. '+q.explanation;mistakes.push({q:q.q,wrong:btns[chosen].textContent,right:q.options[q.answer]});}
+  document.getElementById('nextBtn').className='next-btn show';
+}
+function nextQuestion(){current++;if(current>=shuffled.length)showResults();else renderQuestion();}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  document.getElementById('progressBar').style.width='100%';
+  const total=shuffled.length,pct=Math.round(score/total*100);
+  document.getElementById('scoreNum').textContent=score;document.getElementById('scoreDenom').textContent='de '+total;
+  const msgs=[['Não desistas!','Revê as diferenças e tenta outra vez!'],['Continua!','Já percebes alguns casos, continua a praticar!'],['Muito bem!','Bom resultado! Revê os erros abaixo.'],['Excelente!','Dominas muito bem estes verbos!']];
+  const m=msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultsTitle').textContent=m[0];document.getElementById('resultsMsg').textContent=`${pct}% correto. ${m[1]}`;
+  const ml=document.getElementById('mistakesList');
+  ml.innerHTML=mistakes.length>0?'<h3>Erros para rever:</h3>'+mistakes.map(m=>`<div class="mistake-item"><div>${m.q}</div><div>A tua resposta: <strong>${m.wrong}</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">${m.right}</span></div></div>`).join(''):'<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>

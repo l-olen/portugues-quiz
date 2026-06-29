@@ -1,0 +1,184 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Demonstrativos, Possessivos e Interrogativas</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #276749; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #276749; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #38a169, #9ae6b4); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-dem  { background: #f0fff4; color: #276749; }
+  .badge-poss { background: #ebf8ff; color: #2c5282; }
+  .badge-int  { background: #faf5ff; color: #553c9a; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #f0fff4; border-color: #9ae6b4; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #276749; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #38a169, #9ae6b4); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Demonstrativos · Possessivos · Interrogativas</h1>
+    <p>este/esse/aquele · meu/teu/nosso · qual/quem/quando/quanto</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // Demonstrativos
+  { cat:"dem", q:"___ livro aqui na minha mão é muito interessante. (этот -- рядом со мной)", options:["Esse","Aquele","Este","Aquilo"], answer:2, explanation:"ESTE/ESTA/ISTO = вот это (рядом с говорящим, aqui). ESSE/ESSA/ISSO = вон то (рядом с собеседником, aí). AQUELE/AQUELA/AQUILO = вон то далеко (ali/lá)." },
+  { cat:"dem", q:"___ casaco que tu tens é muito bonito! (тот, что у тебя)", options:["Este","Esse","Aquele","Isto"], answer:1, explanation:"ESSE/ESSA = то, что рядом с собеседником (aí, у тебя). \"Esse casaco\" = тот пиджак (у тебя в руках)." },
+  { cat:"dem", q:"Olha ___ prédio lá ao fundo! (вон то здание далеко)", options:["este","esse","aquele","isto"], answer:2, explanation:"AQUELE/AQUELA = вон то, далеко (ali/lá). \"Aquele prédio\" = то здание вон там." },
+  { cat:"dem", q:"O que é ___? (что это? -- указываю на предмет рядом со мной)", options:["isso","aquilo","isto","este"], answer:2, explanation:"ISTO (нейтральное, без рода) = что это? (рядом с говорящим). ISSO = что вон то? (у собеседника). AQUILO = что вон то? (далеко)." },
+  { cat:"dem", q:"___ é a Zara. (вон та -- далеко)", options:["Isso","Isto","Aquilo","Esse"], answer:2, explanation:"AQUILO = вон то (без рода, далеко). \"Aquilo é a Zara\" = вон то -- это Зара." },
+  { cat:"dem", q:"Na pastelaria: \"Nós temos ___ mais pequenos e ___ maiores, quais prefere?\" (вот эти / вон те)", options:["estes / aqueles","esses / aqueles","estes / esses","aqueles / estes"], answer:0, explanation:"Продавец показывает: ESTES (рядом с ним) и AQUELES (дальше). \"Esses\" было бы неправильно -- это то, что у покупателя." },
+  // Possessivos
+  { cat:"poss", q:"___ amigo fala inglês. (мой друг)", options:["Meu","O meu","A minha","De mim"], answer:1, explanation:"Possessivos в португальском обычно используются с артиклем: O MEU / A MINHA. \"O meu amigo\" = мой друг." },
+  { cat:"poss", q:"Como se diz \"её сестра\" (dele не о нём)?", options:["a sua irmã","a irmã dela","a irmã de ela","a dela irmã"], answer:1, explanation:"Для третьего лица часто используют DELE/DELA после существительного: \"a irmã dela\" = её сестра. A SUA IRMÃ тоже возможно, но может быть неоднозначно." },
+  { cat:"poss", q:"\"Vocês e ___ livros.\" (ваши книги -- mн.ч., вы все)", options:["os seus","os vossos","as suas","os vossas"], answer:1, explanation:"Possessivo para VOCÊS (мн.ч.) = O VOSSO / A VOSSA / OS VOSSOS / AS VOSSAS. \"Os vossos livros\" = ваши книги." },
+  // Interrogativas
+  { cat:"int", q:"___ é a tua profissão? (какая -- ждём конкретный ответ)", options:["Como","Qual","O que","Que"], answer:1, explanation:"QUAL = который/какой (ждём конкретный ответ из вариантов). COMO = как (ждём описание). \"Qual é a tua profissão?\" → \"Sou médico.\" \"Como é a tua profissão?\" → \"É interessante.\"" },
+  { cat:"int", q:"___ é a tua casa? (как выглядит -- описание)", options:["Qual","O que","Como","Onde"], answer:2, explanation:"COMO = как, какая (описание, характеристика). \"Como é a tua casa?\" → \"É grande e bonita.\"" },
+  { cat:"int", q:"___ tempo demora um jogo de futebol? (сколько времени)", options:["Quantos","Quanto","Quanta","Quando"], answer:1, explanation:"QUANTO TEMPO = сколько времени (tempo -- masculino). \"Quanto tempo demora?\" → \"90 minutos.\"" },
+  { cat:"int", q:"___ pessoas há na sala? (сколько людей)", options:["Quanto","Quanta","Quantas","Quantos"], answer:2, explanation:"QUANTAS = сколько (pessoas -- feminino plural). Согласование: quanto/quanta/quantos/quantas + существительное." },
+  { cat:"int", q:"___ é esse presente? (чей этот подарок?)", options:["Para quem","A quem","De quem","Com quem"], answer:2, explanation:"DE QUEM = чей (чья принадлежность). \"De quem é esse presente?\" = Чей это подарок? PARA QUEM = для кого. A QUEM = кому." },
+  { cat:"int", q:"___ voltas para Portugal? (когда)", options:["Quando","A que horas","Em que dia","Onde"], answer:0, explanation:"QUANDO = когда (общее). A QUE HORAS = в котором часу (точное время). EM QUE DIA = в какой день. \"Quando voltas?\" → \"Na próxima semana.\"" },
+  { cat:"int", q:"___ estás em casa? (почему -- ты спрашиваешь причину)", options:["Quando","Porque é que","Como","Qual"], answer:1, explanation:"PORQUE É QUE (или PORQUE) = почему. \"Porque é que estás em casa?\" → \"Porque estou doente.\" Atenção: no começo da frase = PORQUE É QUE; в ответе = PORQUE (sem é que)." }
+];
+
+const badges = { dem:"Demonstrativos", poss:"Possessivos", int:"Interrogativas" };
+const badgeClass = { dem:"badge-dem", poss:"badge-poss", int:"badge-int" };
+
+let current = 0, score = 0, mistakes = [];
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = `Questão ${current + 1} de ${questions.length}`;
+  const badge = document.getElementById('badge');
+  badge.textContent = badges[q.cat];
+  badge.className = 'category-badge ' + badgeClass[q.cat];
+  document.getElementById('question').textContent = q.q;
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+}
+
+function selectAnswer(i) {
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  if (i === q.answer) {
+    score++;
+    btns[i].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, yours: q.options[i], correct: q.options[q.answer] });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) { loadQuestion(); }
+  else { showResults(); }
+}
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  const r = document.getElementById('results');
+  r.className = 'card results show';
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  document.getElementById('resultsTitle').textContent = pct >= 80 ? 'Muito bem!' : pct >= 60 ? 'Bom trabalho!' : 'Continua a praticar!';
+  document.getElementById('resultsMsg').textContent = `Acertaste ${score} de ${questions.length} questões (${pct}%).`;
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length) {
+    ml.innerHTML = '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+      `<div class="mistake-item"><strong>${m.q}</strong><br>A tua resposta: ${m.yours}<br><span class="correct-ans">Correto: ${m.correct}</span></div>`
+    ).join('');
+  }
+}
+
+function restart() {
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('results').className = 'card results';
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+</body>
+</html>

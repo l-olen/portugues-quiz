@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Futuro e Contínuo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #2c5282; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #2c5282; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #3182ce, #90cdf4); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-futuro   { background: #ebf8ff; color: #2c5282; }
+  .badge-continuo { background: #f0fff4; color: #276749; }
+  .badge-costumar { background: #fffbeb; color: #744210; }
+  .badge-sera     { background: #faf5ff; color: #553c9a; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #ebf8ff; border-color: #90cdf4; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #3182ce; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #2c5282; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #3182ce, #90cdf4); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #3182ce; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Futuro e Contínuo</h1>
+    <p>IR + infinitivo · Estar + a + infinitivo · Costumar · Será que</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  // IR + INFINITIVO
+  { cat:"futuro", q:"Amanhã eu ___ ao cinema. (я собираюсь / иду в кино)", options:["vou ir","vou","fui","irei"], answer:0, explanation:"IR + INFINITIVO = ближайшее будущее (планы). \"Eu vou ir ao cinema\" = я пойду / собираюсь пойти в кино." },
+  { cat:"futuro", q:"Qual frase está ERRADA?", options:["Eles vão ter um filho.","Amanhã eu vou estar em casa.","Eu vou ir ao supermercado.","Eu vou vir à festa."], answer:3, explanation:"\"Eu vou vir\" -- ERRADO! Quando eu me movimento para cá, usa-se apenas VIR: \"Eu venho à festa.\" Da mesma forma: \"eu vou ir\" é redundante, mas tolerado; o correto é \"eu vou ao cinema\"." },
+  { cat:"futuro", q:"O filme ___ interessante. (будет интересным -- futuro próximo)", options:["vai ser","é","foi","será"], answer:0, explanation:"IR + INFINITIVO для будущего: \"O filme vai ser interessante.\" Será também correto, mas mais formal." },
+  { cat:"futuro", q:"Na próxima semana eles ___ de Lisboa. (уедут)", options:["foram","vão partir","partem","partirão"], answer:1, explanation:"IR + INFINITIVO = планы на будущее. \"Eles vão partir de Lisboa na próxima semana.\"" },
+  // ESTAR + A + INFINITIVO
+  { cat:"continuo", q:"Что означает \"Ela está a falar ao telefone\"?", options:["Она будет говорить по телефону","Она говорила по телефону","Она сейчас говорит по телефону","Она говорит по телефону (обычно)"], answer:2, explanation:"ESTAR + A + INFINITIVO = действие в процессе (прямо сейчас). \"Ela está a falar\" = она сейчас разговаривает." },
+  { cat:"continuo", q:"Qual é a diferença: \"Eu como\" vs \"Eu estou a comer\"?", options:["Нет разницы","Eu como = обычное действие; Eu estou a comer = сейчас ем","Eu estou a comer = обычное; Eu como = сейчас","Eu como используется только в прошлом"], answer:1, explanation:"Presente simples = обычное действие (normalmente). ESTAR+A+INF = сейчас, в процессе. \"Eu como às 13:00\" vs \"Agora estou a comer.\"" },
+  { cat:"continuo", q:"\"A essa hora já vou estar a nadar.\" Что это значит?", options:["В то время я плавал","В то время я уже буду плавать","В то время я плаваю","В то время мне нужно плавать"], answer:1, explanation:"IR + ESTAR + A + INF = буду заниматься чем-то в будущем (в процессе). \"Vou estar a nadar\" = буду плавать (в тот момент)." },
+  { cat:"continuo", q:"\"Eu estava a comer quando ela chegou.\" Что это значит?", options:["Я ел, когда она пришла","Я поел, и потом она пришла","Я собирался есть, когда она пришла","Я ел вместе с ней"], answer:0, explanation:"ESTAVA + A + INF = был в процессе (Imperfeito). \"Eu estava a comer\" = я ел (в процессе, фоновое действие). Quando + PPS = когда произошло другое событие." },
+  { cat:"continuo", q:"\"Eu estou a estar com fome.\" Frase correta?", options:["Sim, está correto","Não, deve ser: Eu estou com fome","Não, deve ser: Eu tenho fome","Sim, mas só em linguagem informal"], answer:1, explanation:"ESTAR + A + ESTAR é impossível! Estados (fome, frio, calor, sono) não usam o contínuo. Correto: \"Eu estou com fome\" (simplesmente)." },
+  // COSTUMAR
+  { cat:"costumar", q:"\"Eu costumo acordar cedo.\" Что означает это предложение?", options:["Я обычно встаю рано","Я привык вставать рано (раньше)","Я хочу вставать рано","Я буду вставать рано"], answer:0, explanation:"COSTUMAR + INFINITIVO = обычно делать что-то (настоящее время). \"Eu costumo acordar cedo\" = я обычно встаю рано = \"Eu acordo cedo normalmente.\"" },
+  { cat:"costumar", q:"Qual frase está ERRADA?", options:["Eu costumo ler à noite.","Normalmente eu costumo ler.","Ele costuma fazer desporto.","O café costuma estar fechado ao sábado."], answer:1, explanation:"COSTUMAR + NORMALMENTE é redundante (говорит одно и то же). Правило: costumar = normalmente, поэтому их нельзя использовать вместе. \"Normalmente eu leio\" ИЛИ \"Eu costumo ler\" -- только одно." },
+  { cat:"costumar", q:"\"Eu costumava trabalhar na escola.\" Что это значит?", options:["Я обычно работаю в школе","Раньше я обычно работал в школе","Я привык работать в школе","Я собираюсь работать в школе"], answer:1, explanation:"COSTUMAR в Imperfeito (costumava) = раньше обычно делал (\"used to\"). \"Eu costumava trabalhar na escola\" = я раньше работал в школе (регулярно)." },
+  // SERÁ QUE
+  { cat:"sera", q:"\"Será que hoje vai chover?\" Что это означает?", options:["Сегодня будет дождь.","Интересно, сегодня будет дождь?","Сегодня точно будет дождь.","Сегодня не будет дождя."], answer:1, explanation:"SERÁ QUE = интересно, / а вдруг, / наверное... Выражает неуверенность, размышление. \"Será que vai chover?\" = Интересно, пойдёт ли дождь?" },
+  { cat:"sera", q:"\"Será que eles já chegaram a casa?\" -- как это звучит по-русски?", options:["Они уже пришли домой?","Интересно, они уже пришли домой?","Они точно пришли домой.","Когда они придут домой?"], answer:1, explanation:"SERÁ QUE + PPS = размышление о прошлом (\"интересно, они уже...?\"). Не путать с прямым вопросом \"Já chegaram?\"" },
+  { cat:"sera", q:"Как выразить \"Интересно, она сейчас на работе?\" используя Será que:", options:["Ela está a trabalhar?","Será que ela está a trabalhar?","Será ela trabalha?","Que será ela está a trabalhar?"], answer:1, explanation:"SERÁ QUE + глагол в соответствующем времени. \"Será que ela está a trabalhar?\" = Интересно, она сейчас работает?" }
+];
+
+const badges = { futuro:"IR + Infinitivo", continuo:"Estar + a + Inf.", costumar:"Costumar", sera:"Será que" };
+const badgeClass = { futuro:"badge-futuro", continuo:"badge-continuo", costumar:"badge-costumar", sera:"badge-sera" };
+
+let current = 0, score = 0, mistakes = [];
+
+function loadQuestion() {
+  const q = questions[current];
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = `Questão ${current + 1} de ${questions.length}`;
+  const badge = document.getElementById('badge');
+  badge.textContent = badges[q.cat];
+  badge.className = 'category-badge ' + badgeClass[q.cat];
+  document.getElementById('question').textContent = q.q;
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+}
+
+function selectAnswer(i) {
+  const q = questions[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  if (i === q.answer) {
+    score++;
+    btns[i].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, yours: q.options[i], correct: q.options[q.answer] });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < questions.length) { loadQuestion(); }
+  else { showResults(); }
+}
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  const r = document.getElementById('results');
+  r.className = 'card results show';
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  document.getElementById('resultsTitle').textContent = pct >= 80 ? 'Muito bem!' : pct >= 60 ? 'Bom trabalho!' : 'Continua a praticar!';
+  document.getElementById('resultsMsg').textContent = `Acertaste ${score} de ${questions.length} questões (${pct}%).`;
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length) {
+    ml.innerHTML = '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+      `<div class="mistake-item"><strong>${m.q}</strong><br>A tua resposta: ${m.yours}<br><span class="correct-ans">Correto: ${m.correct}</span></div>`
+    ).join('');
+  }
+}
+
+function restart() {
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('results').className = 'card results';
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+</body>
+</html>

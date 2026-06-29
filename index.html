@@ -1,0 +1,363 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Português Quiz</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+
+  body {
+    font-family: 'Segoe UI', Arial, sans-serif;
+    background: #f0f4f8;
+    color: #2d3748;
+    min-height: 100vh;
+    padding: 20px;
+  }
+
+  .container {
+    max-width: 600px;
+    margin: 0 auto;
+  }
+
+  header {
+    text-align: center;
+    padding: 40px 0 30px;
+  }
+
+  .flag {
+    font-size: 3rem;
+    margin-bottom: 12px;
+  }
+
+  header h1 {
+    font-size: 2rem;
+    color: #2b6cb0;
+    margin-bottom: 8px;
+  }
+
+  header p {
+    color: #718096;
+    font-size: 0.95rem;
+  }
+
+  .section-title {
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: #a0aec0;
+    margin: 28px 0 12px;
+  }
+
+  .quiz-card {
+    background: white;
+    border-radius: 14px;
+    padding: 20px 24px;
+    margin-bottom: 12px;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.07);
+    display: flex;
+    align-items: center;
+    gap: 18px;
+    text-decoration: none;
+    color: inherit;
+    transition: transform 0.15s, box-shadow 0.15s;
+    cursor: pointer;
+  }
+
+  .quiz-card:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 20px rgba(0,0,0,0.12);
+  }
+
+  .quiz-card.disabled {
+    opacity: 0.45;
+    cursor: default;
+    pointer-events: none;
+  }
+
+  .card-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 1.5rem;
+    flex-shrink: 0;
+  }
+
+  .icon-blue   { background: #ebf8ff; }
+  .icon-green  { background: #f0fff4; }
+  .icon-purple { background: #faf5ff; }
+  .icon-orange { background: #fffaf0; }
+  .icon-pink   { background: #fff5f7; }
+
+  .card-body { flex: 1; }
+
+  .card-title {
+    font-weight: 600;
+    font-size: 1rem;
+    margin-bottom: 3px;
+  }
+
+  .card-meta {
+    font-size: 0.82rem;
+    color: #718096;
+  }
+
+  .card-badge {
+    font-size: 0.72rem;
+    font-weight: 600;
+    padding: 3px 9px;
+    border-radius: 20px;
+    flex-shrink: 0;
+  }
+
+  .badge-ready  { background: #f0fff4; color: #276749; }
+  .badge-coming { background: #f7fafc; color: #a0aec0; }
+
+  footer {
+    text-align: center;
+    padding: 32px 0 20px;
+    font-size: 0.8rem;
+    color: #cbd5e0;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <header>
+    <div class="flag">🇵🇹</div>
+    <h1>Português Quiz</h1>
+    <p>Escolhe um tema e começa a praticar!</p>
+  </header>
+
+  <!-- ══════════ TEMPOS VERBAIS ══════════ -->
+  <div class="section-title">Tempos verbais</div>
+
+  <a class="quiz-card" href="quiz_verbos.html">
+    <div class="card-icon icon-green">🔤</div>
+    <div class="card-body">
+      <div class="card-title">Verbos: Presente e PPS</div>
+      <div class="card-meta">Presente do indicativo · PPS irregulares · 34 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_verbos_3tempos.html">
+    <div class="card-icon" style="background:#fffaf0;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">🔀</div>
+    <div class="card-body">
+      <div class="card-title">Verbos irregulares: 3 tempos</div>
+      <div class="card-meta">fazer · dizer · ver · trazer · saber · conhecer · perder · querer · Presente/PPS/Imperfeito · 24 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_imperfeito.html">
+    <div class="card-icon icon-purple">⏳</div>
+    <div class="card-body">
+      <div class="card-title">Imperfeito</div>
+      <div class="card-meta">Regular · PPS vs Imperfeito · 3 usos clássicos · 26 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_imperfeito_irregular.html">
+    <div class="card-icon icon-purple">⏮️</div>
+    <div class="card-body">
+      <div class="card-title">Imperfeito irregular · 7 usos</div>
+      <div class="card-meta">ser/ter/vir/pôr/ir/estar · cortesia · sonho · hipótese · enquanto · 24 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_futuro_continuo.html">
+    <div class="card-icon icon-blue">⏩</div>
+    <div class="card-body">
+      <div class="card-title">Futuro e Contínuo</div>
+      <div class="card-meta">IR + infinitivo · Estar + a + inf. · Costumar · Será que · 14 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_haver.html">
+    <div class="card-icon" style="background:#e6fffa;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">♾️</div>
+    <div class="card-body">
+      <div class="card-title">HAVER</div>
+      <div class="card-meta">há · houve · havia · haverá · há + tempo · há vs tem · 15 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <!-- ══════════ VERBOS ESPECÍFICOS ══════════ -->
+  <div class="section-title">Verbos específicos</div>
+
+  <a class="quiz-card" href="quiz_ser_estar.html">
+    <div class="card-icon icon-orange">⚖️</div>
+    <div class="card-body">
+      <div class="card-title">SER vs ESTAR</div>
+      <div class="card-meta">Quando usar cada verbo · Adjetivos · Casos difíceis · 21 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_verbos_movimento.html">
+    <div class="card-icon icon-green">🚶</div>
+    <div class="card-body">
+      <div class="card-title">Verbos de movimento</div>
+      <div class="card-meta">Ir · Vir · Levar · Trazer · Ir buscar · Ir ter com · 15 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_ir_andar.html">
+    <div class="card-icon icon-orange">🔀</div>
+    <div class="card-body">
+      <div class="card-title">IR vs ANDAR</div>
+      <div class="card-meta">Destino concreto · Andar + em (frequentar) · Andar bem/mal de · 20 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_reflexivos.html">
+    <div class="card-icon icon-orange">🪞</div>
+    <div class="card-body">
+      <div class="card-title">Verbos reflexivos</div>
+      <div class="card-meta">chamar-se · vestir-se · levantar-se · esquecer-se · negação · 19 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_comunicacao.html">
+    <div class="card-icon icon-orange">💬</div>
+    <div class="card-body">
+      <div class="card-title">Verbos de comunicação · PÔR</div>
+      <div class="card-meta">falar · dizer · contar · perguntar · pedir · pôr a mesa · 20 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_trocar_mudar.html">
+    <div class="card-icon icon-purple">🔄</div>
+    <div class="card-body">
+      <div class="card-title">Trocar · Mudar · Dar · Devolver</div>
+      <div class="card-meta">O verbo certo no contexto certo · 17 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <!-- ══════════ GRAMÁTICA ══════════ -->
+  <div class="section-title">Gramática</div>
+
+  <a class="quiz-card" href="quiz_artigos.html">
+    <div class="card-icon icon-blue">📝</div>
+    <div class="card-body">
+      <div class="card-title">Artigos</div>
+      <div class="card-meta">Definidos · Indefinidos · Contrações com preposições · 18 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_preposicoes.html">
+    <div class="card-icon" style="background:#fff5f5;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">🔗</div>
+    <div class="card-body">
+      <div class="card-title">Preposições</div>
+      <div class="card-meta">em · de · a · para · com · por · verbo + preposição · 21 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_pronomes.html">
+    <div class="card-icon icon-purple">👤</div>
+    <div class="card-body">
+      <div class="card-title">Pronomes pessoais</div>
+      <div class="card-meta">Compl. Indireto (lhe/nos) · Compl. Direto (o/a/los) · COM pronome · 16 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_complemento_direto.html">
+    <div class="card-icon" style="background:#faf5ff;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">🔗</div>
+    <div class="card-body">
+      <div class="card-title">Complemento Direto</div>
+      <div class="card-meta">lo/la (-r/-s/-z) · no/na (nasais) · próclise/ênclise · com+pronome · 18 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_demonstrativos.html">
+    <div class="card-icon icon-green">👆</div>
+    <div class="card-body">
+      <div class="card-title">Demonstrativos · Possessivos · Interrogativas</div>
+      <div class="card-meta">este/esse/aquele · meu/teu/nosso · qual/quem/quando/quanto · 16 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <!-- ══════════ VOCABULÁRIO ══════════ -->
+  <div class="section-title">Vocabulário</div>
+
+  <a class="quiz-card" href="quiz_vocab_all.html">
+    <div class="card-icon" style="background:#eef2ff;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">📚</div>
+    <div class="card-body">
+      <div class="card-title">Vocabulário completo</div>
+      <div class="card-meta">~170 palavras · 11 temas · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_vocabulario.html">
+    <div class="card-icon icon-pink">📖</div>
+    <div class="card-body">
+      <div class="card-title">Vocabulário: aspeto físico</div>
+      <div class="card-meta">Aspeto físico · Sociedade · Trabalho · PT↔RU · 22 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tempo_clima.html">
+    <div class="card-icon" style="background:#ebf8ff;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">⛅</div>
+    <div class="card-body">
+      <div class="card-title">Tempo e Clima</div>
+      <div class="card-meta">chuva · neve · nublado · abafado · clima vs tempo · faz calor/frio · 18 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_praia.html">
+    <div class="card-icon" style="background:#ebf8ff;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">🏖️</div>
+    <div class="card-body">
+      <div class="card-title">Praia e Mar</div>
+      <div class="card-meta">vocabulário · animais do mar · expressões idiomáticas · posições · 20 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_palavras_ligacao.html">
+    <div class="card-icon icon-purple">✍️</div>
+    <div class="card-body">
+      <div class="card-title">Palavras de ligação</div>
+      <div class="card-meta">Em primeiro lugar · Além disso · No entanto · contrastivos · 20 questões</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <!-- ══════════ ESCRITA ══════════ -->
+  <div class="section-title">Escrita</div>
+
+  <a class="quiz-card" href="quiz_escrita.html">
+    <div class="card-icon" style="background:#e6fffa;font-size:1.5rem;width:48px;height:48px;border-radius:12px;display:flex;align-items:center;justify-content:center;">✏️</div>
+    <div class="card-body">
+      <div class="card-title">Texto de opinião</div>
+      <div class="card-meta">8 temas · contador de palavras · checklist · exemplos</div>
+    </div>
+    <span class="card-badge badge-ready">Pronto</span>
+  </a>
+
+  <footer>Português Europeu (PE) · Nível A2–B1 · 24 quizzes</footer>
+
+</div>
+</body>
+</html>

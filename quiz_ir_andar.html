@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- IR vs ANDAR</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #c05621; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #c05621; }
+  .rule-box { background: white; border-radius: 14px; padding: 18px 22px; margin-bottom: 16px; box-shadow: 0 1px 6px rgba(0,0,0,0.07); display: grid; grid-template-columns: 1fr 1fr; gap: 16px; }
+  .rule-col h3 { font-size: 0.85rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.06em; margin-bottom: 10px; }
+  .rule-col.ir h3 { color: #2b6cb0; }
+  .rule-col.andar h3 { color: #c05621; }
+  .rule-col ul { list-style: none; font-size: 0.88rem; line-height: 1.7; color: #4a5568; }
+  .rule-col ul li::before { content: '→ '; color: #a0aec0; }
+  .rule-col ul em { font-style: italic; color: #718096; font-size: 0.82rem; }
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn[data-cat="todos"].active-f    { background: #edf2f7; border-color: #a0aec0; }
+  .filter-btn[data-cat="ir"].active-f       { background: #ebf8ff; color: #2b6cb0; border-color: #90cdf4; }
+  .filter-btn[data-cat="andar_em"].active-f { background: #fffaf0; color: #c05621; border-color: #fbd38d; }
+  .filter-btn[data-cat="contexto"].active-f { background: #faf5ff; color: #553c9a; border-color: #b794f4; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #dd6b20, #fbd38d); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-ir       { background: #ebf8ff; color: #2b6cb0; }
+  .badge-andar_em { background: #fffaf0; color: #c05621; }
+  .badge-contexto { background: #faf5ff; color: #553c9a; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffaf0; border-color: #fbd38d; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #dd6b20; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #c05621; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #dd6b20, #fbd38d); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #dd6b20; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>IR vs ANDAR</h1>
+    <p>Destino concreto · Frequência · Andar + em · Contexto</p>
+  </header>
+
+  <div class="rule-box">
+    <div class="rule-col ir">
+      <h3>IR</h3>
+      <ul>
+        <li>destino concreto<br><em>Vou para casa. / Vou ao café.</em></li>
+        <li>viagem específica<br><em>Amanhã vou ao médico.</em></li>
+        <li>pergunta de destino<br><em>Para onde é que vais?</em></li>
+      </ul>
+    </div>
+    <div class="rule-col andar">
+      <h3>ANDAR</h3>
+      <ul>
+        <li>sem destino preciso<br><em>Ando pela cidade.</em></li>
+        <li>andar + em = frequentar<br><em>Ando na universidade.</em></li>
+        <li>andar + bem/mal de<br><em>Ando bem de saúde.</em></li>
+        <li>membro sem ir hoje<br><em>Ando no ginásio mas não vou lá.</em></li>
+      </ul>
+    </div>
+  </div>
+
+  <div class="filter-wrap">
+    <span class="filter-label">Filtrar por tema</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active-f" data-cat="todos"    onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" data-cat="ir"       onclick="setFilter('ir',this)">IR · destino</button>
+      <button class="filter-btn" data-cat="andar_em" onclick="setFilter('andar_em',this)">ANDAR + em</button>
+      <button class="filter-btn" data-cat="contexto" onclick="setFilter('contexto',this)">Contexto</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+
+  <div id="quizArea"></div>
+  <div class="results card" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum">0</span><span class="denom" id="scoreDenom">/0</span></div>
+    <h2 id="scoreMsg"></h2>
+    <p id="scoreDetail"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+
+<script>
+const ALL_QUESTIONS = [
+  // ── IR: destino concreto ──
+  { cat:"ir", q:"Eu ___ para casa agora, estou cansada.", opts:["ando","vou","andei","ido"], a:1,
+    tip:"IR = destino específico. 'Vou para casa' = я иду домой (конкретное направление)." },
+  { cat:"ir", q:"Amanhã eu ___ ao médico às 10h.", opts:["ando","andei","vou","ido"], a:2,
+    tip:"IR = конкретная запланированная поездка. 'Vou ao médico' = я иду к врачу." },
+  { cat:"ir", q:"Para onde é que tu ___?", opts:["andas","vais","ias","ando"], a:1,
+    tip:"IR = вопрос о конкретном пункте назначения. 'Para onde vais?' = Куда ты идёшь?" },
+  { cat:"ir", q:"Nós ___ ao supermercado depois do trabalho.", opts:["andamos","vamos","imos","andamos"], a:1,
+    tip:"IR = конкретная цель. 'Vamos ao supermercado' = мы идём в магазин (у нас есть цель)." },
+  { cat:"ir", q:"Eles ___ de férias para o Algarve em agosto.", opts:["andam","vão","andaram","varam"], a:1,
+    tip:"IR = конкретное направление + время. 'Vão para o Algarve'." },
+
+  // ── ANDAR + em: frequentar ──
+  { cat:"andar_em", q:"A Maria ___ na escola primária este ano.", opts:["vai","anda","irá","está"], a:1,
+    tip:"ANDAR + em = frequentar regularmente. 'Anda na escola' = она учится в школе (ходит туда регулярно)." },
+  { cat:"andar_em", q:"Eu ___ na universidade há dois anos.", opts:["vou","ando","fui","ir"], a:1,
+    tip:"ANDAR + em = быть зачисленным/учиться. 'Ando na universidade' = я учусь в университете." },
+  { cat:"andar_em", q:"Eles ___ no ginásio três vezes por semana.", opts:["vão","andam","foram","iam"], a:1,
+    tip:"ANDAR + em = регулярно посещать. 'Andam no ginásio' = они ходят в спортзал (они там зарегистрированы)." },
+  { cat:"andar_em", q:"Ela ___ nas aulas de dança desde setembro.", opts:["vai","anda","andará","foi"], a:1,
+    tip:"ANDAR + em = регулярное посещение занятий. 'Anda nas aulas de dança'." },
+  { cat:"andar_em", q:"Eu ___ no ginásio, mas hoje não ___ lá.", opts:["ando / vou","vou / ando","ando / ando","vou / vou"], a:0,
+    tip:"ANDAR no ginásio = я зарегистрирован/хожу в целом. VOU lá = иду туда сегодня. Различие ключевое!" },
+  { cat:"andar_em", q:"O meu filho ___ na escola de condução aos domingos.", opts:["vai","anda","andava","ido"], a:1,
+    tip:"ANDAR + em = регулярно посещать. 'Anda na escola de condução' = учится на права." },
+
+  // ── Contexto: escolher IR ou ANDAR ──
+  { cat:"contexto", q:"Eu ___ pela cidade sem destino, só a passear.", opts:["vou","ando","fui","ir"], a:1,
+    tip:"ANDAR = движение без конкретной цели/направления. 'Ando pela cidade' = я просто хожу по городу." },
+  { cat:"contexto", q:"— Onde está a Joana? — Ela ___ ao banco, volta em 20 minutos.", opts:["anda","vai","andou","irá"], a:1,
+    tip:"IR = конкретная поездка с целью. 'Foi ao banco' — но раз она ещё не вернулась, 'foi' (PPS). Тут 'vai' = она пошла/идёт сейчас." },
+  { cat:"contexto", q:"Eu ___ bem de saúde ultimamente.", opts:["vou","ando","fui","ir"], a:1,
+    tip:"ANDAR + bem/mal de = выражение состояния. 'Ando bem de saúde' = у меня всё хорошо со здоровьем." },
+  { cat:"contexto", q:"Qual frase está ERRADA?", opts:["Ando na universidade há 3 anos.","Vou para casa depois do trabalho.","Ando ao supermercado todos os dias.","Andam no ginásio três vezes por semana."], a:2,
+    tip:"'Ando ao supermercado' — ERRADO! Com destino específico usa-se IR: 'Vou ao supermercado'. ANDAR não tem destino preciso." },
+  { cat:"contexto", q:"Ela ___ na escola, mas hoje está doente e não ___ lá.", opts:["anda / vai","vai / anda","anda / anda","vai / vai"], a:0,
+    tip:"ANDA na escola = ela é aluna (frequenta). VAI lá = vai hoje especificamente. São dois verbos diferentes com funções diferentes." },
+  { cat:"contexto", q:"— Para onde ___ vocês este fim de semana?\n— ___ a Sintra!", opts:["andam / Andamos","vão / Vamos","andam / Vamos","vão / Andamos"], a:1,
+    tip:"'Para onde vão?' = pergunta sobre destino → IR. 'Vamos a Sintra' = конкретный пункт назначения → IR." },
+  { cat:"contexto", q:"O João ___ na escola de música desde os 7 anos.", opts:["vai","anda","andou","irá"], a:1,
+    tip:"ANDAR + em = регулярно посещать на протяжении времени. 'Anda na escola de música desde os 7 anos'." },
+  { cat:"contexto", q:"Eu ___ muito mal de dinheiro este mês.", opts:["vou","ando","fui","andei"], a:1,
+    tip:"ANDAR + mal/bem de = выражение состояния. 'Ando mal de dinheiro' = у меня туго с деньгами." },
+  { cat:"contexto", q:"Eles ___ às compras todos os sábados.", opts:["andam","vão","andão","ião"], a:1,
+    tip:"'Ir às compras' = устойчивое выражение, всегда IR. 'Vão às compras aos sábados' = они ходят за покупками по субботам." },
+];
+
+let filtered = [], current = 0, score = 0, mistakes = [];
+let activeFilter = "todos";
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  filtered = activeFilter === "todos" ? [...ALL_QUESTIONS] : ALL_QUESTIONS.filter(q => q.cat === activeFilter);
+  filtered = shuffle(filtered);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('results').classList.remove('show');
+  renderQuestion();
+}
+
+function shuffle(arr) {
+  for (let i = arr.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [arr[i], arr[j]] = [arr[j], arr[i]];
+  }
+  return arr;
+}
+
+function renderQuestion() {
+  updateProgress();
+  if (current >= filtered.length) { showResults(); return; }
+  const q = filtered[current];
+  const badgeClass = { ir: 'badge-ir', andar_em: 'badge-andar_em', contexto: 'badge-contexto' }[q.cat];
+  const badgeLabel = { ir: 'IR · destino', andar_em: 'ANDAR + em', contexto: 'Contexto' }[q.cat];
+  const qText = q.q.replace(/\n/g, '<br>');
+  document.getElementById('quizArea').innerHTML = `
+    <div class="card" id="qcard">
+      <span class="category-badge ${badgeClass}">${badgeLabel}</span>
+      <div class="question">${qText}</div>
+      <div class="options" id="opts">
+        ${q.opts.map((o,i) => `<button class="option-btn" onclick="choose(${i})">${o}</button>`).join('')}
+      </div>
+      <div class="feedback" id="fb"></div>
+      <button class="next-btn" id="nextBtn" onclick="next()">${current+1 < filtered.length ? 'Próxima →' : 'Ver resultados'}</button>
+    </div>`;
+}
+
+function choose(idx) {
+  const q = filtered[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('fb');
+  if (idx === q.a) {
+    btns[idx].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = q.tip;
+    score++;
+  } else {
+    btns[idx].classList.add('wrong');
+    btns[q.a].classList.add('correct');
+    fb.className = 'feedback err show';
+    fb.textContent = q.tip;
+    mistakes.push({ q: q.q, wrong: q.opts[idx], correct: q.opts[q.a] });
+  }
+  document.getElementById('nextBtn').classList.add('show');
+}
+
+function next() { current++; renderQuestion(); }
+
+function updateProgress() {
+  const total = filtered.length;
+  document.getElementById('progressBar').style.width = total ? (current/total*100)+'%' : '0%';
+  document.getElementById('progressLabel').textContent = total ? `${current}/${total}` : '';
+}
+
+function showResults() {
+  document.getElementById('quizArea').innerHTML = '';
+  const r = document.getElementById('results');
+  r.classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/'+filtered.length;
+  const pct = Math.round(score/filtered.length*100);
+  document.getElementById('scoreMsg').textContent = pct>=80 ? 'Muito bem!' : pct>=60 ? 'Bom trabalho!' : 'Continua a praticar!';
+  document.getElementById('scoreDetail').textContent = `${pct}% correctos · ${filtered.length-score} erro${filtered.length-score!==1?'s':''}`;
+  const ml = document.getElementById('mistakesList');
+  ml.innerHTML = mistakes.length
+    ? `<h3>Para rever (${mistakes.length}):</h3>`+mistakes.map(m=>`<div class="mistake-item"><strong>${m.wrong}</strong> → <span class="correct-ans">${m.correct}</span><br><em style="color:#718096;font-size:0.85rem">${m.q.replace(/\n/g,' ')}</em></div>`).join('')
+    : '<div style="color:#276749;font-weight:600;margin-top:12px">Perfeito! Sem erros!</div>';
+  updateProgress();
+}
+
+restart();
+</script>
+</body>
+</html>

@@ -1,0 +1,367 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Verbos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #276749; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #276749; }
+
+  /* Mode toggle */
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 20px; }
+  .mode-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 9px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; }
+  .mode-btn.active { background: #38a169; color: white; }
+
+  /* Filter */
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="todos"].active-f    { background: #edf2f7; }
+  .filter-btn[data-cat="presente"].active-f { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="pps"].active-f      { background: #f0fff4; color: #276749; }
+
+  /* Progress */
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #38a169, #68d391); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  /* Card */
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-presente { background: #faf5ff; color: #6b46c1; }
+  .badge-pps      { background: #f0fff4; color: #276749; }
+
+  /* Choice mode */
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s ease; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #f0fff4; border-color: #9ae6b4; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  /* Write mode */
+  .sentence-display { font-size: 1.1rem; font-weight: 500; line-height: 1.9; margin-bottom: 8px; }
+  .sentence-blank { display: inline-block; min-width: 90px; border-bottom: 3px solid #38a169; color: #38a169; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .verb-hint { font-size: 0.85rem; color: #a0aec0; margin-bottom: 18px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #9ae6b4; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #276749; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+  .accent-note { font-size: 0.78rem; color: #e67e22; margin-top: 8px; }
+
+  /* Feedback */
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #276749; }
+  .next-btn.show { display: block; }
+
+  /* Results */
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #38a169, #68d391); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Verbos</h1>
+    <p>Presente do indicativo &amp; Pretérito Perfeito Simples</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher (variantes)</button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever (digitar forma)</button>
+  </div>
+
+  <div class="filter-wrap">
+    <span class="filter-label">Tempo verbal</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active-f" data-cat="todos" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" data-cat="presente" onclick="setFilter('presente',this)">Presente</button>
+      <button class="filter-btn" data-cat="pps" onclick="setFilter('pps',this)">PPS</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+
+    <!-- Choice mode -->
+    <div id="choiceArea">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+
+    <!-- Write mode -->
+    <div id="writeArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="verb-hint" id="verbHint"></div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="forma correta..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtn" onclick="checkWrite()">OK</button>
+      </div>
+      <div class="accent-note">Atenção: acentos obrigatórios (estás, chegámos...)</div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="score-circle">
+      <span class="num" id="scoreNum"></span>
+      <span class="denom" id="scoreDenom"></span>
+    </div>
+    <h2 id="resultsTitle"></h2>
+    <p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+
+</div>
+<script>
+// writeAnswer = форма, которую нужно напечатать точно (с акцентами)
+const questions = [
+  // PRESENTE: REGULARES
+  { cat:"presente", q:"Eu ___ português todos os dias. (FALAR)", options:["falas","falo","fala","falam"], answer:1, writeAnswer:"falo", explanation:"Verbos -AR, «eu»: falo. Tabela: eu falo / tu falas / ele fala / nós falamos / eles falam." },
+  { cat:"presente", q:"Eles ___ carne. (COMER)", options:["come","comem","comemos","comes"], answer:1, writeAnswer:"comem", explanation:"Verbos -ER, «eles»: comem. Tabela: eu como / tu comes / ele come / nós comemos / eles comem." },
+  { cat:"presente", q:"Nós ___ amanhã cedo. (PARTIR)", options:["partem","partimos","parte","partis"], answer:1, writeAnswer:"partimos", explanation:"Verbos -IR, «nós»: partimos. Tabela: eu parto / tu partes / ele parte / nós partimos / eles partem." },
+  { cat:"presente", q:"Tu ___ muito bem inglês. (FALAR)", options:["falo","fala","falas","falam"], answer:2, writeAnswer:"falas", explanation:"Verbos -AR, «tu»: falas." },
+  { cat:"presente", q:"Ela ___ às 7h todos os dias. (PARTIR)", options:["partimos","partem","parto","parte"], answer:3, writeAnswer:"parte", explanation:"Verbos -IR, «ela»: parte." },
+  { cat:"presente", q:"Vocês ___ muito nesta aula. (APRENDER)", options:["aprendes","aprende","aprendem","aprendemos"], answer:2, writeAnswer:"aprendem", explanation:"Verbos -ER, «vocês» = eles: aprendem." },
+  // PRESENTE: IRREGULARES
+  { cat:"presente", q:"Eu ___ de Lisboa. (SER)", options:["és","é","sou","somos"], answer:2, writeAnswer:"sou", explanation:"SER: eu sou / tu és / ele é / nós somos / eles são." },
+  { cat:"presente", q:"Eles ___ professores. (SER)", options:["somos","são","é","ser"], answer:1, writeAnswer:"são", explanation:"SER, «eles»: são." },
+  { cat:"presente", q:"Tu ___ em casa agora? (ESTAR)", options:["estou","está","estás","estamos"], answer:2, writeAnswer:"estás", explanation:"ESTAR: eu estou / tu estás / ele está / nós estamos / eles estão." },
+  { cat:"presente", q:"Nós ___ ao supermercado. (IR)", options:["imos","vamos","vão","vai"], answer:1, writeAnswer:"vamos", explanation:"IR: eu vou / tu vais / ele vai / nós vamos / eles vão." },
+  { cat:"presente", q:"Ele ___ de carro para o trabalho. (VIR)", options:["vim","vem","vens","viemos"], answer:1, writeAnswer:"vem", explanation:"VIR: eu venho / tu vens / ele vem / nós vimos / eles vêm." },
+  { cat:"presente", q:"Eu ___ um irmão mais velho. (TER)", options:["tem","tens","tenho","temos"], answer:2, writeAnswer:"tenho", explanation:"TER: eu tenho / tu tens / ele tem / nós temos / eles têm." },
+  { cat:"presente", q:"Eles ___ flores frescas. (TRAZER)", options:["traz","trazem","trago","trazes"], answer:1, writeAnswer:"trazem", explanation:"TRAZER: eu trago / tu trazes / ele traz / nós trazemos / eles trazem." },
+  { cat:"presente", q:"Tu ___ ir ao cinema hoje? (PODER)", options:["posso","podem","podes","pode"], answer:2, writeAnswer:"podes", explanation:"PODER: eu posso / tu podes / ele pode / nós podemos / eles podem." },
+  { cat:"presente", q:"Eu ___ um presente ao meu pai. (DAR)", options:["dá","dás","dou","damos"], answer:2, writeAnswer:"dou", explanation:"DAR: eu dou / tu dás / ele dá / nós damos / eles dão." },
+  { cat:"presente", q:"Eu ___ falar com ele. (CONSEGUIR)", options:["consegues","consigo","consegue","conseguimos"], answer:1, writeAnswer:"consigo", explanation:"CONSEGUIR: eu consigo / tu consegues / ele consegue / nós conseguimos / eles conseguem." },
+  { cat:"presente", q:"Nós ___ muito trabalho. (TER)", options:["têm","tenho","temos","tens"], answer:2, writeAnswer:"temos", explanation:"TER, «nós»: temos." },
+  { cat:"presente", q:"Ela ___ ao trabalho de metro. (IR)", options:["vou","vai","vais","vão"], answer:1, writeAnswer:"vai", explanation:"IR, «ela»: vai." },
+  // PPS: IRREGULARES
+  { cat:"pps", q:"Ontem eu ___ ao cinema. (IR)", options:["ia","fui","vou","foi"], answer:1, writeAnswer:"fui", explanation:"IR no PPS: eu fui / tu foste / ele foi / nós fomos / eles foram. (Mesmas formas que SER.)" },
+  { cat:"pps", q:"Ontem ele ___ muito cansado. (ESTAR)", options:["estava","esteve","estiveu","estou"], answer:1, writeAnswer:"esteve", explanation:"ESTAR no PPS: eu estive / tu estiveste / ele esteve / nós estivemos / eles estiveram." },
+  { cat:"pps", q:"Na semana passada nós ___ uma reunião. (TER)", options:["temos","tivemos","tiveram","teve"], answer:1, writeAnswer:"tivemos", explanation:"TER no PPS: eu tive / tu tiveste / ele teve / nós tivemos / eles tiveram." },
+  { cat:"pps", q:"Ontem eles ___ flores para a mãe. (TRAZER)", options:["trouxeram","trazeram","trouxiram","trouxerem"], answer:0, writeAnswer:"trouxeram", explanation:"TRAZER no PPS: eu trouxe / tu trouxeste / ele trouxe / nós trouxemos / eles trouxeram." },
+  { cat:"pps", q:"O que é que ela ___? (DIZER)", options:["dizeu","dizia","disse","diss"], answer:2, writeAnswer:"disse", explanation:"DIZER no PPS: eu disse / tu disseste / ele disse / nós dissemos / eles disseram." },
+  { cat:"pps", q:"Tu ___ vir ontem? (PODER)", options:["podeste","pudeste","podes","pudes"], answer:1, writeAnswer:"pudeste", explanation:"PODER no PPS: eu pude / tu pudeste / ele pôde / nós pudemos / eles puderam." },
+  { cat:"pps", q:"Ontem eu ___ um presente ao João. (DAR)", options:["dava","dei","deu","deste"], answer:1, writeAnswer:"dei", explanation:"DAR no PPS: eu dei / tu deste / ele deu / nós demos / eles deram." },
+  { cat:"pps", q:"Ele ___ de Lisboa ontem. (VIR)", options:["vinha","veio","vim","vieste"], answer:1, writeAnswer:"veio", explanation:"VIR no PPS: eu vim / tu vieste / ele veio / nós viemos / eles vieram." },
+  { cat:"pps", q:"Ontem nós ___ em casa o dia todo. (ESTAR)", options:["estivemos","estamos","estávamos","estiveram"], answer:0, writeAnswer:"estivemos", explanation:"ESTAR no PPS, «nós»: estivemos." },
+  { cat:"pps", q:"A festa ___ um grande sucesso ontem! (SER)", options:["era","é","foi","fomos"], answer:2, writeAnswer:"foi", explanation:"Evento concluído no passado → PPS. SER, «a festa» (=ele): foi." },
+  { cat:"pps", q:"Tu ___ a verdade? (DIZER)", options:["dizeste","disseste","disse","dizia"], answer:1, writeAnswer:"disseste", explanation:"DIZER no PPS, «tu»: disseste." },
+  { cat:"pps", q:"Ela ___ flores do jardim. (TRAZER)", options:["trazeu","trouxe","trouxeu","trazia"], answer:1, writeAnswer:"trouxe", explanation:"TRAZER no PPS, «ela»: trouxe." },
+  { cat:"pps", q:"Vocês ___ o dinheiro? (TER)", options:["tivemos","tiveram","tiveste","tinham"], answer:1, writeAnswer:"tiveram", explanation:"TER no PPS, «vocês»: tiveram." },
+  { cat:"pps", q:"Eu ___ muito bem ontem. (DORMIR)", options:["durmo","dormi","dormiu","dormia"], answer:1, writeAnswer:"dormi", explanation:"DORMIR é regular no PPS: eu dormi / tu dormiste / ele dormiu." },
+  { cat:"pps", q:"Nós ___ tarde ontem. (CHEGAR)", options:["chegamos","chegámos","chegaram","cheguei"], answer:1, writeAnswer:"chegámos", explanation:"CHEGAR é regular -AR no PPS: nós chegámos (com acento em PE)." }
+];
+
+const labelMap = { presente:"Presente", pps:"PPS – Pretérito Perfeito" };
+const classMap  = { presente:"badge-presente", pps:"badge-pps" };
+
+let mode = 'choice', activeFilter = 'todos';
+let shuffled = [], current = 0, score = 0, answered = false, mistakes = [];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnChoice').classList.toggle('active', m === 'choice');
+  document.getElementById('btnWrite').classList.toggle('active', m === 'write');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  const pool = activeFilter === 'todos' ? questions : questions.filter(q => q.cat === activeFilter);
+  shuffled = shuffle(pool);
+  current = 0; score = 0; answered = false; mistakes = [];
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quizCard').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (current >= shuffled.length) { showResults(); return; }
+  const q = shuffled[current];
+  const total = shuffled.length;
+
+  document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+  document.getElementById('progressLabel').textContent = 'Questão ' + (current + 1) + ' de ' + total;
+
+  const badge = document.getElementById('badge');
+  badge.textContent = labelMap[q.cat];
+  badge.className = 'category-badge ' + classMap[q.cat];
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+  answered = false;
+
+  document.getElementById('choiceArea').style.display = 'none';
+  document.getElementById('writeArea').style.display = 'none';
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('question').textContent = q.q;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    const indices = q.options.map((_,i) => i);
+    const si = shuffle(indices);
+    const newCorrect = si.indexOf(q.answer);
+    si.forEach((origIdx, newIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = q.options[origIdx];
+      btn.onclick = () => selectAnswer(newIdx, newCorrect, q);
+      optDiv.appendChild(btn);
+    });
+  } else {
+    document.getElementById('writeArea').style.display = 'block';
+    // Split question to show blank
+    const parts = q.q.split('___');
+    const verbMatch = q.q.match(/\(([^)]+)\)/);
+    const verbHintText = verbMatch ? 'Verbo: ' + verbMatch[1] : '';
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blankEl = document.createElement('span');
+    blankEl.className = 'sentence-blank';
+    blankEl.id = 'blankSpan';
+    blankEl.textContent = '___';
+    sd.appendChild(blankEl);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('verbHint').textContent = verbHintText;
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtn').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function selectAnswer(chosen, correct, q) {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[correct].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  if (chosen === correct) {
+    score++; btns[chosen].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[chosen].classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: btns[chosen].textContent, right: q.writeAnswer });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = shuffled[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true;
+  inp.disabled = true;
+  document.getElementById('checkBtn').disabled = true;
+
+  // Strict: exact match (case insensitive, accents required)
+  const correct = raw.toLowerCase() === q.writeAnswer.toLowerCase();
+  const blank = document.getElementById('blankSpan');
+  if (blank) {
+    blank.textContent = correct ? raw : q.writeAnswer;
+    blank.style.borderColor = correct ? '#68d391' : '#fc8181';
+    blank.style.color = correct ? '#276749' : '#c53030';
+  }
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Forma correta: «' + q.writeAnswer + '». ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: raw, right: q.writeAnswer });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() { current++; renderQuestion(); }
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('progressBar').style.width = '100%';
+  const total = shuffled.length;
+  const pct = Math.round(score / total * 100);
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = 'de ' + total;
+  const msgs = pct >= 90 ? ['Excelente!','Dominas os verbos!'] : pct >= 70 ? ['Muito bem!','Revê os erros abaixo.'] : pct >= 50 ? ['Continua!','Há espaço para melhorar.'] : ['Não desistas!','Revê as conjugações!'];
+  document.getElementById('resultsTitle').textContent = msgs[0];
+  document.getElementById('resultsMsg').textContent = pct + '% correto. ' + msgs[1];
+  const ml = document.getElementById('mistakesList');
+  ml.innerHTML = mistakes.length ? '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+    '<div class="mistake-item"><div>' + m.q + '</div><div>Escreveste: <strong>' + m.wrong + '</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">' + m.right + '</span></div></div>'
+  ).join('') : '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (!answered && mode === 'write') checkWrite();
+  else if (answered) { const nb = document.getElementById('nextBtn'); if (nb.classList.contains('show')) nextQuestion(); }
+});
+
+restart();
+</script>
+</body>
+</html>
