@@ -28,6 +28,7 @@
   .badge-perder { background: #fff5f5; color: #c53030; }
   .badge-querer { background: #faf5ff; color: #553c9a; }
   .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .verb-tr { color: #a0aec0; font-weight: 400; font-size: 0.88em; }
   .options { display: flex; flex-direction: column; gap: 10px; }
   .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
   .option-btn:hover:not(:disabled) { background: #fffaf0; border-color: #f6ad55; }
@@ -38,6 +39,7 @@
   .feedback.show { display: block; }
   .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
   .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .phrase-tr { font-style: italic; opacity: 0.8; margin-bottom: 8px; padding-bottom: 8px; border-bottom: 1px solid rgba(0,0,0,0.08); font-size: 0.88rem; }
   .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #744210; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
   .next-btn:hover { background: #5f370e; }
   .next-btn.show { display: block; }
@@ -92,40 +94,215 @@
   </div>
 </div>
 <script>
+const verbMap = {
+  'fazer':     'делать',
+  'dizer':     'говорить/сказать',
+  'ver':       'видеть',
+  'trazer':    'приносить',
+  'saber':     'знать (факт/умение)',
+  'conhecer':  'знать (лично)',
+  'perder':    'терять',
+  'perder-se': 'заблудиться',
+  'querer':    'хотеть',
+  'ser':       'быть',
+  'estar':     'быть/находиться',
+  'ir':        'идти/ехать',
+  'ter':       'иметь',
+  'vir':       'приходить',
+  'poder':     'мочь',
+  'ficar':     'оставаться/становиться',
+  'levar':     'брать/везти',
+  'andar':     'ходить/ездить',
+};
+
 const allQuestions = [
   // fazer / dizer
-  { cat:"fazer", q:"«Eu ___ os trabalhos de casa ontem.» (fazer, PPS)", options:["faço","fiz","fazia","fez"], answer:1, explanation:"FAZER PPS: eu FIZ / tu fizeste / ele fez / nós fizemos / eles fizeram. Muito irregular!" },
-  { cat:"fazer", q:"«Quando era criança, eu ___ muito desporto.» (fazer, Imperfeito)", options:["fiz","faço","fazia","fez"], answer:2, explanation:"FAZER Imperfeito: eu FAZIA / tu fazias / ele fazia / nós fazíamos / eles faziam. Regular no imperfeito!" },
-  { cat:"fazer", q:"«O que é que tu ___?» (dizer, Presente)", options:["dizeste","disse","dizes","dizia"], answer:2, explanation:"DIZER Presente: eu digo / tu DIZES / ele diz / nós dizemos / eles dizem." },
-  { cat:"fazer", q:"«Ela ___ que não podia vir.» (dizer, PPS)", options:["diz","dizia","disse","disseste"], answer:2, explanation:"DIZER PPS: eu disse / tu disseste / ele DISSE / nós dissemos / eles disseram." },
-  { cat:"fazer", q:"«Antes, ele ___ sempre a verdade.» (dizer, Imperfeito)", options:["disse","diz","dizia","dizem"], answer:2, explanation:"DIZER Imperfeito: eu dizia / tu dizias / ele DIZIA / nós dizíamos / eles diziam." },
-  { cat:"fazer", q:"«Eu já não ___ o que fazer.» (saber, Presente)", options:["soube","sabia","sei","sabes"], answer:2, explanation:"SABER Presente: EU SEI / tu sabes / ele sabe / nós sabemos / eles sabem. Atenção: «eu sei» é irregular!" },
+  {
+    cat:"fazer",
+    q:"«Eu ___ os trabalhos de casa ontem.» (fazer, PPS)",
+    tr:"Я сделала домашнюю работу вчера.",
+    options:["faço","fiz","fazia","fez"], answer:1,
+    explanation:"FAZER PPS: eu FIZ / tu fizeste / ele fez / nós fizemos / eles fizeram. Muito irregular!"
+  },
+  {
+    cat:"fazer",
+    q:"«Quando era criança, eu ___ muito desporto.» (fazer, Imperfeito)",
+    tr:"Когда я была ребёнком, я много занималась спортом.",
+    options:["fiz","faço","fazia","fez"], answer:2,
+    explanation:"FAZER Imperfeito: eu FAZIA / tu fazias / ele fazia / nós fazíamos / eles faziam. Regular no imperfeito!"
+  },
+  {
+    cat:"fazer",
+    q:"«O que é que tu ___?» (dizer, Presente)",
+    tr:"Что ты говоришь?",
+    options:["dizeste","disse","dizes","dizia"], answer:2,
+    explanation:"DIZER Presente: eu digo / tu DIZES / ele diz / nós dizemos / eles dizem."
+  },
+  {
+    cat:"fazer",
+    q:"«Ela ___ que não podia vir.» (dizer, PPS)",
+    tr:"Она сказала, что не может прийти.",
+    options:["diz","dizia","disse","disseste"], answer:2,
+    explanation:"DIZER PPS: eu disse / tu disseste / ele DISSE / nós dissemos / eles disseram."
+  },
+  {
+    cat:"fazer",
+    q:"«Antes, ele ___ sempre a verdade.» (dizer, Imperfeito)",
+    tr:"Раньше он всегда говорил правду.",
+    options:["disse","diz","dizia","dizem"], answer:2,
+    explanation:"DIZER Imperfeito: eu dizia / tu dizias / ele DIZIA / nós dizíamos / eles diziam."
+  },
+  {
+    cat:"fazer",
+    q:"«Eu já não ___ o que fazer.» (saber, Presente)",
+    tr:"Я уже не знаю, что делать.",
+    options:["soube","sabia","sei","sabes"], answer:2,
+    explanation:"SABER Presente: EU SEI / tu sabes / ele sabe / nós sabemos / eles sabem. Atenção: «eu sei» é irregular!"
+  },
   // ver / trazer
-  { cat:"ver", q:"«Eu não ___ nada sem óculos.» (ver, Presente)", options:["vi","via","vejo","vês"], answer:2, explanation:"VER Presente: EU VEJO / tu vês / ele vê / nós vemos / eles veem. «Vejo» é irregular!" },
-  { cat:"ver", q:"«Ontem à noite ___ um filme incrível.» (ver, PPS, eu)", options:["vejo","via","vi","vês"], answer:2, explanation:"VER PPS: EU VI / tu viste / ele viu / nós vimos / eles viram." },
-  { cat:"ver", q:"«Quando era pequena, ___ muita televisão.» (ver, Imperfeito, eu)", options:["vi","vejo","via","vejo"], answer:2, explanation:"VER Imperfeito: eu VIA / tu vias / ele via / nós víamos / eles viam." },
-  { cat:"ver", q:"«Eu ___ flores para a mãe.» (trazer, Presente)", options:["trouxe","trazia","trago","trazes"], answer:2, explanation:"TRAZER Presente: EU TRAGO / tu trazes / ele traz / nós trazemos / eles trazem. «Trago» é irregular!" },
-  { cat:"ver", q:"«Ela ___ o livro que eu pedi.» (trazer, PPS)", options:["traz","trazia","trago","trouxe"], answer:3, explanation:"TRAZER PPS: eu trouxe / tu trouxeste / ele TROUXE / nós trouxemos / eles trouxeram. Muito irregular!" },
-  { cat:"ver", q:"«Ele ___ sempre café para toda a equipa.» (trazer, Imperfeito)", options:["trouxe","traz","trazia","trago"], answer:2, explanation:"TRAZER Imperfeito: eu trazia / tu trazias / ele TRAZIA / nós trazíamos / eles traziam." },
+  {
+    cat:"ver",
+    q:"«Eu não ___ nada sem óculos.» (ver, Presente)",
+    tr:"Я ничего не вижу без очков.",
+    options:["vi","via","vejo","vês"], answer:2,
+    explanation:"VER Presente: EU VEJO / tu vês / ele vê / nós vemos / eles veem. «Vejo» é irregular!"
+  },
+  {
+    cat:"ver",
+    q:"«Ontem à noite ___ um filme incrível.» (ver, PPS, eu)",
+    tr:"Вчера вечером я посмотрела невероятный фильм.",
+    options:["vejo","via","vi","vês"], answer:2,
+    explanation:"VER PPS: EU VI / tu viste / ele viu / nós vimos / eles viram."
+  },
+  {
+    cat:"ver",
+    q:"«Quando era pequena, ___ muita televisão.» (ver, Imperfeito, eu)",
+    tr:"Когда я была маленькой, я много смотрела телевизор.",
+    options:["vi","vejo","via","vejo"], answer:2,
+    explanation:"VER Imperfeito: eu VIA / tu vias / ele via / nós víamos / eles viam."
+  },
+  {
+    cat:"ver",
+    q:"«Eu ___ flores para a mãe.» (trazer, Presente)",
+    tr:"Я приношу цветы маме.",
+    options:["trouxe","trazia","trago","trazes"], answer:2,
+    explanation:"TRAZER Presente: EU TRAGO / tu trazes / ele traz / nós trazemos / eles trazem. «Trago» é irregular!"
+  },
+  {
+    cat:"ver",
+    q:"«Ela ___ o livro que eu pedi.» (trazer, PPS)",
+    tr:"Она принесла книгу, которую я просила.",
+    options:["traz","trazia","trago","trouxe"], answer:3,
+    explanation:"TRAZER PPS: eu trouxe / tu trouxeste / ele TROUXE / nós trouxemos / eles trouxeram. Muito irregular!"
+  },
+  {
+    cat:"ver",
+    q:"«Ele ___ sempre café para toda a equipa.» (trazer, Imperfeito)",
+    tr:"Он всегда приносил кофе для всей команды.",
+    options:["trouxe","traz","trazia","trago"], answer:2,
+    explanation:"TRAZER Imperfeito: eu trazia / tu trazias / ele TRAZIA / nós trazíamos / eles traziam."
+  },
   // saber / conhecer
-  { cat:"saber", q:"«Eu ___ fazer pizza.» (saber, Presente)", options:["conheço","sei","soube","sabia"], answer:1, explanation:"SABER FAZER algo = уметь делать. EU SEI fazer pizza = Я умею делать пиццу. Usar SABER (não CONHECER) para habilidades." },
-  { cat:"saber", q:"«Eu ___ muito bem Lisboa.» (conhecer, Presente)", options:["sei","soube","conheço","conheci"], answer:2, explanation:"CONHECER = знать лично / быть знакомым. EU CONHEÇO Lisboa = Я знаю Лиссабон (был там). SABER = знать факты/умения." },
-  { cat:"saber", q:"«Quando ___ a notícia, fiquei chocada.» (saber, PPS, eu)", options:["sei","sabia","soube","soubeste"], answer:2, explanation:"SABER PPS: EU SOUBE / tu soubeste / ele soube / nós soubemos / eles souberam." },
-  { cat:"saber", q:"«Ela não ___ que eu estava em Lisboa.» (saber, Imperfeito)", options:["sabe","soube","sabia","sabe"], answer:2, explanation:"SABER Imperfeito: eu sabia / tu sabias / ele SABIA / nós sabíamos / eles sabiam." },
-  { cat:"saber", q:"Qual é a diferença: «Eu sei o João» vs «Eu conheço o João»?", options:["Não há diferença","Só «conheço» é correto — conhecer pessoas","Só «sei» é correto","Ambos corretos com pessoas"], answer:1, explanation:"Com PESSOAS: sempre CONHECER. EU CONHEÇO o João = Я знаком с Жуаном. SABER é para factos e habilidades: Eu sei que o João mora em Lisboa." },
+  {
+    cat:"saber",
+    q:"«Eu ___ fazer pizza.» (saber, Presente)",
+    tr:"Я умею делать пиццу.",
+    options:["conheço","sei","soube","sabia"], answer:1,
+    explanation:"SABER FAZER algo = уметь делать. EU SEI fazer pizza = Я умею делать пиццу. Usar SABER (não CONHECER) para habilidades."
+  },
+  {
+    cat:"saber",
+    q:"«Eu ___ muito bem Lisboa.» (conhecer, Presente)",
+    tr:"Я очень хорошо знаю Лиссабон (бывала там).",
+    options:["sei","soube","conheço","conheci"], answer:2,
+    explanation:"CONHECER = знать лично / быть знакомым. EU CONHEÇO Lisboa = Я знаю Лиссабон (был там). SABER = знать факты/умения."
+  },
+  {
+    cat:"saber",
+    q:"«Quando ___ a notícia, fiquei chocada.» (saber, PPS, eu)",
+    tr:"Когда я узнала эту новость, была в шоке.",
+    options:["sei","sabia","soube","soubeste"], answer:2,
+    explanation:"SABER PPS: EU SOUBE / tu soubeste / ele soube / nós soubemos / eles souberam."
+  },
+  {
+    cat:"saber",
+    q:"«Ela não ___ que eu estava em Lisboa.» (saber, Imperfeito)",
+    tr:"Она не знала, что я была в Лиссабоне.",
+    options:["sabe","soube","sabia","sabe"], answer:2,
+    explanation:"SABER Imperfeito: eu sabia / tu sabias / ele SABIA / nós sabíamos / eles sabiam."
+  },
+  {
+    cat:"saber",
+    q:"Qual é a diferença: «Eu sei o João» vs «Eu conheço o João»?",
+    tr:"",
+    options:["Não há diferença","Só «conheço» é correto — conhecer pessoas","Só «sei» é correto","Ambos corretos com pessoas"], answer:1,
+    explanation:"Com PESSOAS: sempre CONHECER. EU CONHEÇO o João = Я знаком с Жуаном. SABER é para factos e habilidades: Eu sei que o João mora em Lisboa."
+  },
   // perder / querer
-  { cat:"perder", q:"«Eu ___ as chaves outra vez.» (perder, PPS)", options:["perco","perdia","perdi","perde"], answer:2, explanation:"PERDER PPS: EU PERDI / tu perdeste / ele perdeu / nós perdemos / eles perderam." },
-  { cat:"perder", q:"«Ela ___ sempre as coisas quando era estudante.» (perder, Imperfeito)", options:["perdeu","perde","perdia","perdi"], answer:2, explanation:"PERDER Imperfeito: eu perdia / tu perdias / ele PERDIA / nós perdíamos / eles perdiam." },
-  { cat:"perder", q:"«Eu ___ no bosque.» (perder-se, PPS)", options:["perca-me","perdi-me","perco-me","perdia-me"], answer:1, explanation:"PERDER-SE = заблудиться. PPS: EU PERDI-ME / tu perdeste-te / ele perdeu-se. Atenção à ordem: verbo-me!" },
-  { cat:"perder", q:"«Eu ___ ir ao cinema contigo.» (querer, Presente)", options:["quis","queria","quero","quiseste"], answer:2, explanation:"QUERER Presente: EU QUERO / tu queres / ele quer / nós queremos / eles querem." },
-  { cat:"perder", q:"«Ela ___ comprar o vestido, mas não tinha dinheiro.» (querer, PPS)", options:["quer","queria","quis","quero"], answer:2, explanation:"QUERER PPS: eu quis / tu quiseste / ele QUIS / nós quisemos / eles quiseram. Aqui «quis» também poderia funcionar — mas QUERIA (imperfeito) é mais natural para intenção + obstáculo." },
-  { cat:"perder", q:"«Quando era jovem, eu ___ ser médica.» (querer, Imperfeito)", options:["quis","quero","queria","quisera"], answer:2, explanation:"QUERER Imperfeito: eu QUERIA / tu querias / ele queria / nós queríamos / eles queriam. Para sonhos e desejos do passado — sempre Imperfeito!" },
-  { cat:"perder", q:"«Infelizmente» é o contrário de:", options:["felizmente","finalmente","provavelmente","certamente"], answer:0, explanation:"FELIZMENTE = к счастью / fortunately. INFELIZMENTE = к сожалению / unfortunately. Prefixo IN- = negação." },
+  {
+    cat:"perder",
+    q:"«Eu ___ as chaves outra vez.» (perder, PPS)",
+    tr:"Я снова потеряла ключи.",
+    options:["perco","perdia","perdi","perde"], answer:2,
+    explanation:"PERDER PPS: EU PERDI / tu perdeste / ele perdeu / nós perdemos / eles perderam."
+  },
+  {
+    cat:"perder",
+    q:"«Ela ___ sempre as coisas quando era estudante.» (perder, Imperfeito)",
+    tr:"Она всегда теряла вещи, когда была студенткой.",
+    options:["perdeu","perde","perdia","perdi"], answer:2,
+    explanation:"PERDER Imperfeito: eu perdia / tu perdias / ele PERDIA / nós perdíamos / eles perdiam."
+  },
+  {
+    cat:"perder",
+    q:"«Eu ___ no bosque.» (perder-se, PPS)",
+    tr:"Я заблудилась в лесу.",
+    options:["perca-me","perdi-me","perco-me","perdia-me"], answer:1,
+    explanation:"PERDER-SE = заблудиться. PPS: EU PERDI-ME / tu perdeste-te / ele perdeu-se. Atenção à ordem: verbo-me!"
+  },
+  {
+    cat:"perder",
+    q:"«Eu ___ ir ao cinema contigo.» (querer, Presente)",
+    tr:"Я хочу пойти в кино с тобой.",
+    options:["quis","queria","quero","quiseste"], answer:2,
+    explanation:"QUERER Presente: EU QUERO / tu queres / ele quer / nós queremos / eles querem."
+  },
+  {
+    cat:"perder",
+    q:"«Ela ___ comprar o vestido, mas não tinha dinheiro.» (querer, PPS)",
+    tr:"Она хотела купить платье, но у неё не было денег.",
+    options:["quer","queria","quis","quero"], answer:2,
+    explanation:"QUERER PPS: eu quis / tu quiseste / ele QUIS / nós quisemos / eles quiseram. Aqui «quis» também poderia funcionar — mas QUERIA (imperfeito) é mais natural para intenção + obstáculo."
+  },
+  {
+    cat:"perder",
+    q:"«Quando era jovem, eu ___ ser médica.» (querer, Imperfeito)",
+    tr:"Когда я была молодой, я хотела стать врачом.",
+    options:["quis","quero","queria","quisera"], answer:2,
+    explanation:"QUERER Imperfeito: eu QUERIA / tu querias / ele queria / nós queríamos / eles queriam. Para sonhos e desejos do passado — sempre Imperfeito!"
+  },
+  {
+    cat:"perder",
+    q:"«Infelizmente» é o contrário de:",
+    tr:"",
+    options:["felizmente","finalmente","provavelmente","certamente"], answer:0,
+    explanation:"FELIZMENTE = к счастью / fortunately. INFELIZMENTE = к сожалению / unfortunately. Prefixo IN- = negação."
+  },
 ];
 
 const badges = { fazer:"fazer · dizer", ver:"ver · trazer", saber:"saber · conhecer", perder:"perder · querer" };
 const badgeClass = { fazer:"badge-fazer", ver:"badge-ver", saber:"badge-saber", perder:"badge-perder" };
 let filtered = [...allQuestions], current = 0, score = 0, mistakes = [];
+
+function renderQuestion(text) {
+  const safe = text.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  return safe.replace(/\(([a-záãâàéêíóõúç-]+(?:-se)?)(,\s*[^)]+)\)/gi, (match, verb, rest) => {
+    const tr = verbMap[verb.toLowerCase()];
+    return tr
+      ? `(${verb}<span class="verb-tr"> — ${tr}</span>${rest})`
+      : match;
+  });
+}
 
 function setFilter(cat, btn) {
   document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -145,7 +322,7 @@ function loadQuestion() {
   const badge = document.getElementById('badge');
   badge.textContent = badges[q.cat];
   badge.className = 'category-badge ' + badgeClass[q.cat];
-  document.getElementById('question').textContent = q.q;
+  document.getElementById('question').innerHTML = renderQuestion(q.q);
   const opts = document.getElementById('options');
   opts.innerHTML = '';
   q.options.forEach((opt, i) => {
@@ -164,16 +341,17 @@ function selectAnswer(i) {
   const btns = document.querySelectorAll('.option-btn');
   btns.forEach(b => b.disabled = true);
   const fb = document.getElementById('feedback');
+  const trBlock = q.tr ? `<div class="phrase-tr">🇷🇺 ${q.tr}</div>` : '';
   if (i === q.answer) {
     score++;
     btns[i].classList.add('correct');
     fb.className = 'feedback ok show';
-    fb.textContent = 'Correto! ' + q.explanation;
+    fb.innerHTML = 'Correto! ' + trBlock + q.explanation;
   } else {
     btns[i].classList.add('wrong');
     btns[q.answer].classList.add('correct');
     fb.className = 'feedback err show';
-    fb.textContent = 'Incorreto. ' + q.explanation;
+    fb.innerHTML = 'Incorreto. ' + trBlock + q.explanation;
     mistakes.push({ q: q.q, yours: q.options[i], correct: q.options[q.answer] });
   }
   document.getElementById('nextBtn').className = 'next-btn show';
