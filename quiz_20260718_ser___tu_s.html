@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- ser / tu sê                                         sê simpático com os convidados / você seja</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-gramática  { background: #fffbeb; color: #92400e; }
+  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
+  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>ser / tu sê                                         sê simpático com os convidados / você seja</h1>
+    <p>Урок 2026-07-18 · 18 вопросов</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  {
+    "cat": "gramática",
+    "q": "Qual é a forma correta do imperativo de 'ser' para 'tu'?",
+    "options": [
+      "seja",
+      "sê",
+      "és",
+      "sejas"
+    ],
+    "answer": 1,
+    "explanation": "Форма императива глагола 'ser' для 'tu' — 'sê'. 'Seja' — это форма для 'você', а 'sejas' используется только в отрицательном императиве."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: '_____ bem-vindos!' (vocês)",
+    "options": [
+      "Sejam",
+      "Sê",
+      "Seja",
+      "São"
+    ],
+    "answer": 0,
+    "explanation": "'Sejam' — форма императива глагола 'ser' для 'vocês'. Именно эта форма используется, когда обращаемся к группе людей."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "O que significa 'ir embora'?",
+    "options": [
+      "vir aqui",
+      "go away / уйти",
+      "ficar em casa",
+      "chegar tarde"
+    ],
+    "answer": 1,
+    "explanation": "'Ir embora' — устойчивое выражение, означающее 'уйти / go away'. Например: 'Vai-te embora!'"
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual é a forma correta do imperativo de 'estar' para 'você'?",
+    "options": [
+      "está",
+      "esteja",
+      "estejas",
+      "estejam"
+    ],
+    "answer": 1,
+    "explanation": "Для 'você' в императиве глагол 'estar' принимает форму 'esteja'. 'Está' — форма для 'tu', 'estejam' — для 'vocês'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: 'Dá-___ esta caneta, por favor.' (a mim)",
+    "options": [
+      "lhe",
+      "nos",
+      "me",
+      "te"
+    ],
+    "answer": 2,
+    "explanation": "'Dá-me' = дай мне. Местоимение 'me' соответствует первому лицу единственного числа (a mim). В императиве оно присоединяется через дефис."
+  },
+  {
+    "cat": "gramática",
+    "q": "Escolhe a frase correta no imperativo negativo para 'tu' com o verbo 'estar':",
+    "options": [
+      "Não está parado!",
+      "Não estejas parado!",
+      "Não esteja parado!",
+      "Não estejam parados!"
+    ],
+    "answer": 1,
+    "explanation": "В отрицательном императиве для 'tu' глагол 'estar' принимает форму 'estejas'. Форма 'está' используется только в утвердительном императиве для 'tu'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Como se diz corretamente em PE: 'Eles estão a dormir'?",
+    "options": [
+      "Eles estão dormindo",
+      "Eles estão dormir",
+      "Eles estão a dormir",
+      "Eles estejam a dormir"
+    ],
+    "answer": 2,
+    "explanation": "В европейском португальском длительное действие выражается конструкцией 'estar a + infinitivo'. Форма 'estão dormindo' — это бразильский вариант (PB)."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Qual é o significado de 'não estejas de pé'?",
+    "options": [
+      "Não fiques sentado",
+      "Não fiques em pé / не стой",
+      "Não vás a pé",
+      "Não mintas"
+    ],
+    "answer": 1,
+    "explanation": "'Estar de pé' значит 'стоять на ногах / быть на ногах'. 'Não estejas de pé' — не стой, тебе нужно отдыхать."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: 'Não ___ muito chocolate ao João.' (dar, tu, negativo)",
+    "options": [
+      "dás",
+      "dê",
+      "dês",
+      "dá"
+    ],
+    "answer": 2,
+    "explanation": "В отрицательном императиве для 'tu' глагол 'dar' принимает форму 'dês'. Форма 'dá' — утвердительный императив для 'tu', 'dê' — для 'você'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual é a forma do imperativo de 'ir' para 'vocês' (negativo)?",
+    "options": [
+      "não vão",
+      "não vás",
+      "não vá",
+      "não ides"
+    ],
+    "answer": 0,
+    "explanation": "Отрицательный императив глагола 'ir' для 'vocês' — 'não vão'. Для 'tu' — 'não vás', для 'você' — 'não vá'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual frase está correta com o verbo 'doer' no presente?",
+    "options": [
+      "Dói-me a cabeça.",
+      "Doeu-me a cabeça agora.",
+      "Estou a doer a cabeça.",
+      "Doem-me a cabeça."
+    ],
+    "answer": 0,
+    "explanation": "'Doer' conjugado no presente: 'dói' (singular) ou 'doem' (plural). 'Dói-me a cabeça' — у меня болит голова. 'Doeu' — это pretérito perfeito simples."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: 'A perna ___ ontem.' (doer, passado, singular)",
+    "options": [
+      "doía",
+      "dói",
+      "doeu",
+      "estava a doer"
+    ],
+    "answer": 2,
+    "explanation": "'Doeu' — форма pretérito perfeito simples (preterit) от 'doer' в единственном числе. 'Doía' — imperfeito (имперфект, прошедшее несовершенное)."
+  },
+  {
+    "cat": "prática",
+    "q": "Traduz para português: 'Не беспокойся, они уже дома.' (для 'tu')",
+    "options": [
+      "Não te preocupes, eles já estão em casa.",
+      "Não se preocupe, eles já estão em casa.",
+      "Não estejas preocupado, eles vão estar em casa.",
+      "Não preocupes-te, eles já são em casa."
+    ],
+    "answer": 0,
+    "explanation": "Для 'tu' отрицательный императив 'preocupar-se' → 'não te preocupes'. Местоимение 'te' стоит перед глаголом в отрицательной форме. 'Estão em casa' — правильное употребление глагола 'estar'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual é a primeira pessoa do singular do verbo 'seguir' no presente?",
+    "options": [
+      "seguio",
+      "seguo",
+      "sigo",
+      "seguio"
+    ],
+    "answer": 2,
+    "explanation": "Глагол 'seguir' — исключение: eu sigo (не *seguo). Это нерегулярный глагол группы -ir с чередованием гласной в основе."
+  },
+  {
+    "cat": "prática",
+    "q": "Escolhe a frase correta: Maria diz ao filho para ir buscar documentos à escola.",
+    "options": [
+      "Vão à escola, busca os documentos.",
+      "Vai à escola, busca os documentos.",
+      "Vai à escola buscar os documentos.",
+      "Vá à escola buscar os documentos."
+    ],
+    "answer": 2,
+    "explanation": "Для 'tu' утвердительный императив 'ir' → 'vai'. Второй глагол стоит в инфинитиве без предлога после глагола движения: 'vai à escola buscar'. Форма 'vá' — для 'você'."
+  },
+  {
+    "cat": "prática",
+    "q": "Qual expressão usamos para dizer 'sinta-se como em casa' para um grupo (vocês)?",
+    "options": [
+      "Sente-se em casa!",
+      "Sinta-se em casa!",
+      "Sintam-se em casa!",
+      "Sentem-se em casa!"
+    ],
+    "answer": 2,
+    "explanation": "'Sintam-se em casa' — императив глагола 'sentir-se' для 'vocês'. Местоимение '-se' присоединяется через дефис к глаголу в утвердительном императиве."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: 'As costas ___ muito há dois dias.' (doer, imperfeito, plural)",
+    "options": [
+      "doíam",
+      "doeram",
+      "estavam a doer",
+      "dói"
+    ],
+    "answer": 0,
+    "explanation": "'Doíam' — форма imperfeito (имперфект) от 'doer' во множественном числе. 'Doeram' — это pretérito perfeito simples (прошедшее завершённое действие)."
+  },
+  {
+    "cat": "prática",
+    "q": "Escolhe a resposta certa: Como se diz 'Не ходи туда, это опасно'? (para 'tu')",
+    "options": [
+      "Não vás ali, é perigoso.",
+      "Não vai ali, é perigoso.",
+      "Não vá ali, é perigoso.",
+      "Não ias ali, é perigoso."
+    ],
+    "answer": 0,
+    "explanation": "Отрицательный императив глагола 'ir' для 'tu' — 'não vás'. Форма 'não vai' ошибочна, т.к. 'vai' — утвердительный императив. 'Não vá' — форма для 'você'."
+  }
+];
+const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
+const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
+  document.getElementById('question').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('nextBtn').classList.remove('show');
+  answered=false;
+}
+function selectAnswer(i,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
+  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  current++;
+  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  const res=document.getElementById('results');res.classList.add('show');
+  const pct=Math.round(score/shuffled.length*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
+  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
+  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
+  const ml=document.getElementById('mistakesList');ml.innerHTML='';
+  if(mistakes.length){
+    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
+    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+  }
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
