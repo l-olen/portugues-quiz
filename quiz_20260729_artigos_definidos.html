@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- artigos definidos :                 o , a , os , as / artigos indefinidos :                 um , uma , uns , umas / —---</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-gramática  { background: #fffbeb; color: #92400e; }
+  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
+  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>artigos definidos :                 o , a , os , as / artigos indefinidos :                 um , uma , uns , umas / —---</h1>
+    <p>Урок 2026-07-29 · 18 вопросов</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  {
+    "cat": "vocabulário",
+    "q": "Hoje ___ muito calor. Qual é o verbo correto?",
+    "options": [
+      "é",
+      "está",
+      "tem",
+      "faz"
+    ],
+    "answer": 1,
+    "explanation": "Для описания погоды используется глагол 'estar': hoje está calor, está frio, está sol. Глагол 'ser' здесь не подходит."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Como se diz по-португальски 'идёт дождь' (сейчас, в данный момент)?",
+    "options": [
+      "está a chover",
+      "está chovendo",
+      "chove agora",
+      "há chuva"
+    ],
+    "answer": 0,
+    "explanation": "В европейском португальском (PE) действие в процессе выражается конструкцией 'estar a + infinitivo': está a chover, está a nevar."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual é o artigo correto? '___ Natal é no dia 25 de dezembro.'",
+    "options": [
+      "A",
+      "O",
+      "Um",
+      "—"
+    ],
+    "answer": 1,
+    "explanation": "Праздники в португальском используются с определённым артиклем: o Natal, o Ano Novo, a Páscoa, o Carnaval."
+  },
+  {
+    "cat": "gramática",
+    "q": "Eu tenho ___ gato. ___ gato é preto. Выбери правильную пару артиклей.",
+    "options": [
+      "um / Um",
+      "o / O",
+      "um / O",
+      "o / Um"
+    ],
+    "answer": 2,
+    "explanation": "Первое упоминание — неопределённый артикль 'um' (незнакомый предмет). Второе упоминание — определённый 'O' (уже известный читателю гato)."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Qual destas palavras NÃO é uma estação do ano?",
+    "options": [
+      "o verão",
+      "o outono",
+      "o cruzamento",
+      "a primavera"
+    ],
+    "answer": 2,
+    "explanation": "'O cruzamento' — это перекрёсток. Времена года: a primavera, o verão, o outono, o inverno."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual é o artigo correto? 'Eu gosto muito ___ verão.'",
+    "options": [
+      "de o",
+      "do",
+      "da",
+      "de"
+    ],
+    "answer": 1,
+    "explanation": "Предлог 'de' + определённый артикль 'o' сливаются в 'do': gosto do verão, do Porto, do Brasil."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "O que significa a expressão 'estar de braços cruzados'?",
+    "options": [
+      "estar com frio nos braços",
+      "não fazer nada",
+      "abraçar alguém",
+      "ter dor nos braços"
+    ],
+    "answer": 1,
+    "explanation": "По конспекту: 'estar de braços cruzados = não fazer nada' — это устойчивое выражение, означающее бездействие."
+  },
+  {
+    "cat": "gramática",
+    "q": "Joana ___ feliz hoje, mas ontem ___ triste. Qual é a opção correta?",
+    "options": [
+      "é / era",
+      "está / estava",
+      "é / estava",
+      "está / era"
+    ],
+    "answer": 1,
+    "explanation": "Настроение и временные состояния выражаются глаголом 'estar': está feliz, está triste. Прошедшее незавершённое — estava."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual frase usa o artigo definido INCORRETAMENTE segundo as regras da aula?",
+    "options": [
+      "a Joana está no café",
+      "o meu aniversário é no dia 2 de agosto",
+      "eu moro em a Lisboa",
+      "o Continente está fechado"
+    ],
+    "answer": 2,
+    "explanation": "С большинством городов артикль не используется или сливается с предлогом: 'em Lisboa', а не 'em a Lisboa'. Правильно: 'em Lisboa'."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Qual é a diferença entre 'cruzar-se com alguém' e 'encontrar-se com alguém'?",
+    "options": [
+      "Нет разницы, это синонимы",
+      "'Cruzar-se' — встреча запланированная, 'encontrar-se' — случайная",
+      "'Cruzar-se' — встреча случайная, 'encontrar-se' — запланированная",
+      "'Cruzar-se' используется только с предметами"
+    ],
+    "answer": 2,
+    "explanation": "По конспекту: 'cruzar-se (com)' — незапланированная встреча, 'encontrar-se (com)' — встреча по договорённости."
+  },
+  {
+    "cat": "gramática",
+    "q": "Completa a frase: 'O livro é ___. Ele joga ___ futebol.'",
+    "options": [
+      "bom / bem",
+      "bem / bom",
+      "bom / bom",
+      "bem / bem"
+    ],
+    "answer": 0,
+    "explanation": "'Bom' — прилагательное, согласуется с существительным (o livro é bom). 'Bem' — наречие, описывает действие (joga bem). Это важное различие из урока."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "O que significa 'apertar as mãos'?",
+    "options": [
+      "мыть руки",
+      "пожимать руки",
+      "поднимать руки",
+      "скрещивать руки"
+    ],
+    "answer": 1,
+    "explanation": "'Apertar a mão / apertar as mãos' — пожимать руку/руки. 'O aperto de mãos' — рукопожатие. Глагол 'apertar' означает 'сжимать, затягивать'."
+  },
+  {
+    "cat": "prática",
+    "q": "Traduz para português (PE): 'Она сидит уже 5 часов.'",
+    "options": [
+      "Ela está sentada há 5 horas.",
+      "Ela está sentando há 5 horas.",
+      "Ela senta há 5 horas.",
+      "Ela é sentada há 5 horas."
+    ],
+    "answer": 0,
+    "explanation": "Состояние выражается 'estar + particípio': está sentada. В PE нет формы 'está sentando'. 'Há' используется для обозначения длительности времени."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual é o artigo correto para este país? 'Eu sou de ___ Rússia.'",
+    "options": [
+      "— (sem artigo)",
+      "o",
+      "a",
+      "um"
+    ],
+    "answer": 2,
+    "explanation": "По правилу: некоторые страны используются с определённым артиклем — a Rússia, a Alemanha, o Brasil. Россия — женского рода: 'a Rússia'."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "O que significa a expressão 'falar de barriga cheia'?",
+    "options": [
+      "говорить о еде",
+      "говорить свысока, не зная нужды",
+      "говорить много",
+      "говорить тихо"
+    ],
+    "answer": 1,
+    "explanation": "'Falar de barriga cheia' — идиома, означающая говорить о чём-то не зная реальных трудностей, с позиции сытого/обеспеченного человека."
+  },
+  {
+    "cat": "prática",
+    "q": "Qual frase está CORRETA em português europeu (PE)?",
+    "options": [
+      "Ela está comendo agora.",
+      "Ela está a comer agora.",
+      "Ela come agora mesmo.",
+      "Ela está comida agora."
+    ],
+    "answer": 1,
+    "explanation": "В европейском португальском (PE) длящееся действие = 'estar a + infinitivo': está a comer, está a trabalhar. Форма 'está comendo' — бразильский португальский (PB)."
+  },
+  {
+    "cat": "prática",
+    "q": "Tens ___ caneta? Sim, tenho ___ caneta vermelha da BIC. Escolhe a opção correta.",
+    "options": [
+      "uma / uma",
+      "a / uma",
+      "uma / a",
+      "a / a"
+    ],
+    "answer": 0,
+    "explanation": "В вопросе и при первом упоминании используется неопределённый артикль 'uma' — предмет ещё не известен собеседнику. Обе фразы — первое введение предмета в разговор."
+  },
+  {
+    "cat": "prática",
+    "q": "Qual destas frases descreve CORRETAMENTE uma localização com 'estar'?",
+    "options": [
+      "O supermercado é na rua Nova.",
+      "O supermercado está na rua Nova.",
+      "O supermercado está rua Nova.",
+      "O supermercado é em rua Nova."
+    ],
+    "answer": 1,
+    "explanation": "Для обозначения местонахождения используется 'estar' + предлог 'em': está na rua, está em Lisboa, está no supermercado. 'Ser' для места не используется."
+  }
+];
+const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
+const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
+  document.getElementById('question').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('nextBtn').classList.remove('show');
+  answered=false;
+}
+function selectAnswer(i,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
+  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  current++;
+  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  const res=document.getElementById('results');res.classList.add('show');
+  const pct=Math.round(score/shuffled.length*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
+  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
+  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
+  const ml=document.getElementById('mistakesList');ml.innerHTML='';
+  if(mistakes.length){
+    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
+    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+  }
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
