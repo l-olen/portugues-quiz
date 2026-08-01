@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- doer / dói-me                 está me a doer                 vai (me) doer / doem-me                 estão me a doer</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-gramática  { background: #fffbeb; color: #92400e; }
+  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
+  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>doer / dói-me                 está me a doer                 vai (me) doer / doem-me                 estão me a doer</h1>
+    <p>Урок 2026-07-31 · 18 вопросов</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  {
+    "cat": "vocabulário",
+    "q": "Qual é o significado de «doer»?",
+    "options": [
+      "болеть / причинять боль",
+      "уставать",
+      "падать",
+      "лечить"
+    ],
+    "answer": 0,
+    "explanation": "«Doer» — глагол «болеть, причинять боль». Работает как «gostar»: согласуется с тем, что болит, а не с тем, кому больно."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Что означает выражение «magoar-se»?",
+    "options": [
+      "пораниться, ушибиться",
+      "устать",
+      "потеряться",
+      "упасть"
+    ],
+    "answer": 0,
+    "explanation": "«Magoar-se» — возвратный глагол «пораниться, травмироваться». В отличие от «doer», он описывает сам момент травмы."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери правильную форму: «___ as pernas quando treino muito.»",
+    "options": [
+      "Doem-me",
+      "Dói-me",
+      "Doem-te",
+      "Dói-nos"
+    ],
+    "answer": 0,
+    "explanation": "Субъект — «as pernas» (множественное число), поэтому глагол стоит во множественном числе: «doem-me». Местоимение «me» указывает, кому больно."
+  },
+  {
+    "cat": "gramática",
+    "q": "Какая форма правильная для описания боли прямо сейчас (PE)? «A minha cabeça ___.»",
+    "options": [
+      "está me a doer",
+      "está doendo",
+      "dói-me agora mesmo",
+      "doeu"
+    ],
+    "answer": 0,
+    "explanation": "В PE для действия в процессе используется «estar a + infinitivo»: «está me a doer». Форма «está doendo» — это BP (бразильский португальский)."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "«Bater à porta» означает:",
+    "options": [
+      "стучать в дверь",
+      "открыть дверь",
+      "закрыть дверь",
+      "толкнуть дверь"
+    ],
+    "answer": 0,
+    "explanation": "«Bater à porta» — устойчивое выражение «стучать в дверь». Предлог «a» сливается с артиклем «a» → «à»."
+  },
+  {
+    "cat": "gramática",
+    "q": "Заполни пропуск: «Eu ___ na perna quando estava a andar de patins.»",
+    "options": [
+      "magoei-me",
+      "magoou-se",
+      "magoar-me",
+      "me magoei"
+    ],
+    "answer": 0,
+    "explanation": "Pretérito Perfeito от «magoar-se» в 1-м лице ед.ч.: «magoei-me». В PE местоимение ставится после глагола через дефис."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери правильную форму Pretérito Imperfeito: «Antigamente ___ a perna quando estava frio.»",
+    "options": [
+      "doía-me",
+      "doeu-me",
+      "dói-me",
+      "doíam-me"
+    ],
+    "answer": 0,
+    "explanation": "Imperfeito от «doer» в 3-м л. ед.ч. — «doía». Imperfeito используется для привычных или повторяющихся состояний в прошлом."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "«Estas botas estão a magoar» — что это означает?",
+    "options": [
+      "Эти ботинки натирают / причиняют боль",
+      "Эти ботинки красивые",
+      "Эти ботинки дорогие",
+      "Эти ботинки старые"
+    ],
+    "answer": 0,
+    "explanation": "Глагол «magoar» (без возвратного «se») означает «причинять боль кому-то». Здесь ботинки — субъект, который причиняет боль."
+  },
+  {
+    "cat": "gramática",
+    "q": "Как сказать «эта вакцина не болит» по-португальски?",
+    "options": [
+      "Esta vacina não dói",
+      "Esta vacina não doeu",
+      "Esta vacina não está a doer",
+      "Esta vacina não doía"
+    ],
+    "answer": 0,
+    "explanation": "Presente Simples «dói» используется для общего утверждения о свойстве (вакцина как таковая). Субъект — «vacina» (ед.ч.), поэтому «dói», а не «doem»."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери правильную конструкцию с «magoar-se» + предлог: «Ele ___ perna.»",
+    "options": [
+      "magoou-se na",
+      "magoou-se em a",
+      "magoou-se de",
+      "magoou-se para a"
+    ],
+    "answer": 0,
+    "explanation": "После «magoar-se» часть тела вводится предлогом «em» + артикль: «em + a = na». Правильно: «magoou-se na perna»."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Что означает «bateu a saudade»?",
+    "options": [
+      "Нахлынула тоска / ударила ностальгия",
+      "Прошла тоска",
+      "Появилась радость",
+      "Ударил кто-то"
+    ],
+    "answer": 0,
+    "explanation": "«Bater» в переносном смысле означает «накрыть, нахлынуть». «Bateu a saudade» — разговорное выражение «нахлынула тоска»."
+  },
+  {
+    "cat": "gramática",
+    "q": "«É importante fazer alongamentos se não queres ___» — выбери правильный вариант:",
+    "options": [
+      "magoar-te",
+      "te magoar",
+      "magoares-te",
+      "magoar-se"
+    ],
+    "answer": 0,
+    "explanation": "После «querer» + infinitivo возвратное местоимение согласуется с субъектом «tu»: «magoar-te». В PE оно ставится после инфинитива."
+  },
+  {
+    "cat": "prática",
+    "q": "Как правильно сказать по-португальски (PE): «Мои ноги сейчас болят»?",
+    "options": [
+      "As minhas pernas estão me a doer",
+      "As minhas pernas estão doendo",
+      "Doem-me as pernas agora",
+      "Ambas as opções A e C estão corretas"
+    ],
+    "answer": 3,
+    "explanation": "В PE обе формы корректны: «estão me a doer» (processo em curso) и «doem-me» (Presente Simples). «Estão doendo» — только BP."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "«A bebida bateu» — что это означает в разговорном португальском?",
+    "options": [
+      "Напиток ударил / вставил (опьянел)",
+      "Напиток пролился",
+      "Напиток закончился",
+      "Напиток был вкусным"
+    ],
+    "answer": 0,
+    "explanation": "«Bater» в разговорной речи означает «ударить в голову, вставить». «A bebida bateu» — алкоголь подействовал."
+  },
+  {
+    "cat": "gramática",
+    "q": "Как изменится глагол «doer» в будущем? «Esta injeção ___ um pouco.»",
+    "options": [
+      "vai doer",
+      "vai a doer",
+      "doerá-me",
+      "vai doendo"
+    ],
+    "answer": 0,
+    "explanation": "Futuro perifrástico в PE: «ir + infinitivo» → «vai doer». Форма «vai a doer» не используется, «ir» не соединяется с инфинитивом через «a»."
+  },
+  {
+    "cat": "prática",
+    "q": "Переведи: «Он ударился ногой о стол» — выбери правильный вариант:",
+    "options": [
+      "Ele bateu com a perna na mesa",
+      "Ele bateu a perna na mesa",
+      "Ele magoou a perna na mesa",
+      "Ele bateu na perna com a mesa"
+    ],
+    "answer": 0,
+    "explanation": "Конструкция «bater com ___ no/na ___» означает «ударить чем-то обо что-то». «Bater com a perna na mesa» — ударился ногой о стол."
+  },
+  {
+    "cat": "prática",
+    "q": "Выбери предложение с ОШИБКОЙ:",
+    "options": [
+      "Eu estou a doer",
+      "Doem-me os pés",
+      "Magoei-me no joelho",
+      "Esta vacina não dói"
+    ],
+    "answer": 0,
+    "explanation": "«Doer» — безличный глагол, как «gostar». Нельзя сказать «eu estou a doer». Правильно: «estou com dores» или «dói-me / está me a doer»."
+  },
+  {
+    "cat": "gramática",
+    "q": "«A música na festa de ontem ___» — выбери правильную форму Pretérito Perfeito глагола «bater»:",
+    "options": [
+      "bateu",
+      "batia",
+      "bate",
+      "tem batido"
+    ],
+    "answer": 0,
+    "explanation": "Pretérito Perfeito Simples «bateu» используется для завершённого события в прошлом («вчера»). «Batia» — Imperfeito, для длительных/привычных состояний."
+  }
+];
+const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
+const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
+  document.getElementById('question').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('nextBtn').classList.remove('show');
+  answered=false;
+}
+function selectAnswer(i,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
+  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  current++;
+  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  const res=document.getElementById('results');res.classList.add('show');
+  const pct=Math.round(score/shuffled.length*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
+  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
+  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
+  const ml=document.getElementById('mistakesList');ml.innerHTML='';
+  if(mistakes.length){
+    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
+    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+  }
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
