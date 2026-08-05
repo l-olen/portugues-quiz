@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Morar / Gerúndio / Férias</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-gramática  { background: #fffbeb; color: #92400e; }
+  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
+  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Morar / Gerúndio / Férias</h1>
+    <p>Aulas 03–05 de agosto de 2026 · 16 perguntas</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  {
+    "cat": "gramática",
+    "q": "Como é que estás? / Vou ____________. (resposta idiomática com ir + gerúndio)",
+    "options": [
+      "andando",
+      "andar",
+      "a andar",
+      "andado"
+    ],
+    "answer": 0,
+    "explanation": "\"Vou andando\" é uma expressão idiomática (ir + gerúndio) para responder a \"como vai a vida\" — algo entre \"vou indo\" e \"mais ou menos\"."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual frase está correta em português europeu para uma ação em curso agora?",
+    "options": [
+      "Eu estou a falar a verdade.",
+      "Eu tou falando a verdade.",
+      "Eu falando a verdade.",
+      "Eu estou falar a verdade."
+    ],
+    "answer": 0,
+    "explanation": "Em PE usa-se \"estar a + infinitivo\" para o progressivo (não o gerúndio simples, que é mais comum no Brasil)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Andando devagar pelos trilhos, ____________ ver as montanhas.",
+    "options": [
+      "conseguimos",
+      "consigamos",
+      "conseguir",
+      "conseguindo"
+    ],
+    "answer": 0,
+    "explanation": "O gerúndio adverbial (\"andando\") introduz a circunstância; o verbo principal fica no presente do indicativo — \"conseguimos\"."
+  },
+  {
+    "cat": "gramática",
+    "q": "Comprando este casaco hoje, ____________ desconto de 10%.",
+    "options": [
+      "tens",
+      "ter",
+      "tendo",
+      "tinhas"
+    ],
+    "answer": 0,
+    "explanation": "Gerúndio com valor condicional/adverbial (= \"se comprares\"): a frase principal continua no presente."
+  },
+  {
+    "cat": "gramática",
+    "q": "Hoje está calor, ____________ não me apetece sair de casa.",
+    "options": [
+      "por isso",
+      "por causa de",
+      "porque",
+      "para"
+    ],
+    "answer": 0,
+    "explanation": "\"Por isso\" introduz a consequência (está calor → não me apetece sair). \"Porque\" introduziria a causa depois do efeito."
+  },
+  {
+    "cat": "gramática",
+    "q": "Não fui trabalhar ____________ estava doente.",
+    "options": [
+      "porque",
+      "por isso",
+      "por causa",
+      "então"
+    ],
+    "answer": 0,
+    "explanation": "\"Porque\" liga o efeito (não fui trabalhar) à causa (estava doente), nessa ordem."
+  },
+  {
+    "cat": "gramática",
+    "q": "Cancelaram o voo ____________ do mau tempo.",
+    "options": [
+      "por causa",
+      "por isso",
+      "porque",
+      "por que"
+    ],
+    "answer": 0,
+    "explanation": "\"Por causa de\" + substantivo (\"do mau tempo\"), ao contrário de \"porque\" que introduz uma oração com verbo."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "\"A nossa casa fica no ____________ de Loures, distrito de Lisboa.\"",
+    "options": [
+      "concelho",
+      "país",
+      "piso",
+      "andar"
+    ],
+    "answer": 0,
+    "explanation": "Hierarquia administrativa em Portugal: distrito → concelho → freguesia. \"Concelho\" é o município."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Qual a diferença entre \"piso\" e \"andar\"?",
+    "options": [
+      "piso = espaço comercial/industrial; andar = onde moram pessoas",
+      "são sinónimos, usam-se sempre da mesma forma",
+      "piso = onde moram pessoas; andar = espaço comercial",
+      "andar só se usa para casas, piso só para prédios"
+    ],
+    "answer": 0,
+    "explanation": "\"Piso\" usa-se tipicamente para escritórios/lojas/estacionamento; \"andar\" para onde as pessoas vivem (ex: \"a casa fica no sétimo andar\")."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "O escritório da mãe da Maria fica no rés do chão. Como se escreve a abreviatura?",
+    "options": [
+      "RC",
+      "R.C.H.",
+      "R0",
+      "Piso 0"
+    ],
+    "answer": 0,
+    "explanation": "\"Rés do chão\" abrevia-se \"RC\" em moradas e placas de elevador portuguesas."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "5º andar — como se diz por extenso?",
+    "options": [
+      "quinto",
+      "cinco",
+      "cincoº",
+      "quinta"
+    ],
+    "answer": 0,
+    "explanation": "Ordinal masculino: 1º primeiro, 2º segundo, 3º terceiro, 4º quarto, 5º quinto..."
+  },
+  {
+    "cat": "gramática",
+    "q": "Eu ____________ vou de férias sozinha — prefiro sempre companhia.",
+    "options": [
+      "nunca",
+      "sempre",
+      "às vezes",
+      "todos os dias"
+    ],
+    "answer": 0,
+    "explanation": "\"Nunca\" antes do verbo (sem duplo negativo em PE quando vem antes: \"nunca vou\", não \"não vou nunca\" nesta posição)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Qual das frases tem o advérbio de frequência bem colocado?",
+    "options": [
+      "Nós fazemos às vezes caminhadas na montanha.",
+      "Nós às caminhadas vezes fazemos na montanha.",
+      "Nós fazemos caminhadas às vezes na montanha na.",
+      "Às nós vezes fazemos caminhadas na montanha."
+    ],
+    "answer": 0,
+    "explanation": "\"Às vezes\" pode vir no início da frase ou logo depois do verbo — \"Nós fazemos às vezes...\" é natural em PE."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Interlaken fica entre dois ____________: o Thun e o Brienz.",
+    "options": [
+      "lagos",
+      "picos",
+      "trilhos",
+      "concelhos"
+    ],
+    "answer": 0,
+    "explanation": "\"Lago\" = озеро. Interlaken (\"entre lagos\") fica mesmo entre o Lago Thun e o Lago Brienz, nos Alpes suíços."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Para subir a uma montanha sem caminhar, podemos apanhar o ____________.",
+    "options": [
+      "teleférico",
+      "trilho",
+      "rés do chão",
+      "piso"
+    ],
+    "answer": 0,
+    "explanation": "\"Teleférico\" = канатная дорога — meio de transporte para subir montanhas rapidamente."
+  },
+  {
+    "cat": "prática",
+    "q": "A Suíça faz parte do Espaço Schengen mas não é membro da União Europeia. Com um título de residência português, para lá entrar:",
+    "options": [
+      "não precisas de visto",
+      "precisas sempre de visto",
+      "precisas de um visto especial suíço",
+      "só podes entrar de avião, nunca de comboio"
+    ],
+    "answer": 0,
+    "explanation": "O Espaço Schengen permite circulação livre entre os países membros (incluindo associados como a Suíça) para quem já tem residência legal noutro país Schengen, como Portugal."
+  }
+];
+const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
+const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
+  document.getElementById('question').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('nextBtn').classList.remove('show');
+  answered=false;
+}
+function selectAnswer(i,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
+  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  current++;
+  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  const res=document.getElementById('results');res.classList.add('show');
+  const pct=Math.round(score/shuffled.length*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
+  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
+  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
+  const ml=document.getElementById('mistakesList');ml.innerHTML='';
+  if(mistakes.length){
+    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
+    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+  }
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
