@@ -1,0 +1,355 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- complemento indireto                                         complemento direto / eu > me</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-gramática  { background: #fffbeb; color: #92400e; }
+  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
+  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>complemento indireto                                         complemento direto / eu > me</h1>
+    <p>Урок 2026-08-14 · 18 вопросов</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  {
+    "cat": "vocabulário",
+    "q": "Как сказать «сегодня солнечно» на европейском португальском?",
+    "options": [
+      "Hoje é sol",
+      "Hoje está sol",
+      "Hoje tem sol",
+      "Hoje faz sol"
+    ],
+    "answer": 1,
+    "explanation": "В европейском португальском для описания погоды используется глагол 'estar': 'Hoje está sol'. Глагол 'é' (ser) здесь не подходит."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Переведи: «утром» (неопределённо, без конкретного времени)",
+    "options": [
+      "da manhã",
+      "de manhã",
+      "à manhã",
+      "na manhã"
+    ],
+    "answer": 1,
+    "explanation": "'De manhã' используется без артикля для обозначения времени суток в общем смысле ('по утрам', 'утром'). 'Da manhã' используется после конкретного времени: 'às 8 da manhã'."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Выбери правильный вариант: «в 5 часов ___ tarde»",
+    "options": [
+      "de",
+      "da",
+      "à",
+      "na"
+    ],
+    "answer": 1,
+    "explanation": "После конкретного времени (às 5:00) используется артикль: 'às 5 da tarde'. Без конкретного времени говорят 'à tarde'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Какой местоимённый вариант соответствует complemento direto для 'ele / ela / você'?",
+    "options": [
+      "lhe",
+      "o / a",
+      "se",
+      "nos"
+    ],
+    "answer": 1,
+    "explanation": "В функции прямого дополнения (complemento direto) 'ele/ela/você' заменяются на 'o' (м.р.) или 'a' (ж.р.). 'Lhe' — это форма косвенного дополнения (complemento indireto)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Указательное местоимение 'isso' соответствует расстоянию...",
+    "options": [
+      "aqui (близко к говорящему)",
+      "aí (близко к собеседнику)",
+      "ali (далеко от обоих)",
+      "повсюду"
+    ],
+    "answer": 1,
+    "explanation": "'Isso/esse/essa' соответствует 'aí' — близко к собеседнику. 'Isto/este/esta' — 'aqui' (близко к говорящему), 'aquilo/aquele/aquela' — 'ali' (далеко от обоих)."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Ele comprou um bolo para todos.» Замени 'um bolo' на прямое дополнение:",
+    "options": [
+      "Ele comprou-lhe para todos",
+      "Ele comprou-o para todos",
+      "Ele comprou-a para todos",
+      "Ele o comprou para todos"
+    ],
+    "answer": 1,
+    "explanation": "'Bolo' — мужского рода, поэтому прямое дополнение = 'o'. Глагол заканчивается на 'u' (нет -r/-s/-z), поэтому форма просто '-o': 'comprou-o'. В PE клитика ставится после глагола через дефис."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Eles não abriram a porta à Maria.» Замени 'a porta' на прямое дополнение:",
+    "options": [
+      "Eles não lhe abriram à Maria",
+      "Eles não a abriram à Maria",
+      "Eles não abriram-na à Maria",
+      "Eles não la abriram à Maria"
+    ],
+    "answer": 1,
+    "explanation": "При отрицании в PE клитика ставится ПЕРЕД глаголом: 'não a abriram'. 'Porta' — женского рода → 'a'. Форма 'la' используется только после -r/-s/-z."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Ele faz o bolo.» Замени 'o bolo' на местоимение:",
+    "options": [
+      "Ele faz-o",
+      "Ele fá-lo",
+      "Ele fazê-lo",
+      "Ele o faz"
+    ],
+    "answer": 1,
+    "explanation": "Глагол 'faz' заканчивается на -z, поэтому -z отпадает, а прямое дополнение принимает форму 'lo': 'fá-lo'. Правило: после -r, -s, -z → форма lo/la/los/las."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Tu compras o papel.» Замени 'o papel' на местоимение:",
+    "options": [
+      "Tu compras-o",
+      "Tu comprás-lo",
+      "Tu comprá-lo",
+      "Tu o compras"
+    ],
+    "answer": 2,
+    "explanation": "Глагол 'compras' заканчивается на -s → -s отпадает, дополнение = 'lo': 'comprá-lo'. Ударение сохраняется с акцентом: comprá-lo."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Ele vai esconder o presente.» Замени 'o presente' на местоимение:",
+    "options": [
+      "Ele vai esconder-o",
+      "Ele vai escondê-lo",
+      "Ele escondê-lo vai",
+      "Ele o vai esconder"
+    ],
+    "answer": 1,
+    "explanation": "Инфинитив 'esconder' заканчивается на -r → -r отпадает, дополнение = 'lo': 'escondê-lo'. Акцент ставится: escondê-lo. В PE клитика крепится к инфинитиву."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Eles não abriram a porta à Maria.» Замени 'à Maria' на косвенное дополнение:",
+    "options": [
+      "Eles não os abriram a porta",
+      "Eles não lhes abriram a porta",
+      "Eles não lhe abriram a porta",
+      "Eles não se abriram a porta"
+    ],
+    "answer": 2,
+    "explanation": "'À Maria' — косвенное дополнение (complemento indireto) для 3-го лица единственного числа → 'lhe'. При отрицании клитика стоит перед глаголом: 'não lhe abriram'."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Ponham as coisas no carro.» Замени 'as coisas' на местоимение:",
+    "options": [
+      "Ponham-las no carro",
+      "Ponham-nos no carro",
+      "Ponham-nas no carro",
+      "Ponham-as no carro"
+    ],
+    "answer": 2,
+    "explanation": "Глагол 'ponham' заканчивается на -m (носовой), поэтому прямое дополнение принимает форму 'nas' (ж.р., мн.ч.): 'ponham-nas'. Правило: после -m/-ão/-õe → no/na/nos/nas."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Não comam os meus chocolates.» Замени 'os meus chocolates' на местоимение:",
+    "options": [
+      "Não comam-nos",
+      "Não os comam",
+      "Não nos comam",
+      "Não comam-os"
+    ],
+    "answer": 1,
+    "explanation": "При отрицании в PE клитика ставится ПЕРЕД глаголом: 'não os comam'. Форма 'nos' использовалась бы после носового окончания без отрицания, но здесь 'não' требует препозиции."
+  },
+  {
+    "cat": "prática",
+    "q": "Выбери предложение, где местоимение используется НЕПРАВИЛЬНО (PE):",
+    "options": [
+      "Eu quero comprá-lo.",
+      "Eu não o quero comprar.",
+      "Ele comprou-lhes um bolo.",
+      "Ela está comendo o bolo."
+    ],
+    "answer": 3,
+    "explanation": "В европейском португальском (PE) форма 'estar + gerúndio' (está comendo) не используется. Правильно: 'está a comer'. Остальные варианты грамматически верны для PE."
+  },
+  {
+    "cat": "prática",
+    "q": "Выбери верный перевод: «Я не хочу это покупать» (с местоимением для 'isto')",
+    "options": [
+      "Eu não quero comprá-lo.",
+      "Eu não o quero comprar.",
+      "Eu não quero comprar isto.",
+      "Eu não lhe quero comprar."
+    ],
+    "answer": 2,
+    "explanation": "Указательные местоимения 'isto/isso/aquilo' НЕ заменяются на o/a — они используются напрямую. Поэтому 'Eu não quero comprar isto' — правильная форма."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Какое указательное местоимение соответствует 'ali'?",
+    "options": [
+      "este / esta / isto",
+      "esse / essa / isso",
+      "aquele / aquela / aquilo",
+      "outro / outra"
+    ],
+    "answer": 2,
+    "explanation": "'Ali' указывает на предмет вдали от обоих собеседников → 'aquele / aquela / aquilo'. 'Aqui' → este/esta/isto (рядом с говорящим), 'aí' → esse/essa/isso (рядом с собеседником)."
+  },
+  {
+    "cat": "prática",
+    "q": "Как правильно сказать «в 8 часов утра» на европейском португальском?",
+    "options": [
+      "às 8 de manhã",
+      "às 8 da manhã",
+      "às 8 à manhã",
+      "às 8 pela manhã"
+    ],
+    "answer": 1,
+    "explanation": "После конкретного времени ('às 8') используется форма с артиклем: 'da manhã / da tarde / da noite'. Без конкретного времени: 'de manhã', 'à tarde', 'à noite'."
+  },
+  {
+    "cat": "prática",
+    "q": "Выбери предложение с ПРАВИЛЬНОЙ позицией клитики в PE (утвердительное предложение, простой глагол):",
+    "options": [
+      "Ele o comprou para todos.",
+      "Ele comprou-o para todos.",
+      "Ele comprou o para todos.",
+      "O ele comprou para todos."
+    ],
+    "answer": 1,
+    "explanation": "В утвердительном предложении в PE клитика ставится ПОСЛЕ глагола через дефис: 'comprou-o'. Препозиция клитики (перед глаголом) типична для бразильского португальского или обязательна в PE только при отрицании/наречии."
+  }
+];
+const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
+const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
+  document.getElementById('question').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('nextBtn').classList.remove('show');
+  answered=false;
+}
+function selectAnswer(i,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
+  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  current++;
+  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  const res=document.getElementById('results');res.classList.add('show');
+  const pct=Math.round(score/shuffled.length*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
+  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
+  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
+  const ml=document.getElementById('mistakesList');ml.innerHTML='';
+  if(mistakes.length){
+    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
+    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+  }
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
