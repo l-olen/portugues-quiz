@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Pronomes Clíticos: Complemento Direto, Indireto e Duplo</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.7rem; color: #553c9a; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #553c9a; }
+  .filter-row { display: flex; gap: 8px; flex-wrap: wrap; margin-bottom: 16px; }
+  .filter-btn { padding: 7px 14px; border-radius: 20px; border: 2px solid #e2e8f0; background: white; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.15s; }
+  .filter-btn.active { background: #553c9a; border-color: #553c9a; color: white; }
+  .filter-btn:hover:not(.active) { border-color: #d6bcfa; color: #553c9a; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #553c9a, #d6bcfa); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-ci   { background: #faf5ff; color: #553c9a; }
+  .badge-cd   { background: #ebf8ff; color: #2c5282; }
+  .badge-part { background: #fffaf0; color: #744210; }
+  .badge-dup  { background: #fff5f7; color: #97266d; }
+  .badge-pos  { background: #fffbeb; color: #92400e; }
+  .badge-com  { background: #f0fff4; color: #276749; }
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #faf5ff; border-color: #d6bcfa; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #553c9a; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #44337a; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #553c9a, #d6bcfa); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #553c9a; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Pronomes Clíticos: CD · CI · Duplo</h1>
+    <p>lo/la · no/na · lho/mo/to · próclise/ênclise · com+pronome</p>
+  </header>
+  <div class="filter-row">
+    <button class="filter-btn active" onclick="setFilter('todos',this)">Todos (43)</button>
+    <button class="filter-btn" onclick="setFilter('ci',this)">Compl. Indireto</button>
+    <button class="filter-btn" onclick="setFilter('cd',this)">Compl. Direto</button>
+    <button class="filter-btn" onclick="setFilter('part',this)">Partículas lo/la/no/na</button>
+    <button class="filter-btn" onclick="setFilter('dup',this)">Contração dupla</button>
+    <button class="filter-btn" onclick="setFilter('pos',this)">Posição da clítica</button>
+    <button class="filter-btn" onclick="setFilter('com',this)">Com + pronome</button>
+  </div>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const allQuestions = [
+  // ── Complemento Indireto ──
+  { cat:"ci", q:"«Eu compro livros para a Joana.» → Eu compro-___ livros.", options:["a","lhe","o","lhes"], answer:1, explanation:"CI (для кого/кому): ele/ela/você → LHE. «Eu compro-lhe livros» = я покупаю ей книги." },
+  { cat:"ci", q:"«Eles mandam-___ cartas todas as semanas.» (нам)", options:["nos","lhes","vos","lhe"], answer:0, explanation:"CI: nós → NOS. «Eles mandam-nos cartas» = они присылают нам письма." },
+  { cat:"ci", q:"«Vou enviar-___ o convite amanhã.» (тебе)", options:["lhe","te","me","vos"], answer:1, explanation:"CI: tu → TE. «Vou enviar-te o convite» = отправлю тебе приглашение." },
+  { cat:"ci", q:"«Pode confirmar-___ a sua reserva?» (мне -- formal)", options:["te","lhe","me","nos"], answer:2, explanation:"CI: eu → ME (даже в вежливой форме к собеседнику ME относится к говорящему). «Pode confirmar-me a reserva?»" },
+  { cat:"ci", q:"«Eles não abriram a porta à Maria.» Замени 'à Maria' на косвенное дополнение:", options:["Eles não os abriram a porta.","Eles não lhes abriram a porta.","Eles não lhe abriram a porta.","Eles não se abriram a porta."], answer:2, explanation:"«À Maria» — CI для 3-го лица ед.ч. → LHE. При отрицании клитика стоит перед глаголом: «não lhe abriram»." },
+  { cat:"ci", q:"«O professor explicou a regra aos alunos.» Замени 'aos alunos' на местоимение:", options:["O professor explicou-os a regra.","O professor explicou-lhes a regra.","O professor explicou-as a regra.","O professor explicou-vos a regra."], answer:1, explanation:"«Aos alunos» — CI для 3-го лица мн.ч. → LHES. «Explicou-lhes a regra» = объяснил им правило." },
+
+  // ── Complemento Direto (básico, sem transformação) ──
+  { cat:"cd", q:"«Envio a carta para a Maria.» Замени 'a carta' на прямое дополнение:", options:["Envio-lhe para a Maria.","Envio-a para a Maria.","Envio-o para a Maria.","Envio-la para a Maria."], answer:1, explanation:"«Carta» — женский род → A. Глагол заканчивается на гласную, трансформация lo/la не нужна: «envio-a»." },
+  { cat:"cd", q:"«Ele comprou um bolo para todos.» Замени 'um bolo' на прямое дополнение:", options:["Ele comprou-lhe para todos.","Ele comprou-o para todos.","Ele comprou-a para todos.","Ele o comprou para todos."], answer:1, explanation:"«Bolo» — мужской род → O. Глагол «comprou» заканчивается на гласную — форма не меняется: «comprou-o»." },
+  { cat:"cd", q:"«A Ana leu o livro.» Замени 'o livro' на местоимение:", options:["A Ana leu-lo.","A Ana leu-o.","A Ana leu-lhe.","A Ana o leu."], answer:1, explanation:"«Leu» заканчивается на гласную (u) — никаких трансформаций, просто «leu-o»." },
+  { cat:"cd", q:"«A professora avalia os alunos.» Замени 'os alunos' на местоимение:", options:["A professora avalia-os.","A professora avalia-los.","A professora avalia-nos.","A professora avalia-lhes."], answer:0, explanation:"«Avalia» заканчивается на гласную — CD мн.ч. муж.р. просто OS: «avalia-os»." },
+
+  // ── Partículas lo/la/no/na ──
+  { cat:"part", q:"Regra geral: когда глагол заканчивается на -R, -S или -Z, местоимение o/a/os/as превращается в:", options:["no/na","lhe","lo/la","lhes"], answer:2, explanation:"-R, -S, -Z в конце глагола → эта буква отпадает + местоимение становится LO/LA/LOS/LAS. Пример: COMER + o = COMÊ-LO." },
+  { cat:"part", q:"«Eu quero comer o bolo.» → Eu quero ___", options:["comê-lo","comê-o","comer-o","comê-lhe"], answer:0, explanation:"COMER + O → COMÊ-LO. -R отпадает, циркумфлекс (ê), местоимение = LO." },
+  { cat:"part", q:"«Ela vai comprar as flores.» → Ela vai ___", options:["comprar-as","comprá-as","comprá-las","comprá-lhe"], answer:2, explanation:"COMPRAR + AS → COMPRÁ-LAS. -R отпадает, острое ударение (á), местоимение = LAS." },
+  { cat:"part", q:"«Nós vamos ver os filmes.» → Nós vamos ___", options:["vê-los","ver-os","vê-lhes","vê-os"], answer:0, explanation:"VER + OS → VÊ-LOS. -R отпадает, циркумфлекс (ê), местоимение = LOS." },
+  { cat:"part", q:"«Tu vais escrever a carta.» → Tu vais ___", options:["escrever-a","escrevê-la","escrevê-a","escreve-la"], answer:1, explanation:"ESCREVER + A → ESCREVÊ-LA. Инфинитив на -R → -R отпадает, местоимение = LA." },
+  { cat:"part", q:"«Eu quis comprar os bilhetes.» → Eu quis ___", options:["comprar-os","comprá-los","comprá-os","comprar-los"], answer:1, explanation:"COMPRAR + OS → COMPRÁ-LOS. -R отпадает, местоимение = LOS." },
+  { cat:"part", q:"«Nós fazemos o trabalho.» → Nós ___", options:["fazemos-o","fazemo-lo","fazemos-lo","fazemo-o"], answer:1, explanation:"Глагол на -S (fazemos) → -S отпадает, местоимение = LO: «fazemo-lo». Та же логика, что с -R и -Z." },
+  { cat:"part", q:"Regra geral: когда глагол заканчивается на носовой звук (-ão, -am, -em, -m), местоимение o/a превращается в:", options:["lo/la","lhe","no/na","lhes"], answer:2, explanation:"Носовое окончание (-ão/-am/-em/-m) → местоимение становится NO/NA/NOS/NAS. Пример: FAZEM + o = FAZEM-NO." },
+  { cat:"part", q:"«Eles fazem o jantar.» → Eles ___", options:["fazem-lhe","fazem-o","fazem-no","fazê-lo"], answer:2, explanation:"FAZEM + O → FAZEM-NO. Окончание -m (носовое) → местоимение = NO." },
+  { cat:"part", q:"«Elas comem a sopa.» → Elas ___", options:["comem-a","comem-na","comê-la","comem-lhe"], answer:1, explanation:"COMEM + A → COMEM-NA. Окончание -m → женское местоимение A превращается в NA." },
+  { cat:"part", q:"«Eles trazem as coisas para dentro.» → Eles ___", options:["trazem-as","trazem-nas","trazê-las","tragam-as"], answer:1, explanation:"TRAZEM заканчивается на -M (носовое) → местоимение AS превращается в NAS: «trazem-nas»." },
+  { cat:"part", q:"«Elas põem a mesa.» → Elas ___", options:["põem-a","põem-na","põe-na","põem-la"], answer:1, explanation:"PÕEM заканчивается на носовой дифтонг -ÕE-M → местоимение A превращается в NA: «põem-na»." },
+  { cat:"part", q:"«Ela pôs o livro na mesa.» → Ela ___", options:["pôs-o","pô-lo","pôs-lo","pô-lhe"], answer:1, explanation:"Внимание: «pôs» заканчивается на -S (а не носовой!) → работает правило -r/-s/-z, а не nasal. -S отпадает + циркумфлекс: PÔ-LO." },
+  { cat:"part", q:"«Elas viram o acidente.» → Elas ___", options:["viram-o","viram-no","virã-lo","viraram-no"], answer:1, explanation:"VIRAM заканчивается на -M (носовое) → местоимение O превращается в NO: «viram-no»." },
+  { cat:"part", q:"«Já fiz o trabalho.» Замени 'o trabalho' — обрати внимание на позицию:", options:["Já fi-lo.","Já o fiz.","Já fiz-o.","Já fiz-lo."], answer:1, explanation:"С «já» местоимение ставится ПЕРЕД глаголом (próclise): «já o fiz». Правило -z→lo действует только когда местоимение идёт ПОСЛЕ глагола!" },
+
+  // ── Contração dupla (avançado) ──
+  { cat:"dup", q:"«O Miguel deu um presente à Margarida.» Замени ОБА дополнения (прямое + косвенное) одним местоимением:", options:["O Miguel deu-o.","O Miguel deu-lhe.","O Miguel deu-lho.","O Miguel deu-lhes."], answer:2, explanation:"LHE (ей) + O (подарок) объединяются в LHO. «Deu-lho» = отдал ей это. Двойное дополнение — продвинутая тема, чаще в письменной/официальной речи." },
+  { cat:"dup", q:"«Ele emprestou-me o carro.» Замени 'o carro' тоже, объединив местоимения:", options:["Ele emprestou-mo.","Ele emprestou-me-o.","Ele emprestou-o-me.","Ele emprestou-mio."], answer:0, explanation:"ME + O → MO. «Emprestou-mo» = одолжил мне его." },
+  { cat:"dup", q:"«Eles entregaram-te as chaves.» Замени 'as chaves' тоже:", options:["Eles entregaram-te-as.","Eles entregaram-tas.","Eles entregaram-tias.","Eles entregaram-as-te."], answer:1, explanation:"TE + AS → TAS. «Entregaram-tas» = вручили тебе их." },
+  { cat:"dup", q:"«Ela deu-nos o livro.» Замени 'o livro' тоже:", options:["Ela deu-no-lo.","Ela deu-nos-o.","Ela deu-nolo.","Ela deu-o-nos."], answer:0, explanation:"NOS + O → NO-LO (пишется через дефис из двух частей). «Deu-no-lo» = дала нам его." },
+  { cat:"dup", q:"Что означает клитика «-lho» в «Explico-lho amanhã»?", options:["lhe (ей/ему) + o (это) вместе","только 'o' (это)","только 'lhe' (ей/ему)","lhes (им) + a (это)"], answer:0, explanation:"«-lho» = LHE + O объединены. «Explico-lho» = я объясню ему/ей это." },
+  { cat:"dup", q:"Что означает клитика «-mo» в «Ele deu-mo»?", options:["me (мне) + o (это) вместе","только 'me'","meu (мой)","mim + o"], answer:0, explanation:"«-mo» = ME + O. «Deu-mo» = дал мне это. Двойные клитики: mo/ma/mos/mas, to/ta/tos/tas, lho/lha/lhos/lhas, no-lo/no-la, vo-lo/vo-la." },
+
+  // ── Posição da clítica: próclise / ênclise ──
+  { cat:"pos", q:"«Eu vi o Pedro.» → Eu ___ (утвердительное простое предложение)", options:["o vi","vi-o","vi lo","lo vi"], answer:1, explanation:"Утвердительное простое предложение в PE → энклиза (местоимение ПОСЛЕ глагола, через дефис): «vi-o»." },
+  { cat:"pos", q:"«Eu não conheço ela.» → Eu ___ (отрицание)", options:["conheço-a","não a conheço","não conheço-a","a não conheço"], answer:1, explanation:"Отрицание (não/nunca/já/ainda) → проклиза (местоимение ПЕРЕД глаголом): «não a conheço»." },
+  { cat:"pos", q:"«Não comam as minhas sandes!» Замени на местоимение:", options:["Não comam-nas!","Não as comam!","Não comam-as!","Comam não-as!"], answer:1, explanation:"Отрицательный императив → проклиза: «não as comam»." },
+  { cat:"pos", q:"«Nunca lhe disse nada.» Какое правило иллюстрирует эта фраза?", options:["Энклиза после наречия nunca","Проклиза после наречия nunca","Двойная клитика","Nunca не влияет на позицию"], answer:1, explanation:"Наречия типа nunca, sempre, também, talvez обычно требуют проклизы (местоимение перед глаголом): «nunca lhe disse»." },
+  { cat:"pos", q:"Qual frase está correta com IR + infinitivo (утвердительное)?", options:["Ele vai-me convidar.","Ele vai convidar-me.","Ele me vai convidar.","Ele convidar-me vai."], answer:1, explanation:"С IR+INFINITIVO местоимение крепится к инфинитиву: «vai convidar-me». Но с отрицанием: «não me vai convidar» (перед вспомогательным)." },
+  { cat:"pos", q:"«Ele não me vai convidar.» Почему местоимение стоит перед 'vai', а не перед 'convidar'?", options:["Это ошибка, должно быть 'vai convidar-me'","Отрицание тянет местоимение к себе, перед первым глаголом конструкции","В PE так никогда не говорят","Только с 'querer', не с 'ir'"], answer:1, explanation:"Отрицание (não) всегда притягивает местоимение к себе, перед первым глаголом конструкции: «não me vai convidar»." },
+  { cat:"pos", q:"«Talvez ela lhe escreva amanhã.» Какое правило здесь применяется?", options:["Энклиза","Проклиза после talvez","Двойная клитика","Mesóclise"], answer:1, explanation:"TALVEZ (как и слова сомнения/отрицания/já) → проклиза: «talvez ela lhe escreva»." },
+  { cat:"pos", q:"«Isto é muito caro.» Можно ли заменить 'isto' на 'o' (как CD)?", options:["Да, всегда","Нет — указательные местоимения (isto/isso/aquilo) не заменяются на o/a","Только в PE, не в PT-BR","Только в вопросах"], answer:1, explanation:"ISTO/ISSO/AQUILO — нейтральные указательные местоимения, они НЕ заменяются клитиками o/a/lhe. Используются напрямую: «Isto é caro», «Não quero isto»." },
+
+  // ── COM + pronome ──
+  { cat:"com", q:"«Queres vir ___ ao cinema?» (со мной)", options:["com eu","comigo","com me","migo"], answer:1, explanation:"COM + EU → COMIGO. Особые формы: comigo/contigo/consigo/connosco/convosco." },
+  { cat:"com", q:"«Posso falar ___ um momento?» (с тобой)", options:["com tu","com te","contigo","com você"], answer:2, explanation:"COM + TU → CONTIGO." },
+  { cat:"com", q:"«Venha ___ , por favor!» (с нами)", options:["com nós","connosco","com nos","com nosso"], answer:1, explanation:"COM + NÓS → CONNOSCO (PE, с двумя n). В Бразилии: CONOSCO (одна n)." },
+  { cat:"com", q:"«Viemos ___.» (с вами -- мн.ч., 'vocês')", options:["com vocês","convosco","com vós","com voces"], answer:1, explanation:"COM + VÓS/VOCÊS (мн.ч.) → CONVOSCO." },
+  { cat:"com", q:"«Ela trouxe o trabalho ___.» (сама с собой — подлежащее = объект)", options:["com ela","consigo","com si","com ela mesma"], answer:1, explanation:"COM + SE (возвратное, когда объект = подлежащее) → CONSIGO. «Trouxe o trabalho consigo» = принесла работу с собой." },
+  { cat:"com", q:"«Ela vai ao cinema com o irmão.» Почему здесь НЕЛЬЗЯ сказать 'consigo'?", options:["CONSIGO — только когда объект совпадает с подлежащим; здесь брат — другое лицо, поэтому 'com ele'","Consigo здесь тоже подходит","Нужно использовать 'com si'","Нужно 'com ela'"], answer:0, explanation:"CONSIGO — только возвратное (объект COM = тот же, что подлежащее). Брат — другое лицо: «Ela vai ao cinema com ele»." },
+];
+
+const badges = { ci:"Compl. Indireto", cd:"Compl. Direto", part:"Partículas lo/la/no/na", dup:"Contração dupla", pos:"Posição da clítica", com:"Com + pronome" };
+const badgeClass = { ci:"badge-ci", cd:"badge-cd", part:"badge-part", dup:"badge-dup", pos:"badge-pos", com:"badge-com" };
+let filtered = [...allQuestions], current = 0, score = 0, mistakes = [];
+
+function setFilter(cat, btn) {
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+  btn.classList.add('active');
+  filtered = cat === 'todos' ? [...allQuestions] : allQuestions.filter(q => q.cat === cat);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('results').className = 'card results';
+  document.getElementById('mistakesList').innerHTML = '';
+  loadQuestion();
+}
+
+function loadQuestion() {
+  const q = filtered[current];
+  document.getElementById('progressBar').style.width = (current / filtered.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = `Questão ${current + 1} de ${filtered.length}`;
+  const badge = document.getElementById('badge');
+  badge.textContent = badges[q.cat];
+  badge.className = 'category-badge ' + badgeClass[q.cat];
+  document.getElementById('question').textContent = q.q;
+  const opts = document.getElementById('options');
+  opts.innerHTML = '';
+  q.options.forEach((opt, i) => {
+    const btn = document.createElement('button');
+    btn.className = 'option-btn';
+    btn.textContent = opt;
+    btn.onclick = () => selectAnswer(i);
+    opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+}
+
+function selectAnswer(i) {
+  const q = filtered[current];
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  const fb = document.getElementById('feedback');
+  if (i === q.answer) {
+    score++;
+    btns[i].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[i].classList.add('wrong');
+    btns[q.answer].classList.add('correct');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, yours: q.options[i], correct: q.options[q.answer] });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() {
+  current++;
+  if (current < filtered.length) { loadQuestion(); }
+  else { showResults(); }
+}
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  const r = document.getElementById('results');
+  r.className = 'card results show';
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + filtered.length;
+  const pct = Math.round(score / filtered.length * 100);
+  document.getElementById('resultsTitle').textContent = pct >= 80 ? 'Muito bem!' : pct >= 60 ? 'Bom trabalho!' : 'Continua a praticar!';
+  document.getElementById('resultsMsg').textContent = `Acertaste ${score} de ${filtered.length} questões (${pct}%).`;
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length) {
+    ml.innerHTML = '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+      `<div class="mistake-item"><strong>${m.q}</strong><br>A tua resposta: ${m.yours}<br><span class="correct-ans">Correto: ${m.correct}</span></div>`
+    ).join('');
+  }
+}
+
+function restart() {
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = '';
+  document.getElementById('results').className = 'card results';
+  document.getElementById('mistakesList').innerHTML = '';
+  loadQuestion();
+}
+
+loadQuestion();
+</script>
+</body>
+</html>

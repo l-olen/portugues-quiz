@@ -64,7 +64,7 @@
     <p>vocabulário · verbos · descrições · expressões</p>
   </header>
   <div class="filter-row">
-    <button class="filter-btn active" onclick="setFilter('todos',this)">Todos (18)</button>
+    <button class="filter-btn active" onclick="setFilter('todos',this)">Todos (21)</button>
     <button class="filter-btn" onclick="setFilter('vocab',this)">Vocabulário</button>
     <button class="filter-btn" onclick="setFilter('verbos',this)">Verbos</button>
     <button class="filter-btn" onclick="setFilter('expr',this)">Expressões</button>
@@ -111,6 +111,9 @@ const allQuestions = [
   { cat:"expr", q:"«Apanhar sol» significa:", options:["прятаться от солнца","загорать","наблюдать за погодой","идти на улицу"], answer:1, explanation:"APANHAR SOL = загорать, греться на солнце. Apanhar chuva = попасть под дождь. Ex.: Ela foi à praia apanhar sol." },
   { cat:"expr", q:"«Hoje o tempo está péssimo.» Significa:", options:["Сегодня отличная погода","Сегодня очень плохая погода","Сегодня переменная погода","Сегодня умеренная погода"], answer:1, explanation:"PÉSSIMO = очень плохой (суперлатив от MAU). O tempo está péssimo = Погода ужасная. O tempo está ótimo = Погода отличная." },
   { cat:"expr", q:"«Leva um guarda-chuva, está a chover.» Что такое guarda-chuva?", options:["зонт","плащ","сапоги","шарф"], answer:0, explanation:"GUARDA-CHUVA = зонт (дословно: «защита от дождя»). Abrir/fechar o guarda-chuva = открыть/закрыть зонт." },
+  { cat:"expr", q:"Переведи: «утром» (неопределённо, без конкретного времени)", options:["da manhã","de manhã","à manhã","na manhã"], answer:1, explanation:"DE MANHÃ используется без артикля для обозначения времени суток в общем смысле («по утрам», «утром»). DA MANHÃ используется после конкретного времени: às 8 da manhã." },
+  { cat:"expr", q:"Выбери правильный вариант: «в 5 часов ___ tarde»", options:["de","da","à","na"], answer:1, explanation:"После конкретного времени (às 5:00) используется артикль: às 5 da tarde. Без конкретного времени говорят à tarde." },
+  { cat:"expr", q:"Как правильно сказать «в 8 часов утра» на европейском португальском?", options:["às 8 de manhã","às 8 da manhã","às 8 à manhã","às 8 pela manhã"], answer:1, explanation:"После конкретного времени (às 8) используется форма с артиклем: da manhã / da tarde / da noite. Без конкретного времени: de manhã, à tarde, à noite." },
 ];
 
 const badges = { vocab:"Vocabulário", verbos:"Verbos", expr:"Expressões" };
