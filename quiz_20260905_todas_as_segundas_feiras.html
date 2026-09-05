@@ -1,0 +1,343 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- todas as segundas-feiras                                                 ação regular / …. / todos os sábados</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #744210; }
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-gramática  { background: #fffbeb; color: #92400e; }
+  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
+  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
+  .next-btn:hover { background: #b7791f; }
+  .next-btn.show { display: block; }
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .restart-btn:hover { background: #b7791f; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .home-btn:hover { background: #e2e8f0; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>todas as segundas-feiras                                                 ação regular / …. / todos os sábados</h1>
+    <p>Урок 2026-09-01 · 17 вопросов</p>
+  </header>
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+    <div class="question" id="question"></div>
+    <div class="options" id="options"></div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+  <div class="card results" id="results">
+    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
+    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<script>
+const questions = [
+  {
+    "cat": "vocabulário",
+    "q": "Hoje é ___-feira. (вторник)",
+    "options": [
+      "segunda",
+      "terça",
+      "quarta",
+      "quinta"
+    ],
+    "answer": 1,
+    "explanation": "Вторник по-португальски — terça-feira. Именно это слово встречается в конспекте урока: «Hoje é terça-feira»."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Как сказать «выходные» по-португальски?",
+    "options": [
+      "fim-de-semana",
+      "fim-de-ano",
+      "feriado",
+      "semana"
+    ],
+    "answer": 0,
+    "explanation": "«Выходные» — fim-de-semana. Это слово активно используется в конспекте во всех трёх конструкциях: todos os fins-de-semana, ao fim-de-semana, no fim-de-semana."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выберите правильный перевод фразы «по субботам» (регулярное действие):",
+    "options": [
+      "no sábado",
+      "ao sábado",
+      "este sábado",
+      "na sábado"
+    ],
+    "answer": 1,
+    "explanation": "Для обозначения регулярного действия используется конструкция a + artigo: ao sábado (aos sábados). «No sábado» — конкретное действие, «este sábado» — «в эту субботу»."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Todos os ___» — какое слово НЕ подходит в этот шаблон?",
+    "options": [
+      "sábados",
+      "domingos",
+      "fins-de-semana",
+      "ao fim-de-semana"
+    ],
+    "answer": 3,
+    "explanation": "«Ao fim-de-semana» — это уже самостоятельная конструкция (a + o), а не продолжение «todos os». В шаблоне «todos os» используются существительные во множественном числе: sábados, domingos, fins-de-semana."
+  },
+  {
+    "cat": "vocabulário",
+    "q": "Как по-португальски «сегодня светит солнце»?",
+    "options": [
+      "Hoje é sol.",
+      "Hoje tem sol.",
+      "Hoje está sol.",
+      "Hoje faz sol."
+    ],
+    "answer": 2,
+    "explanation": "В европейском португальском погода описывается глаголом estar: «Hoje está sol.» Именно эта фраза приведена в конспекте урока."
+  },
+  {
+    "cat": "gramática",
+    "q": "Заполните пропуск: «___ segunda-feira passada fui ao médico.» (конкретное действие)",
+    "options": [
+      "À",
+      "Na",
+      "Esta",
+      "Ao"
+    ],
+    "answer": 1,
+    "explanation": "Для конкретного, единичного действия используется em + артикль: na segunda-feira. «À segunda-feira» означает регулярность, а не конкретный случай."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выберите правильную форму: «___ domingos costumo dormir até tarde.» (регулярное действие)",
+    "options": [
+      "Nos",
+      "Neste",
+      "Aos",
+      "Todos"
+    ],
+    "answer": 2,
+    "explanation": "Регулярное действие в определённый день недели выражается через a + артикль: aos domingos. «Nos domingos» — конкретные воскресенья, «todos» требует дополнения «os domingos»."
+  },
+  {
+    "cat": "prática",
+    "q": "Как сказать «в эту пятницу» (ближайшую)?",
+    "options": [
+      "na sexta-feira",
+      "à sexta-feira",
+      "esta sexta-feira",
+      "às sextas-feiras"
+    ],
+    "answer": 2,
+    "explanation": "«Эта пятница» — esta sexta-feira (или просто «esta sexta»). Конструкция este/esta используется для указания на ближайший конкретный день."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Em + o sábado» → правильное слияние:",
+    "options": [
+      "ao sábado",
+      "no sábado",
+      "neste sábado",
+      "ão sábado"
+    ],
+    "answer": 1,
+    "explanation": "em + o = no. Поэтому «em o sábado» → «no sábado». Это контракция предлога em с определённым артиклем мужского рода o."
+  },
+  {
+    "cat": "gramática",
+    "q": "Какая фраза означает «каждые выходные» (регулярное действие)?",
+    "options": [
+      "no fim-de-semana",
+      "este fim-de-semana",
+      "todos os fins-de-semana",
+      "neste fim-de-semana"
+    ],
+    "answer": 2,
+    "explanation": "«Todos os fins-de-semana» — каждые выходные (регулярное действие). «No fim-de-semana» — в (эти конкретные) выходные, «este fim-de-semana» — в эти выходные."
+  },
+  {
+    "cat": "prática",
+    "q": "Переведите: «со следующей субботы до следующего воскресенья»",
+    "options": [
+      "de sábado até domingo",
+      "desde sábado a domingo",
+      "do sábado para o domingo",
+      "de sábado a domingo"
+    ],
+    "answer": 3,
+    "explanation": "В конспекте представлены три варианта: «de segunda até terça», «de segunda a terça», «desde segunda até terça». «De sábado a domingo» — одна из корректных форм."
+  },
+  {
+    "cat": "gramática",
+    "q": "Какое предложение описывает конкретное, разовое действие в воскресенье?",
+    "options": [
+      "Ao domingo vou à missa.",
+      "No domingo que vem vou à praia.",
+      "Todos os domingos acordo tarde.",
+      "Aos domingos não trabalho."
+    ],
+    "answer": 1,
+    "explanation": "«No domingo que vem» — в конкретное, ближайшее воскресенье. Это конструкция em + o = no, которая указывает на единичное, конкретное событие. Пример «no sábado que vem» приведён прямо в конспекте."
+  },
+  {
+    "cat": "prática",
+    "q": "Студентка говорит: «Я хожу в спортзал по понедельникам и средам» (регулярно). Выберите правильный вариант:",
+    "options": [
+      "Vou ao ginásio na segunda-feira e na quarta-feira.",
+      "Vou ao ginásio à segunda-feira e à quarta-feira.",
+      "Vou ao ginásio este segunda e esta quarta.",
+      "Vou ao ginásio no segunda-feira e no quarta-feira."
+    ],
+    "answer": 1,
+    "explanation": "Регулярное действие → a + артикль: à segunda-feira, à quarta-feira. Конструкция «na segunda-feira» передаёт конкретное, единичное действие, а не привычку."
+  },
+  {
+    "cat": "gramática",
+    "q": "«Estes dois sábados que vêm» означает:",
+    "options": [
+      "каждую субботу",
+      "в прошлые две субботы",
+      "в ближайшие две субботы",
+      "по субботам"
+    ],
+    "answer": 2,
+    "explanation": "«Estes... que vêm» — конструкция для обозначения ближайших предстоящих дней. «Que vem/vêm» буквально «которые приходят (= наступят)», то есть ближайшие в будущем."
+  },
+  {
+    "cat": "prática",
+    "q": "Выберите предложение с ОШИБКОЙ (по нормам европейского португальского):",
+    "options": [
+      "Aos sábados costumo ir ao mercado.",
+      "No sábado que vem tenho uma festa.",
+      "Este fim-de-semana vamos a Lisboa.",
+      "Estou comendo ao domingo."
+    ],
+    "answer": 3,
+    "explanation": "«Estou comendo» — бразильская норма. В европейском португальском (PE) используется estar a + infinitivo: «Estou a comer». Кроме того, сочетание с «ao domingo» здесь не имеет смысла в данном контексте."
+  },
+  {
+    "cat": "gramática",
+    "q": "Какие ТРИ конструкции из урока используются для выражения промежутка времени «с... до...»?",
+    "options": [
+      "de...até / de...a / desde...até",
+      "de...para / de...a / desde...a",
+      "de...até / de...em / desde...por",
+      "a...até / de...a / desde...de"
+    ],
+    "answer": 0,
+    "explanation": "В конспекте явно перечислены три варианта: «de segunda até terça», «de segunda a terça», «desde segunda até terça». Все три варианта допустимы в PE для обозначения временного промежутка."
+  },
+  {
+    "cat": "prática",
+    "q": "Подруга спрашивает: «Когда ты работаешь?» — Вы отвечаете, что работаете с понедельника по пятницу. Выберите правильный ответ:",
+    "options": [
+      "Trabalho de segunda-feira até sexta-feira.",
+      "Trabalho ao segunda-feira ao sexta-feira.",
+      "Trabalho na segunda-feira na sexta-feira.",
+      "Trabalho desde à segunda-feira à sexta-feira."
+    ],
+    "answer": 0,
+    "explanation": "«De segunda-feira até sexta-feira» — правильная форма промежутка, соответствующая конструкции «de... até...» из конспекта. Предлог «ao» не используется для обозначения промежутков, а «desde à» — ошибочное смешение конструкций."
+  }
+];
+const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
+const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
+let current=0,score=0,answered=false,mistakes=[],shuffled=[];
+function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
+function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
+function renderQuestion(){
+  const q=shuffled[current],total=shuffled.length;
+  document.getElementById('progressBar').style.width=(current/total*100)+'%';
+  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
+  const badge=document.getElementById('badge');
+  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
+  document.getElementById('question').textContent=q.q;
+  const opts=document.getElementById('options');opts.innerHTML='';
+  q.options.forEach((opt,i)=>{
+    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
+    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
+  });
+  document.getElementById('feedback').className='feedback';
+  document.getElementById('feedback').textContent='';
+  document.getElementById('nextBtn').classList.remove('show');
+  answered=false;
+}
+function selectAnswer(i,q){
+  if(answered)return;answered=true;
+  const btns=document.querySelectorAll('.option-btn');
+  btns.forEach(b=>b.disabled=true);
+  const fb=document.getElementById('feedback');
+  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
+  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
+  document.getElementById('nextBtn').classList.add('show');
+}
+function nextQuestion(){
+  current++;
+  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+}
+function showResults(){
+  document.getElementById('quizCard').style.display='none';
+  const res=document.getElementById('results');res.classList.add('show');
+  const pct=Math.round(score/shuffled.length*100);
+  document.getElementById('scoreNum').textContent=score;
+  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
+  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
+  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
+  const ml=document.getElementById('mistakesList');ml.innerHTML='';
+  if(mistakes.length){
+    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
+    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+  }
+}
+function restart(){start();}
+start();
+</script>
+</body>
+</html>
