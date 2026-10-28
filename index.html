@@ -163,11 +163,12 @@
   </header>
 
   <div class="filter-bar">
-    <button class="filter-btn active" onclick="filter('all', this)">Todos (35)</button>
+    <button class="filter-btn active" onclick="filter('all', this)">Todos (50)</button>
     <button class="filter-btn" onclick="filter('tempos', this)">Tempos verbais</button>
     <button class="filter-btn" onclick="filter('verbos', this)">Verbos</button>
     <button class="filter-btn" onclick="filter('gramatica', this)">Gramática</button>
     <button class="filter-btn" onclick="filter('vocab', this)">Vocabulário</button>
+    <button class="filter-btn" onclick="filter('temas', this)">Palavras por tema</button>
     <button class="filter-btn" onclick="filter('escrita', this)">Escrita</button>
     <button class="filter-btn" onclick="filter('aulas', this)">Aulas semanais</button>
   </div>
@@ -332,7 +333,7 @@
     <div class="card-icon" style="background:#eef2ff">📚</div>
     <div class="card-body">
       <div class="card-title">Vocabulário completo</div>
-      <div class="card-meta">~170 palavras · 11 temas · Escolher · Escrever · Frase</div>
+      <div class="card-meta">598 palavras · 15 temas · Escolher · Escrever · Frase</div>
     </div>
     <span class="card-badge">Pronto</span>
   </a>
@@ -380,6 +381,144 @@
       <div class="card-meta">cabeça · tronco · membros · 23 questões</div>
     </div>
     <span class="card-badge">Pronto</span>
+  </a>
+
+  <!-- ══════════ PALAVRAS POR TEMA ══════════ -->
+  <div class="section-title" data-sec="temas">Palavras por tema</div>
+
+  <a class="quiz-card" href="quiz_tema_familia.html" data-sec="temas">
+    <div class="card-icon" style="background:#fffaf0">👨‍👩‍👧</div>
+    <div class="card-body">
+      <div class="card-title">Família</div>
+      <div class="card-meta">40 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_aspeto.html" data-sec="temas">
+    <div class="card-icon" style="background:#fff0f3">🧑</div>
+    <div class="card-body">
+      <div class="card-title">Aspeto físico</div>
+      <div class="card-meta">30 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_personalidade.html" data-sec="temas">
+    <div class="card-icon" style="background:#fefcbf">😊</div>
+    <div class="card-body">
+      <div class="card-title">Personalidade e emoções</div>
+      <div class="card-meta">53 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_corpo.html" data-sec="temas">
+    <div class="card-icon" style="background:#fff5f5">🩺</div>
+    <div class="card-body">
+      <div class="card-title">Corpo e saúde</div>
+      <div class="card-meta">32 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_casa.html" data-sec="temas">
+    <div class="card-icon" style="background:#e6fffa">🏠</div>
+    <div class="card-body">
+      <div class="card-title">Casa e morada</div>
+      <div class="card-meta">23 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_cidade.html" data-sec="temas">
+    <div class="card-icon" style="background:#ebf8ff">🚌</div>
+    <div class="card-body">
+      <div class="card-title">Cidade e transportes</div>
+      <div class="card-meta">32 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_comida.html" data-sec="temas">
+    <div class="card-icon" style="background:#fffaf0">🍽️</div>
+    <div class="card-body">
+      <div class="card-title">Comida e restaurante</div>
+      <div class="card-meta">44 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_natureza.html" data-sec="temas">
+    <div class="card-icon" style="background:#f0fff4">🌿</div>
+    <div class="card-body">
+      <div class="card-title">Natureza e animais</div>
+      <div class="card-meta">50 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_tempo.html" data-sec="temas">
+    <div class="card-icon" style="background:#ebf8ff">⛅</div>
+    <div class="card-body">
+      <div class="card-title">Tempo e clima</div>
+      <div class="card-meta">9 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_profissoes.html" data-sec="temas">
+    <div class="card-icon" style="background:#edf2f7">💼</div>
+    <div class="card-body">
+      <div class="card-title">Profissões e trabalho</div>
+      <div class="card-meta">10 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_objetos.html" data-sec="temas">
+    <div class="card-icon" style="background:#f5f0ff">👜</div>
+    <div class="card-body">
+      <div class="card-title">Objetos e roupa</div>
+      <div class="card-meta">30 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_verbos.html" data-sec="temas">
+    <div class="card-icon" style="background:#e6fffa">🏃</div>
+    <div class="card-body">
+      <div class="card-title">Verbos</div>
+      <div class="card-meta">116 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_expressoes.html" data-sec="temas">
+    <div class="card-icon" style="background:#ebf8ff">💬</div>
+    <div class="card-body">
+      <div class="card-title">Expressões</div>
+      <div class="card-meta">55 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_adjetivos.html" data-sec="temas">
+    <div class="card-icon" style="background:#faf5ff">✨</div>
+    <div class="card-body">
+      <div class="card-title">Adjetivos e advérbios</div>
+      <div class="card-meta">41 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
+  </a>
+
+  <a class="quiz-card" href="quiz_tema_conceitos.html" data-sec="temas">
+    <div class="card-icon" style="background:#eef2ff">💡</div>
+    <div class="card-body">
+      <div class="card-title">Conceitos</div>
+      <div class="card-meta">33 palavras · Escolher · Escrever · Frase</div>
+    </div>
+    <span class="card-badge">Novo</span>
   </a>
 
   <!-- ══════════ ESCRITA ══════════ -->

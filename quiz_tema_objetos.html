@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Objetos e roupa</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #4c51bf; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #4c51bf; }
+
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .mode-btn { flex: 1; padding: 9px 6px; border: none; background: transparent; border-radius: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; line-height: 1.3; }
+  .mode-btn.active { background: #4c51bf; color: white; }
+
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="Todos"].active-f      { background: #edf2f7; }
+  .filter-btn[data-cat="Natureza"]            { color: #276749; }
+  .filter-btn[data-cat="Natureza"].active-f   { background: #f0fff4; }
+  .filter-btn[data-cat="Ações"]               { color: #2c7a7b; }
+  .filter-btn[data-cat="Ações"].active-f      { background: #e6fffa; }
+  .filter-btn[data-cat="Adjetivos"]           { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos"].active-f  { background: #faf5ff; }
+  .filter-btn[data-cat="Comida"]              { color: #c05621; }
+  .filter-btn[data-cat="Comida"].active-f     { background: #fffaf0; }
+  .filter-btn[data-cat="Corpo"]               { color: #b83280; }
+  .filter-btn[data-cat="Corpo"].active-f      { background: #fff0f3; }
+  .filter-btn[data-cat="Emoções"]             { color: #b7791f; }
+  .filter-btn[data-cat="Emoções"].active-f    { background: #fefcbf; }
+  .filter-btn[data-cat="Caráter"]             { color: #c53030; }
+  .filter-btn[data-cat="Caráter"].active-f    { background: #fff5f0; }
+  .filter-btn[data-cat="Conceitos"]           { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f  { background: #eef2ff; }
+  .filter-btn[data-cat="Expressões"]          { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .filter-btn[data-cat="Objetos"]             { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos"].active-f    { background: #f5f0ff; }
+
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #4c51bf, #7f9cf5); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-nat      { background: #f0fff4; color: #276749; }
+  .badge-acoes    { background: #e6fffa; color: #2c7a7b; }
+  .badge-adj      { background: #faf5ff; color: #6b46c1; }
+  .badge-com      { background: #fffaf0; color: #c05621; }
+  .badge-corp     { background: #fff0f3; color: #b83280; }
+  .badge-emocoes  { background: #fefcbf; color: #b7791f; }
+  .badge-carater  { background: #fff5f0; color: #c53030; }
+  .badge-conceitos{ background: #eef2ff; color: #4c51bf; }
+  .badge-expressoes{ background: #ebf8ff; color: #2b6cb0; }
+  .badge-objetos  { background: #f5f0ff; color: #7e3af2; }
+
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #eef2ff; border-color: #c3dafe; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  .ru-display { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .ru-hint-line { font-size: 0.83rem; color: #a0aec0; margin-bottom: 22px; }
+  .write-prompt { font-size: 0.88rem; color: #718096; margin-bottom: 10px; }
+  .accent-note { font-size: 0.78rem; color: #b7791f; background: #fefcbf; padding: 5px 10px; border-radius: 6px; margin-bottom: 14px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #7f9cf5; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #434190; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+
+  .sentence-display { font-size: 1.05rem; font-weight: 500; line-height: 1.9; margin-bottom: 6px; color: #2d3748; }
+  .sentence-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid #4c51bf; color: #4c51bf; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .frase-hint { font-size: 0.83rem; color: #a0aec0; margin-bottom: 18px; }
+  .frase-hint span { color: #718096; font-style: italic; }
+
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #434190; }
+  .next-btn.show { display: block; }
+
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4c51bf, #7f9cf5); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item .mq { font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .mistake-item .ma { color: #276749; }
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+  /* темы (сборка 28.10.2026) */
+  .badge-familia { background: #fffaf0; color: #c05621; }
+  .filter-btn[data-cat="Família"] { color: #c05621; }
+  .filter-btn[data-cat="Família"].active-f { background: #fffaf0; }
+  .badge-aspeto { background: #fff0f3; color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"] { color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"].active-f { background: #fff0f3; }
+  .badge-personalidade { background: #fefcbf; color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"] { color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"].active-f { background: #fefcbf; }
+  .badge-corpo { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"] { color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"].active-f { background: #fff5f5; }
+  .badge-casa { background: #e6fffa; color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"] { color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"].active-f { background: #e6fffa; }
+  .badge-cidade { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"].active-f { background: #ebf8ff; }
+  .badge-comida { background: #fffaf0; color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"] { color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"].active-f { background: #fffaf0; }
+  .badge-natureza { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"] { color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"].active-f { background: #f0fff4; }
+  .badge-tempo { background: #ebf8ff; color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"] { color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"].active-f { background: #ebf8ff; }
+  .badge-profissoes { background: #edf2f7; color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"] { color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"].active-f { background: #edf2f7; }
+  .badge-objetos { background: #f5f0ff; color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"] { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"].active-f { background: #f5f0ff; }
+  .badge-verbos { background: #e6fffa; color: #285e61; }
+  .filter-btn[data-cat="Verbos"] { color: #285e61; }
+  .filter-btn[data-cat="Verbos"].active-f { background: #e6fffa; }
+  .badge-expressoes { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .badge-adjetivos { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"] { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"].active-f { background: #faf5ff; }
+  .badge-conceitos { background: #eef2ff; color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"] { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f { background: #eef2ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>👜 Objetos e roupa</h1>
+    <p>30 palavras · Escolher · Escrever · Frase</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher<br><small style="font-weight:400;opacity:.8">варианты RU</small></button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever<br><small style="font-weight:400;opacity:.8">RU → пиши PT</small></button>
+    <button class="mode-btn" id="btnFrase" onclick="setMode('frase')">Frase<br><small style="font-weight:400;opacity:.8">вставь в предложение</small></button>
+  </div>
+
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">1 / ?</div>
+
+  <div class="card" id="quizCard">
+    <span class="category-badge" id="catBadge"></span>
+    <div id="choiceArea">
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsDiv"></div>
+    </div>
+    <div id="writeArea" style="display:none">
+      <div class="ru-display" id="ruDisplay"></div>
+      <div class="ru-hint-line" id="ruHintLine"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos (ex.: coração, água, ação)</div>
+      <div class="write-prompt">Escreve em português:</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnW" onclick="checkWrite()">OK</button>
+      </div>
+    </div>
+    <div id="fraseArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="frase-hint" id="fraseHint"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="fraseInput" placeholder="palavra em português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnF" onclick="checkFrase()">OK</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <div class="score-circle"><div class="num" id="scoreNum">0</div><div class="denom" id="scoreDenom">/ 0</div></div>
+    <h2 id="resultTitle"></h2><p id="resultMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+<script>
+const allQ = [
+  // ===== OBJETOS E ROUPA (30) =====
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"gorro", hint:"m.", answers:["вязаная шапка"], options:["вязаная шапка", "шляпа", "кепка", "платок"], answer:0, ptAnswers:["gorro"], sentence:"No inverno, uso sempre um ___ para não ter frio.", sentenceAnswers:["gorro"], explanation:"Gorro = вязаная шапка." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"espada", hint:"f.", answers:["меч"], options:["меч", "нож", "копьё", "щит"], answer:0, ptAnswers:["espada"], sentence:"O cavaleiro usava uma ___ grande.", sentenceAnswers:["espada"], explanation:"Espada = меч. Ex.: O cavaleiro usava uma espada grande." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"meia", hint:"f.", answers:["носок", "чулок"], options:["носок", "перчатка", "шапка", "шарф"], answer:0, ptAnswers:["meia", "meias"], sentence:"Preciso de comprar ___ novas.", sentenceAnswers:["meias", "meia"], explanation:"Meia = носок (или чулок). Meias = носки. Ex.: Preciso de comprar meias novas." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"pantufas", hint:"f.pl.", answers:["тапочки", "домашние тапочки"], options:["тапочки", "туфли", "носки", "сандалии"], answer:0, ptAnswers:["pantufas", "pantufas"], sentence:"Chego a casa e calço logo as ___.", sentenceAnswers:["pantufas"], explanation:"Pantufas = тапочки (домашние). Calçar = надевать (обувь). Descalçar = снимать. Calças! = Надень!" },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"prendas", hint:"f.pl.", answers:["подарки"], options:["подарки", "сюрпризы", "открытки", "цветы"], answer:0, ptAnswers:["prendas", "prenda"], sentence:"No Natal, as crianças recebem muitas ___.", sentenceAnswers:["prendas"], explanation:"Prendas = подарки. Prenda (sg.) = подарок. Dar uma prenda = подарить. Receber prendas = получать подарки." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"revista", hint:"f.", answers:["журнал"], options:["журнал", "мобильный телефон", "фартук", "рюкзак"], answer:0, ptAnswers:["revista", "a revista"], sentence:"Comprei uma ___ no quiosque.", sentenceAnswers:["revista"], explanation:"a revista = журнал. Ex.: Comprei uma revista no quiosque." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"porta-moedas", hint:"m.", answers:["кошелёк для монет"], options:["кошелёк для монет", "пароль", "шарф", "монета"], answer:0, ptAnswers:["porta-moedas", "o porta-moedas"], sentence:"Guardo as moedas no ___.", sentenceAnswers:["porta-moedas"], explanation:"o porta-moedas = кошелёк для монет. Porta- + предмет: porta-chaves (брелок), porta-moedas. Ex.: Guardo as moedas no porta-moedas." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"saia", hint:"f.", answers:["юбка"], options:["юбка", "журнал", "куртка", "бинокль"], answer:0, ptAnswers:["saia", "a saia"], sentence:"Hoje vou vestir uma ___ comprida.", sentenceAnswers:["saia"], explanation:"a saia = юбка. Ex.: Hoje vou vestir uma saia comprida." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"casaco", hint:"m.", answers:["куртка", "пальто"], options:["куртка/пальто", "меч", "шкафчик (в школе, спортзале)", "часы"], answer:0, ptAnswers:["casaco", "o casaco"], sentence:"Põe o ___, está frio.", sentenceAnswers:["casaco"], explanation:"o casaco = куртка, пальто. Ex.: Põe o casaco, está frio." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"óculos", hint:"m.pl.", answers:["очки"], options:["очки", "вязаная шапка", "юбка", "монета"], answer:0, ptAnswers:["óculos", "os óculos"], sentence:"Não encontro os meus ___.", sentenceAnswers:["óculos"], explanation:"os óculos = очки. Всегда мн.ч.: os óculos de sol. Ex.: Não encontro os meus óculos." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"batom", hint:"m.", answers:["помада"], options:["помада", "мобильный телефон", "подарки", "матрас"], answer:0, ptAnswers:["batom", "o batom"], sentence:"Ela pôs o ___ vermelho.", sentenceAnswers:["batom"], explanation:"o batom = помада. Ex.: Ela pôs o batom vermelho." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"protetor solar", hint:"m.", answers:["солнцезащитный крем"], options:["солнцезащитный крем", "сапоги", "фартук", "ремень"], answer:0, ptAnswers:["protetor solar", "o protetor solar"], sentence:"Não te esqueças de pôr o ___.", sentenceAnswers:["protetor solar"], explanation:"o protetor solar = солнцезащитный крем. Ex.: Não te esqueças de pôr o protetor solar." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"maquilhagem", hint:"f.", answers:["макияж", "косметика"], options:["макияж/косметика", "носок", "часы", "шкафчик (в школе, спортзале)"], answer:0, ptAnswers:["maquilhagem", "a maquilhagem"], sentence:"À noite tiro a ___.", sentenceAnswers:["maquilhagem"], explanation:"a maquilhagem = макияж, косметика. Ex.: À noite tiro a maquilhagem." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"relógio", hint:"m.", answers:["часы"], options:["часы", "журнал", "шкафчик (в школе, спортзале)", "юбка"], answer:0, ptAnswers:["relógio", "o relógio"], sentence:"Pus o ___ no pulso.", sentenceAnswers:["relógio"], explanation:"o relógio = часы. Ex.: Pus o relógio no pulso." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"palavra-passe", hint:"f.", answers:["пароль"], options:["пароль", "фартук", "шарф", "монета"], answer:0, ptAnswers:["palavra-passe", "a palavra-passe"], sentence:"Esqueci-me da ___ do email.", sentenceAnswers:["palavra-passe"], explanation:"a palavra-passe = пароль. Ex.: Esqueci-me da palavra-passe do email." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"cacifo", hint:"m.", answers:["шкафчик (в школе, спортзале)"], options:["шкафчик (в школе, спортзале)", "матрас", "ремень", "солнцезащитный крем"], answer:0, ptAnswers:["cacifo", "o cacifo"], sentence:"Vou buscar a pasta ao ___.", sentenceAnswers:["cacifo"], explanation:"o cacifo = шкафчик (в школе, спортзале). Ex.: Vou buscar a pasta ao cacifo." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"mala", hint:"f.", answers:["сумка", "чемодан"], options:["сумка/чемодан", "тапочки", "помада", "азулежу (изразцы)"], answer:0, ptAnswers:["mala", "a mala"], sentence:"Tira o computador da ___.", sentenceAnswers:["mala"], explanation:"a mala = сумка, чемодан. Ex.: Tira o computador da mala." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"cachecol", hint:"m.", answers:["шарф"], options:["шарф", "кошелёк для монет", "приглашение", "сапоги"], answer:0, ptAnswers:["cachecol", "o cachecol"], sentence:"No inverno uso um ___.", sentenceAnswers:["cachecol"], explanation:"o cachecol = шарф. Ex.: No inverno uso um cachecol." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"caneta", hint:"f.", answers:["ручка"], options:["ручка", "фартук", "шкафчик (в школе, спортзале)", "сапоги"], answer:0, ptAnswers:["caneta", "a caneta"], sentence:"Tens uma ___ para mim?", sentenceAnswers:["caneta"], explanation:"a caneta = ручка. Ex.: Tens uma caneta para mim?" },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"mochila", hint:"f.", answers:["рюкзак"], options:["рюкзак", "меч", "фартук", "подарки"], answer:0, ptAnswers:["mochila", "a mochila"], sentence:"Levo água na ___.", sentenceAnswers:["mochila"], explanation:"a mochila = рюкзак. Ex.: Levo água na mochila." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"moeda", hint:"f.", answers:["монета"], options:["монета", "азулежу (изразцы)", "сапоги", "помада"], answer:0, ptAnswers:["moeda", "a moeda", "moedas"], sentence:"Preciso de trocar a nota por ___.", sentenceAnswers:["moedas"], explanation:"a moeda = монета. A nota = купюра. Ex.: Preciso de trocar a nota por moedas." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"convite", hint:"m.", answers:["приглашение"], options:["приглашение", "тапочки", "шарф", "меч"], answer:0, ptAnswers:["convite", "o convite"], sentence:"Recebi um ___ para o casamento.", sentenceAnswers:["convite"], explanation:"o convite = приглашение. Ex.: Recebi um convite para o casamento." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"botas", hint:"f.pl.", answers:["сапоги", "ботинки"], options:["сапоги/ботинки", "тапочки", "очки", "мобильный телефон"], answer:0, ptAnswers:["botas", "as botas"], sentence:"Estas ___ estão a magoar-me.", sentenceAnswers:["botas"], explanation:"as botas = сапоги, ботинки. Ex.: Estas botas estão a magoar-me." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"cinto", hint:"m.", answers:["ремень"], options:["ремень", "помада", "куртка", "юбка"], answer:0, ptAnswers:["cinto", "o cinto"], sentence:"Aperta o ___.", sentenceAnswers:["cinto"], explanation:"o cinto = ремень. Ex.: Aperta o cinto." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"toalha", hint:"f.", answers:["полотенце"], options:["полотенце", "фартук", "мобильный телефон", "часы"], answer:0, ptAnswers:["toalha", "a toalha"], sentence:"Levei a ___ para a praia.", sentenceAnswers:["toalha"], explanation:"a toalha = полотенце. Ex.: Levei a toalha para a praia." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"colchão", hint:"m.", answers:["матрас"], options:["матрас", "носок", "монета", "шарф"], answer:0, ptAnswers:["colchão", "o colchão"], sentence:"Na praia temos um ___ insuflável.", sentenceAnswers:["colchão"], explanation:"o colchão = матрас. Ex.: Na praia temos um colchão insuflável." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"avental", hint:"m.", answers:["фартук"], options:["фартук", "куртка", "матрас", "ремень"], answer:0, ptAnswers:["avental", "o avental"], sentence:"O cozinheiro usa um ___.", sentenceAnswers:["avental"], explanation:"o avental = фартук. Ex.: O cozinheiro usa um avental." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"azulejos", hint:"m.pl.", answers:["азулежу (изразцы)"], options:["азулежу (изразцы)", "рюкзак", "кошелёк для монет", "мобильный телефон"], answer:0, ptAnswers:["azulejos", "os azulejos"], sentence:"As paredes têm ___ azuis.", sentenceAnswers:["azulejos"], explanation:"os azulejos = азулежу (изразцы). Ex.: As paredes têm azulejos azuis." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"binóculos", hint:"m.pl.", answers:["бинокль"], options:["бинокль", "сапоги", "меч", "макияж"], answer:0, ptAnswers:["binóculos", "os binóculos"], sentence:"Com estes ___ vejo bem ao longe.", sentenceAnswers:["binóculos"], explanation:"os binóculos = бинокль. Ex.: Com estes binóculos vejo bem ao longe." },
+  { cat:"Objetos e roupa", badge:"badge-objetos", q:"telemóvel", hint:"m.", answers:["мобильный телефон"], options:["мобильный телефон", "часы", "подарки", "солнцезащитный крем"], answer:0, ptAnswers:["telemóvel", "o telemóvel"], sentence:"O meu ___ está sem bateria.", sentenceAnswers:["telemóvel"], explanation:"o telemóvel = мобильный телефон. В Бразилии — celular. Ex.: O meu telemóvel está sem bateria." },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// Strict matching: case-insensitive, accents required
+function matchPT(input, accepted) {
+  const raw = input.toLowerCase().trim();
+  return accepted.some(a => a.toLowerCase() === raw);
+}
+
+let mode = 'choice';
+let activeFilter = 'Todos';
+let questions = [];
+let current = 0;
+let score = 0;
+let mistakes = [];
+let answered = false;
+let shuffledOpts = [];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'Todos' ? allQ : allQ.filter(q => q.cat === activeFilter);
+  questions = shuffle(pool);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('resultsCard').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + questions.length;
+
+  const badge = document.getElementById('catBadge');
+  badge.textContent = q.cat;
+  badge.className = 'category-badge ' + q.badge;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  ['choiceArea','writeArea','fraseArea'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('questionText').textContent = '\u00ab' + q.q + '\u00bb \u2014 \u0447\u0442\u043e \u044d\u0442\u043e?';
+    const indexed = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+    shuffledOpts = shuffle(indexed);
+    const div = document.getElementById('optionsDiv');
+    div.innerHTML = '';
+    shuffledOpts.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = item.opt;
+      btn.onclick = () => checkChoice(i, btn);
+      div.appendChild(btn);
+    });
+
+  } else if (mode === 'write') {
+    document.getElementById('writeArea').style.display = 'block';
+    document.getElementById('ruDisplay').textContent = q.answers[0];
+    document.getElementById('ruHintLine').textContent = q.hint + (q.answers.length > 1 ? '  \u00b7  ' + q.answers.slice(1).join(' / ') : '');
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnW').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+
+  } else {
+    document.getElementById('fraseArea').style.display = 'block';
+    const parts = q.sentence.split('___');
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blank = document.createElement('span');
+    blank.className = 'sentence-blank'; blank.textContent = '___'; blank.id = 'blankSpan';
+    sd.appendChild(blank);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('fraseHint').innerHTML = '\u041f\u0435\u0440\u0435\u0432\u043e\u0434: <span>' + q.answers[0] + '</span>  \u00b7  ' + q.hint;
+    const inp = document.getElementById('fraseInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnF').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function checkChoice(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (shuffledOpts[i].correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('feedback');
+  if (shuffledOpts[idx].correct) {
+    score++; btn.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. ' + q.explanation;
+    mistakes.push({ q: q.q, explanation: q.explanation });
+  }
+  showNext();
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnW').disabled = true;
+  const correct = matchPT(raw, q.ptAnswers);
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.ptAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.answers[0] + ' (' + q.hint + ')', explanation: 'Correto: ' + q.ptAnswers[0] });
+  }
+  showNext();
+}
+
+function checkFrase() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('fraseInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnF').disabled = true;
+  const correct = matchPT(raw, q.sentenceAnswers);
+  const blank = document.getElementById('blankSpan');
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++;
+    blank.textContent = raw; blank.style.color = '#276749'; blank.style.borderColor = '#68d391';
+    inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    blank.textContent = q.sentenceAnswers[0]; blank.style.color = '#c53030'; blank.style.borderColor = '#fc8181';
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.sentenceAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.sentence.replace('___', '___'), explanation: 'Correto: ' + q.sentenceAnswers[0] });
+  }
+  showNext();
+}
+
+function showNext() {
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current < questions.length - 1 ? 'Pr\u00f3xima \u2192' : 'Ver resultados \u2192';
+  btn.classList.add('show');
+}
+
+function nextQuestion() { current++; showQuestion(); }
+
+function showResults() {
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('resultsCard').classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  const msgs = [['Continua!','Revê as palavras e tenta outra vez.'],['Bom esforço!','Continua a praticar estas palavras.'],['Muito bem!','Só mais um pouco de prática.'],['Excelente!','Vocabulário dominado!']];
+  const m = msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultTitle').textContent = m[0];
+  document.getElementById('resultMsg').textContent = pct + '% correto. ' + m[1];
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Rever (' + mistakes.length + '):</h3>';
+    mistakes.forEach(m => { ml.innerHTML += '<div class="mistake-item"><div class="mq">' + m.q + '</div><div class="ma">' + m.explanation + '</div></div>'; });
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!answered) {
+      if (mode === 'write') checkWrite();
+      else if (mode === 'frase') checkFrase();
+    } else if (document.getElementById('nextBtn').classList.contains('show')) {
+      nextQuestion();
+    }
+  }
+});
+
+restart();
+</script>
+</body>
+</html>

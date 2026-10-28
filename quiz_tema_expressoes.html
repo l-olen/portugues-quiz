@@ -1,0 +1,497 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Expressões</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #4c51bf; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #4c51bf; }
+
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .mode-btn { flex: 1; padding: 9px 6px; border: none; background: transparent; border-radius: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; line-height: 1.3; }
+  .mode-btn.active { background: #4c51bf; color: white; }
+
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="Todos"].active-f      { background: #edf2f7; }
+  .filter-btn[data-cat="Natureza"]            { color: #276749; }
+  .filter-btn[data-cat="Natureza"].active-f   { background: #f0fff4; }
+  .filter-btn[data-cat="Ações"]               { color: #2c7a7b; }
+  .filter-btn[data-cat="Ações"].active-f      { background: #e6fffa; }
+  .filter-btn[data-cat="Adjetivos"]           { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos"].active-f  { background: #faf5ff; }
+  .filter-btn[data-cat="Comida"]              { color: #c05621; }
+  .filter-btn[data-cat="Comida"].active-f     { background: #fffaf0; }
+  .filter-btn[data-cat="Corpo"]               { color: #b83280; }
+  .filter-btn[data-cat="Corpo"].active-f      { background: #fff0f3; }
+  .filter-btn[data-cat="Emoções"]             { color: #b7791f; }
+  .filter-btn[data-cat="Emoções"].active-f    { background: #fefcbf; }
+  .filter-btn[data-cat="Caráter"]             { color: #c53030; }
+  .filter-btn[data-cat="Caráter"].active-f    { background: #fff5f0; }
+  .filter-btn[data-cat="Conceitos"]           { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f  { background: #eef2ff; }
+  .filter-btn[data-cat="Expressões"]          { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .filter-btn[data-cat="Objetos"]             { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos"].active-f    { background: #f5f0ff; }
+
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #4c51bf, #7f9cf5); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-nat      { background: #f0fff4; color: #276749; }
+  .badge-acoes    { background: #e6fffa; color: #2c7a7b; }
+  .badge-adj      { background: #faf5ff; color: #6b46c1; }
+  .badge-com      { background: #fffaf0; color: #c05621; }
+  .badge-corp     { background: #fff0f3; color: #b83280; }
+  .badge-emocoes  { background: #fefcbf; color: #b7791f; }
+  .badge-carater  { background: #fff5f0; color: #c53030; }
+  .badge-conceitos{ background: #eef2ff; color: #4c51bf; }
+  .badge-expressoes{ background: #ebf8ff; color: #2b6cb0; }
+  .badge-objetos  { background: #f5f0ff; color: #7e3af2; }
+
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #eef2ff; border-color: #c3dafe; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  .ru-display { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .ru-hint-line { font-size: 0.83rem; color: #a0aec0; margin-bottom: 22px; }
+  .write-prompt { font-size: 0.88rem; color: #718096; margin-bottom: 10px; }
+  .accent-note { font-size: 0.78rem; color: #b7791f; background: #fefcbf; padding: 5px 10px; border-radius: 6px; margin-bottom: 14px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #7f9cf5; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #434190; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+
+  .sentence-display { font-size: 1.05rem; font-weight: 500; line-height: 1.9; margin-bottom: 6px; color: #2d3748; }
+  .sentence-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid #4c51bf; color: #4c51bf; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .frase-hint { font-size: 0.83rem; color: #a0aec0; margin-bottom: 18px; }
+  .frase-hint span { color: #718096; font-style: italic; }
+
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #434190; }
+  .next-btn.show { display: block; }
+
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4c51bf, #7f9cf5); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item .mq { font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .mistake-item .ma { color: #276749; }
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+  /* темы (сборка 28.10.2026) */
+  .badge-familia { background: #fffaf0; color: #c05621; }
+  .filter-btn[data-cat="Família"] { color: #c05621; }
+  .filter-btn[data-cat="Família"].active-f { background: #fffaf0; }
+  .badge-aspeto { background: #fff0f3; color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"] { color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"].active-f { background: #fff0f3; }
+  .badge-personalidade { background: #fefcbf; color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"] { color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"].active-f { background: #fefcbf; }
+  .badge-corpo { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"] { color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"].active-f { background: #fff5f5; }
+  .badge-casa { background: #e6fffa; color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"] { color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"].active-f { background: #e6fffa; }
+  .badge-cidade { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"].active-f { background: #ebf8ff; }
+  .badge-comida { background: #fffaf0; color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"] { color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"].active-f { background: #fffaf0; }
+  .badge-natureza { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"] { color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"].active-f { background: #f0fff4; }
+  .badge-tempo { background: #ebf8ff; color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"] { color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"].active-f { background: #ebf8ff; }
+  .badge-profissoes { background: #edf2f7; color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"] { color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"].active-f { background: #edf2f7; }
+  .badge-objetos { background: #f5f0ff; color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"] { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"].active-f { background: #f5f0ff; }
+  .badge-verbos { background: #e6fffa; color: #285e61; }
+  .filter-btn[data-cat="Verbos"] { color: #285e61; }
+  .filter-btn[data-cat="Verbos"].active-f { background: #e6fffa; }
+  .badge-expressoes { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .badge-adjetivos { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"] { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"].active-f { background: #faf5ff; }
+  .badge-conceitos { background: #eef2ff; color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"] { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f { background: #eef2ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>💬 Expressões</h1>
+    <p>55 palavras · Escolher · Escrever · Frase</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher<br><small style="font-weight:400;opacity:.8">варианты RU</small></button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever<br><small style="font-weight:400;opacity:.8">RU → пиши PT</small></button>
+    <button class="mode-btn" id="btnFrase" onclick="setMode('frase')">Frase<br><small style="font-weight:400;opacity:.8">вставь в предложение</small></button>
+  </div>
+
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">1 / ?</div>
+
+  <div class="card" id="quizCard">
+    <span class="category-badge" id="catBadge"></span>
+    <div id="choiceArea">
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsDiv"></div>
+    </div>
+    <div id="writeArea" style="display:none">
+      <div class="ru-display" id="ruDisplay"></div>
+      <div class="ru-hint-line" id="ruHintLine"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos (ex.: coração, água, ação)</div>
+      <div class="write-prompt">Escreve em português:</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnW" onclick="checkWrite()">OK</button>
+      </div>
+    </div>
+    <div id="fraseArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="frase-hint" id="fraseHint"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="fraseInput" placeholder="palavra em português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnF" onclick="checkFrase()">OK</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <div class="score-circle"><div class="num" id="scoreNum">0</div><div class="denom" id="scoreDenom">/ 0</div></div>
+    <h2 id="resultTitle"></h2><p id="resultMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+<script>
+const allQ = [
+  // ===== EXPRESSÕES (55) =====
+  { cat:"Expressões", badge:"badge-expressoes", q:"porém", hint:"conj.", answers:["однако", "тем не менее"], options:["однако", "поэтому", "кроме того", "например"], answer:0, ptAnswers:["porém"], sentence:"Gosto dela; ___, ela mente muito.", sentenceAnswers:["porém"], explanation:"Porém = однако, тем не менее. Синоним: No entanto. Ex.: Gosto dela; porém, ela mente muito." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por enquanto", hint:"выражение", answers:["пока", "на данный момент"], options:["пока/на данный момент", "иногда", "недавно", "наконец"], answer:0, ptAnswers:["por enquanto"], sentence:"___, está tudo bem.", sentenceAnswers:["por enquanto"], explanation:"Por enquanto = пока, на данный момент. Ex.: Por enquanto, está tudo bem." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por acaso", hint:"выражение", answers:["случайно", "кстати"], options:["случайно/кстати", "поэтому", "кроме того", "однако"], answer:0, ptAnswers:["por acaso"], sentence:"___, conheces o João?", sentenceAnswers:["por acaso"], explanation:"Por acaso = случайно; в вопросах = вообще, кстати. Ex.: Por acaso tens o número dela?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"demasiado", hint:"adv.", answers:["слишком"], options:["слишком", "очень", "немного", "достаточно"], answer:0, ptAnswers:["demasiado"], sentence:"Isto é ___ difícil para mim.", sentenceAnswers:["demasiado"], explanation:"Demasiado = слишком. Ex.: Isto é demasiado difícil para mim." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"talvez", hint:"adv.", answers:["возможно", "может быть"], options:["возможно/может быть", "точно", "наверное", "никогда"], answer:0, ptAnswers:["talvez"], sentence:"___ venha amanhã, não sei.", sentenceAnswers:["talvez"], explanation:"Talvez = возможно, может быть. Ex.: Talvez venha amanhã, não sei." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"além disso", hint:"выражение", answers:["кроме того", "помимо этого"], options:["кроме того", "однако", "лишь", "поэтому"], answer:0, ptAnswers:["além disso", "além"], sentence:"___ disso, há outro problema.", sentenceAnswers:["além"], explanation:"Além de = помимо, кроме. Além disso = кроме того." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"apenas", hint:"adv.", answers:["только", "лишь"], options:["только/лишь", "иногда", "немного", "почти"], answer:0, ptAnswers:["apenas"], sentence:"Quero ___ um copo de água.", sentenceAnswers:["apenas"], explanation:"Apenas = только, лишь. Ex.: Quero apenas um copo de água." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"na altura", hint:"выражение", answers:["в то время", "тогда"], options:["в то время/тогда", "на высоте", "вовремя", "сразу"], answer:0, ptAnswers:["na altura"], sentence:"___, não percebi o que aconteceu.", sentenceAnswers:["na altura"], explanation:"Na altura = в то время, тогда. Ex.: Na altura, não percebi o que aconteceu." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"tanto", hint:"adv.", answers:["так сильно (с глаголом)"], options:["так сильно (с глаголом)", "так (с прилагательным)", "лишь", "помимо"], answer:0, ptAnswers:["tanto"], sentence:"Ela ri ___ que chorou.", sentenceAnswers:["tanto"], explanation:"Tanto = так сильно (с глаголом). Tão = так (с прилагательным)." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"de acordo com", hint:"выражение", answers:["согласно", "по словам"], options:["согласно/по словам", "несмотря на", "вместо", "благодаря"], answer:0, ptAnswers:["de acordo com"], sentence:"___ o professor, o exame é difícil.", sentenceAnswers:["de acordo com"], explanation:"De acordo com = согласно, в соответствии с, по словам." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por consequência", hint:"выражение", answers:["в результате", "следовательно"], options:["в результате/следовательно", "по причине", "несмотря на", "благодаря"], answer:0, ptAnswers:["por consequência", "por isso", "portanto"], sentence:"O sistema falhou; ___, perdemos os dados.", sentenceAnswers:["por consequência", "por isso", "portanto"], explanation:"Por consequência = в результате, следовательно. Синонимы: Por isso, Portanto." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"sem esforço", hint:"выражение", answers:["без усилий", "легко"], options:["без усилий/легко", "без опыта", "без знаний", "без помощи"], answer:0, ptAnswers:["sem esforço"], sentence:"Ela fala cinco línguas ___.", sentenceAnswers:["sem esforço"], explanation:"Sem esforço = без усилий, легко." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"Até breve!", hint:"выражение", answers:["до скорого", "до скорой встречи"], options:["до скорого!", "до свидания", "добрый день", "пока"], answer:0, ptAnswers:["até breve", "ate breve"], sentence:"— Obrigado pela visita! — ___! Até para a semana.", sentenceAnswers:["até breve", "ate breve"], explanation:"Até breve! = До скорого! Até logo = до скорого (в тот же день)." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"que delícia!", hint:"выражение", answers:["как вкусно!", "какое удовольствие!"], options:["как вкусно!/какое удовольствие!", "какой ужас!", "как скучно!", "как странно!"], answer:0, ptAnswers:["que delícia", "que delicia"], sentence:"Provei o pastel de nata e pensei: ___!", sentenceAnswers:["que delícia", "que delicia"], explanation:"Que delícia! = Как вкусно! Какое удовольствие!" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"de repente", hint:"adv.", answers:["вдруг", "внезапно", "неожиданно"], options:["вдруг/внезапно", "медленно", "иногда", "часто"], answer:0, ptAnswers:["de repente"], sentence:"___, o céu ficou negro e começou a chover.", sentenceAnswers:["de repente"], explanation:"De repente = вдруг, внезапно. Ex.: De repente, começou a chover." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"recentemente", hint:"adv.", answers:["недавно"], options:["недавно", "давно", "иногда", "обычно"], answer:0, ptAnswers:["recentemente"], sentence:"Ela ___ mudou de emprego e está muito feliz.", sentenceAnswers:["recentemente"], explanation:"Recentemente = недавно. Ex.: Regressou recentemente de Lisboa." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ordeiramente", hint:"adv.", answers:["послушно", "спокойно", "упорядоченно"], options:["послушно/спокойно", "громко", "быстро", "грустно"], answer:0, ptAnswers:["ordeiramente"], sentence:"As crianças sentaram-se ___ e esperaram pela professora.", sentenceAnswers:["ordeiramente"], explanation:"Ordeiramente = послушно, спокойно. Ordeiro = послушный." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"no fundo", hint:"выражение", answers:["на самом деле", "в глубине"], options:["на самом деле/в глубине", "на дне", "в конце", "в начале"], answer:0, ptAnswers:["no fundo"], sentence:"___, ele é uma boa pessoa.", sentenceAnswers:["no fundo"], explanation:"No fundo = на самом деле (переносное). Ex.: No fundo, ele é uma boa pessoa." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"vale a pena", hint:"выражение", answers:["стоит того"], options:["стоит того", "ревновать", "есть вне дома (в ресторане)", "я почти (готова / пришла)"], answer:0, ptAnswers:["vale a pena"], sentence:"Não ___ ir ao cinema, o filme é mau.", sentenceAnswers:["vale a pena"], explanation:"vale a pena = стоит того. Ex.: Não vale a pena ir ao cinema, o filme é mau." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ter a certeza", hint:"выражение", answers:["быть уверенным"], options:["быть уверенным", "послушно", "я почти (готова / пришла)", "слишком"], answer:0, ptAnswers:["ter a certeza", "certeza"], sentence:"Não tenho a ___.", sentenceAnswers:["certeza"], explanation:"ter a certeza = быть уверенным. Tenho a certeza que… = я уверена, что… Ex.: Não tenho a certeza." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ter paciência", hint:"выражение", answers:["иметь терпение"], options:["иметь терпение", "об этом не может быть и речи", "снова", "недавно"], answer:0, ptAnswers:["ter paciência", "paciência"], sentence:"Tem ___, ele já vem.", sentenceAnswers:["paciência"], explanation:"ter paciência = иметь терпение. Ex.: Tem paciência, ele já vem." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ter medo de", hint:"выражение", answers:["бояться"], options:["бояться", "об этом не может быть и речи", "подвезти", "на самом деле"], answer:0, ptAnswers:["ter medo de", "medo"], sentence:"Tenho ___ de tubarões.", sentenceAnswers:["medo"], explanation:"ter medo de = бояться. Ex.: Tenho medo de tubarões." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"estar em baixo", hint:"выражение", answers:["быть подавленным"], options:["быть подавленным", "послезавтра", "ревновать", "понимаешь?"], answer:0, ptAnswers:["estar em baixo", "baixo"], sentence:"Estou um pouco em ___ por causa do teste.", sentenceAnswers:["baixo"], explanation:"estar em baixo = быть подавленным. Estar em baixo = грустить; em baixo = внизу. Ex.: Estou um pouco em baixo por causa do teste." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"estar fora", hint:"выражение", answers:["быть в отъезде"], options:["быть в отъезде", "есть вне дома (в ресторане)", "потихоньку (ответ на «как дела?»)", "раньше"], answer:0, ptAnswers:["estar fora", "fora"], sentence:"Estou ___ este Natal.", sentenceAnswers:["fora"], explanation:"estar fora = быть в отъезде. Ex.: Estou fora este Natal." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"está fora de questão", hint:"выражение", answers:["об этом не может быть и речи"], options:["об этом не может быть и речи", "поздно ночью", "слишком", "так сильно (с глаголом)"], answer:0, ptAnswers:["está fora de questão", "fora"], sentence:"Sair hoje? Está ___ de questão!", sentenceAnswers:["fora"], explanation:"está fora de questão = об этом не может быть и речи. Ex.: Sair hoje? Está fora de questão!" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"comer fora", hint:"выражение", answers:["есть вне дома (в ресторане)"], options:["есть вне дома (в ресторане)", "случайно", "в конце (коридора, улицы)", "уходить"], answer:0, ptAnswers:["comer fora", "fora"], sentence:"Ao sábado gostamos de jantar ___.", sentenceAnswers:["fora"], explanation:"comer fora = есть вне дома (в ресторане). Ex.: Ao sábado gostamos de jantar fora." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"dar uma volta", hint:"выражение", answers:["прогуляться", "прокатиться"], options:["прогуляться/прокатиться", "в конце (коридора, улицы)", "ревновать", "понимаешь?"], answer:0, ptAnswers:["dar uma volta", "volta"], sentence:"Vamos dar uma ___ depois do jantar?", sentenceAnswers:["volta"], explanation:"dar uma volta = прогуляться, прокатиться. = dar um passeio. Ex.: Vamos dar uma volta depois do jantar?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"dar atenção", hint:"выражение", answers:["уделять внимание"], options:["уделять внимание", "поздно ночью", "недавно", "нахлынула тоска"], answer:0, ptAnswers:["dar atenção", "dar"], sentence:"Tens de ___ atenção aos detalhes.", sentenceAnswers:["dar"], explanation:"dar atenção = уделять внимание. Ex.: Tens de dar atenção aos detalhes." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"não faz mal", hint:"выражение", answers:["ничего страшного"], options:["ничего страшного", "об этом не может быть и речи", "поздно ночью", "перед"], answer:0, ptAnswers:["não faz mal", "faz"], sentence:"Desculpa o atraso! — Não ___ mal.", sentenceAnswers:["faz"], explanation:"não faz mal = ничего страшного. Ex.: Desculpa o atraso! — Não faz mal." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"tanto faz", hint:"выражение", answers:["всё равно", "без разницы"], options:["всё равно/без разницы", "есть вне дома (в ресторане)", "согласно", "это тяжело (утомительно)"], answer:0, ptAnswers:["tanto faz", "tanto"], sentence:"Café ou chá? — ___ faz.", sentenceAnswers:["tanto"], explanation:"tanto faz = всё равно, без разницы. Ex.: Café ou chá? — tanto faz." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"às tantas da noite", hint:"выражение", answers:["поздно ночью"], options:["поздно ночью", "позавчера", "недавно", "возможно"], answer:0, ptAnswers:["às tantas da noite", "tantas"], sentence:"Eles chegaram às ___ da noite.", sentenceAnswers:["tantas"], explanation:"às tantas da noite = поздно ночью. Ex.: Eles chegaram às tantas da noite." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"vou andando", hint:"выражение", answers:["потихоньку (ответ на «как дела?»)"], options:["потихоньку (ответ на «как дела?»)", "однако", "есть вне дома (в ресторане)", "только"], answer:0, ptAnswers:["vou andando", "andando"], sentence:"Como vai a vida? — Vou ___.", sentenceAnswers:["andando"], explanation:"vou andando = потихоньку (ответ на «как дела?»). Ex.: Como vai a vida? — Vou andando." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"estás a ver?", hint:"выражение", answers:["понимаешь?", "видишь?"], options:["понимаешь?/видишь?", "пока", "около", "однако"], answer:0, ptAnswers:["estás a ver?", "ver"], sentence:"É ao lado do ginásio, estás a ___?", sentenceAnswers:["ver"], explanation:"estás a ver? = понимаешь?, видишь?. Tás a ver? = percebeste? Ex.: É ao lado do ginásio, estás a ver?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"em cima da hora", hint:"выражение", answers:["в последний момент"], options:["в последний момент", "быть уверенным", "в то время", "согласно"], answer:0, ptAnswers:["em cima da hora", "hora"], sentence:"Ele cancelou em cima da ___.", sentenceAnswers:["hora"], explanation:"em cima da hora = в последний момент. Ex.: Ele cancelou em cima da hora." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"estou quase", hint:"выражение", answers:["я почти (готова / пришла)"], options:["я почти (готова / пришла)", "перед", "пока", "согласно"], answer:0, ptAnswers:["estou quase", "quase"], sentence:"O jantar está ___ pronto.", sentenceAnswers:["quase"], explanation:"estou quase = я почти (готова / пришла). Ex.: O jantar está quase pronto." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"é puxado", hint:"выражение", answers:["это тяжело (утомительно)"], options:["это тяжело (утомительно)", "в последний момент", "поздно ночью", "пока"], answer:0, ptAnswers:["é puxado", "puxado"], sentence:"Este curso é muito ___.", sentenceAnswers:["puxado"], explanation:"é puxado = это тяжело (утомительно). Ex.: Este curso é muito puxado." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"dar boleia", hint:"выражение", answers:["подвезти"], options:["подвезти", "послушно", "до скорого", "прогуляться"], answer:0, ptAnswers:["dar boleia", "boleia"], sentence:"Podes dar-me ___ até casa?", sentenceAnswers:["boleia"], explanation:"dar boleia = подвезти. Ex.: Podes dar-me boleia até casa?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ir embora", hint:"выражение", answers:["уходить", "уезжать"], options:["уходить/уезжать", "ревновать", "в результате", "послезавтра"], answer:0, ptAnswers:["ir embora", "embora"], sentence:"Já vais ___?", sentenceAnswers:["embora"], explanation:"ir embora = уходить, уезжать. Vai-te embora! = уходи! Ex.: Já vais embora?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"faça favor", hint:"выражение", answers:["пожалуйста (проходите / слушаю вас)"], options:["пожалуйста (проходите / слушаю вас)", "бояться", "раньше", "случайно"], answer:0, ptAnswers:["faça favor", "favor"], sentence:"Faça ___, pode entrar.", sentenceAnswers:["favor"], explanation:"faça favor = пожалуйста (проходите / слушаю вас). Ex.: Faça favor, pode entrar." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"sinta-se em casa", hint:"выражение", answers:["чувствуйте себя как дома"], options:["чувствуйте себя как дома", "раньше", "в то время", "в результате"], answer:0, ptAnswers:["sinta-se em casa", "casa"], sentence:"Entre, sinta-se em ___!", sentenceAnswers:["casa"], explanation:"sinta-se em casa = чувствуйте себя как дома. Ex.: Entre, sinta-se em casa!" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"bateu a saudade", hint:"выражение", answers:["нахлынула тоска"], options:["нахлынула тоска", "быть в отъезде", "послушно", "недавно"], answer:0, ptAnswers:["bateu a saudade", "bateu"], sentence:"Ontem ___ a saudade de casa.", sentenceAnswers:["bateu"], explanation:"bateu a saudade = нахлынула тоска. Ex.: Ontem bateu a saudade de casa." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ter dor de cotovelo", hint:"выражение", answers:["ревновать", "завидовать"], options:["ревновать/завидовать", "случайно", "рядом с", "пожалуйста (проходите / слушаю вас)"], answer:0, ptAnswers:["ter dor de cotovelo", "cotovelo"], sentence:"Ele tem dor de ___ do sucesso do irmão.", sentenceAnswers:["cotovelo"], explanation:"ter dor de cotovelo = ревновать, завидовать. Ex.: Ele tem dor de cotovelo do sucesso do irmão." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"estar com fome", hint:"выражение", answers:["быть голодным"], options:["быть голодным", "потихоньку (ответ на «как дела?»)", "всё равно", "есть вне дома (в ресторане)"], answer:0, ptAnswers:["estar com fome", "fome"], sentence:"Estou com ___, vamos almoçar?", sentenceAnswers:["fome"], explanation:"estar com fome = быть голодным. Estar com sede / com sono = хотеть пить / спать. Ex.: Estou com fome, vamos almoçar?" },
+  { cat:"Expressões", badge:"badge-expressoes", q:"anteontem", hint:"adv.", answers:["позавчера"], options:["позавчера", "до скорого", "случайно", "подвезти"], answer:0, ptAnswers:["anteontem"], sentence:"___ fui ao médico.", sentenceAnswers:["anteontem"], explanation:"anteontem = позавчера. Ex.: Anteontem fui ao médico." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"depois de amanhã", hint:"выражение", answers:["послезавтра"], options:["послезавтра", "об этом не может быть и речи", "поздно ночью", "быть голодным"], answer:0, ptAnswers:["depois de amanhã", "depois"], sentence:"O exame é ___ de amanhã.", sentenceAnswers:["depois"], explanation:"depois de amanhã = послезавтра. Ex.: O exame é depois de amanhã." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"antigamente", hint:"adv.", answers:["раньше", "в старые времена"], options:["раньше/в старые времена", "в последний момент", "чувствуйте себя как дома", "слишком"], answer:0, ptAnswers:["antigamente"], sentence:"___ a biblioteca era aqui.", sentenceAnswers:["antigamente"], explanation:"antigamente = раньше, в старые времена. Ex.: Antigamente a biblioteca era aqui." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"felizmente", hint:"adv.", answers:["к счастью"], options:["к счастью", "без усилий", "ничего страшного", "быть голодным"], answer:0, ptAnswers:["felizmente"], sentence:"___, ninguém se magoou.", sentenceAnswers:["felizmente"], explanation:"felizmente = к счастью. Infelizmente = к сожалению. Ex.: Felizmente, ninguém se magoou." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"com antecedência", hint:"выражение", answers:["заранее"], options:["заранее", "прогуляться", "без усилий", "понимаешь?"], answer:0, ptAnswers:["com antecedência", "antecedência"], sentence:"Reserve a mesa com ___.", sentenceAnswers:["antecedência"], explanation:"com antecedência = заранее. Ex.: Reserve a mesa com antecedência." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"por volta de", hint:"выражение", answers:["около", "примерно"], options:["около/примерно", "прогуляться", "потихоньку (ответ на «как дела?»)", "пока"], answer:0, ptAnswers:["por volta de", "volta"], sentence:"Chego por ___ das oito.", sentenceAnswers:["volta"], explanation:"por volta de = около, примерно. = cerca de. Ex.: Chego por volta das oito." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"de novo", hint:"выражение", answers:["снова"], options:["снова", "быть голодным", "нахлынула тоска", "раньше"], answer:0, ptAnswers:["de novo", "novo"], sentence:"Hoje está a chover de ___.", sentenceAnswers:["novo"], explanation:"de novo = снова. Ex.: Hoje está a chover de novo." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"debaixo de", hint:"выражение", answers:["под"], options:["под", "подвезти", "прогуляться", "всё равно"], answer:0, ptAnswers:["debaixo de", "debaixo"], sentence:"O gato está ___ da cama.", sentenceAnswers:["debaixo"], explanation:"debaixo de = под. Ex.: O gato está debaixo da cama." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ao fundo de", hint:"выражение", answers:["в конце (коридора, улицы)"], options:["в конце (коридора, улицы)", "в последний момент", "около", "перед"], answer:0, ptAnswers:["ao fundo de", "fundo"], sentence:"A casa de banho é ao ___ do corredor.", sentenceAnswers:["fundo"], explanation:"ao fundo de = в конце (коридора, улицы). Ex.: A casa de banho é ao fundo do corredor." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"ao pé de", hint:"выражение", answers:["рядом с", "у"], options:["рядом с/у", "возможно", "случайно", "только"], answer:0, ptAnswers:["ao pé de", "pé"], sentence:"Moro ao ___ do parque.", sentenceAnswers:["pé"], explanation:"ao pé de = рядом с, у. Ex.: Moro ao pé do parque." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"à frente de", hint:"выражение", answers:["перед"], options:["перед", "пока", "к счастью", "есть вне дома (в ресторане)"], answer:0, ptAnswers:["à frente de", "frente"], sentence:"Estaciono à ___ da escola.", sentenceAnswers:["frente"], explanation:"à frente de = перед. Em frente de = напротив. Ex.: Estaciono à frente da escola." },
+  { cat:"Expressões", badge:"badge-expressoes", q:"a seguir", hint:"f.", answers:["потом", "затем"], options:["потом/затем", "к счастью", "только", "слишком"], answer:0, ptAnswers:["seguir", "a seguir"], sentence:"Primeiro jantamos e ___ vamos ao cinema.", sentenceAnswers:["a seguir"], explanation:"a seguir = потом, затем. = depois. Ex.: Primeiro jantamos e a seguir vamos ao cinema." },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// Strict matching: case-insensitive, accents required
+function matchPT(input, accepted) {
+  const raw = input.toLowerCase().trim();
+  return accepted.some(a => a.toLowerCase() === raw);
+}
+
+let mode = 'choice';
+let activeFilter = 'Todos';
+let questions = [];
+let current = 0;
+let score = 0;
+let mistakes = [];
+let answered = false;
+let shuffledOpts = [];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'Todos' ? allQ : allQ.filter(q => q.cat === activeFilter);
+  questions = shuffle(pool);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('resultsCard').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + questions.length;
+
+  const badge = document.getElementById('catBadge');
+  badge.textContent = q.cat;
+  badge.className = 'category-badge ' + q.badge;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  ['choiceArea','writeArea','fraseArea'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('questionText').textContent = '\u00ab' + q.q + '\u00bb \u2014 \u0447\u0442\u043e \u044d\u0442\u043e?';
+    const indexed = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+    shuffledOpts = shuffle(indexed);
+    const div = document.getElementById('optionsDiv');
+    div.innerHTML = '';
+    shuffledOpts.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = item.opt;
+      btn.onclick = () => checkChoice(i, btn);
+      div.appendChild(btn);
+    });
+
+  } else if (mode === 'write') {
+    document.getElementById('writeArea').style.display = 'block';
+    document.getElementById('ruDisplay').textContent = q.answers[0];
+    document.getElementById('ruHintLine').textContent = q.hint + (q.answers.length > 1 ? '  \u00b7  ' + q.answers.slice(1).join(' / ') : '');
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnW').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+
+  } else {
+    document.getElementById('fraseArea').style.display = 'block';
+    const parts = q.sentence.split('___');
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blank = document.createElement('span');
+    blank.className = 'sentence-blank'; blank.textContent = '___'; blank.id = 'blankSpan';
+    sd.appendChild(blank);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('fraseHint').innerHTML = '\u041f\u0435\u0440\u0435\u0432\u043e\u0434: <span>' + q.answers[0] + '</span>  \u00b7  ' + q.hint;
+    const inp = document.getElementById('fraseInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnF').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function checkChoice(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (shuffledOpts[i].correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('feedback');
+  if (shuffledOpts[idx].correct) {
+    score++; btn.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. ' + q.explanation;
+    mistakes.push({ q: q.q, explanation: q.explanation });
+  }
+  showNext();
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnW').disabled = true;
+  const correct = matchPT(raw, q.ptAnswers);
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.ptAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.answers[0] + ' (' + q.hint + ')', explanation: 'Correto: ' + q.ptAnswers[0] });
+  }
+  showNext();
+}
+
+function checkFrase() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('fraseInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnF').disabled = true;
+  const correct = matchPT(raw, q.sentenceAnswers);
+  const blank = document.getElementById('blankSpan');
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++;
+    blank.textContent = raw; blank.style.color = '#276749'; blank.style.borderColor = '#68d391';
+    inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    blank.textContent = q.sentenceAnswers[0]; blank.style.color = '#c53030'; blank.style.borderColor = '#fc8181';
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.sentenceAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.sentence.replace('___', '___'), explanation: 'Correto: ' + q.sentenceAnswers[0] });
+  }
+  showNext();
+}
+
+function showNext() {
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current < questions.length - 1 ? 'Pr\u00f3xima \u2192' : 'Ver resultados \u2192';
+  btn.classList.add('show');
+}
+
+function nextQuestion() { current++; showQuestion(); }
+
+function showResults() {
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('resultsCard').classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  const msgs = [['Continua!','Revê as palavras e tenta outra vez.'],['Bom esforço!','Continua a praticar estas palavras.'],['Muito bem!','Só mais um pouco de prática.'],['Excelente!','Vocabulário dominado!']];
+  const m = msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultTitle').textContent = m[0];
+  document.getElementById('resultMsg').textContent = pct + '% correto. ' + m[1];
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Rever (' + mistakes.length + '):</h3>';
+    mistakes.forEach(m => { ml.innerHTML += '<div class="mistake-item"><div class="mq">' + m.q + '</div><div class="ma">' + m.explanation + '</div></div>'; });
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!answered) {
+      if (mode === 'write') checkWrite();
+      else if (mode === 'frase') checkFrase();
+    } else if (document.getElementById('nextBtn').classList.contains('show')) {
+      nextQuestion();
+    }
+  }
+});
+
+restart();
+</script>
+</body>
+</html>

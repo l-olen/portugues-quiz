@@ -1,0 +1,495 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Personalidade e emoções</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #4c51bf; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #4c51bf; }
+
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .mode-btn { flex: 1; padding: 9px 6px; border: none; background: transparent; border-radius: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; line-height: 1.3; }
+  .mode-btn.active { background: #4c51bf; color: white; }
+
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="Todos"].active-f      { background: #edf2f7; }
+  .filter-btn[data-cat="Natureza"]            { color: #276749; }
+  .filter-btn[data-cat="Natureza"].active-f   { background: #f0fff4; }
+  .filter-btn[data-cat="Ações"]               { color: #2c7a7b; }
+  .filter-btn[data-cat="Ações"].active-f      { background: #e6fffa; }
+  .filter-btn[data-cat="Adjetivos"]           { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos"].active-f  { background: #faf5ff; }
+  .filter-btn[data-cat="Comida"]              { color: #c05621; }
+  .filter-btn[data-cat="Comida"].active-f     { background: #fffaf0; }
+  .filter-btn[data-cat="Corpo"]               { color: #b83280; }
+  .filter-btn[data-cat="Corpo"].active-f      { background: #fff0f3; }
+  .filter-btn[data-cat="Emoções"]             { color: #b7791f; }
+  .filter-btn[data-cat="Emoções"].active-f    { background: #fefcbf; }
+  .filter-btn[data-cat="Caráter"]             { color: #c53030; }
+  .filter-btn[data-cat="Caráter"].active-f    { background: #fff5f0; }
+  .filter-btn[data-cat="Conceitos"]           { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f  { background: #eef2ff; }
+  .filter-btn[data-cat="Expressões"]          { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .filter-btn[data-cat="Objetos"]             { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos"].active-f    { background: #f5f0ff; }
+
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #4c51bf, #7f9cf5); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-nat      { background: #f0fff4; color: #276749; }
+  .badge-acoes    { background: #e6fffa; color: #2c7a7b; }
+  .badge-adj      { background: #faf5ff; color: #6b46c1; }
+  .badge-com      { background: #fffaf0; color: #c05621; }
+  .badge-corp     { background: #fff0f3; color: #b83280; }
+  .badge-emocoes  { background: #fefcbf; color: #b7791f; }
+  .badge-carater  { background: #fff5f0; color: #c53030; }
+  .badge-conceitos{ background: #eef2ff; color: #4c51bf; }
+  .badge-expressoes{ background: #ebf8ff; color: #2b6cb0; }
+  .badge-objetos  { background: #f5f0ff; color: #7e3af2; }
+
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #eef2ff; border-color: #c3dafe; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  .ru-display { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .ru-hint-line { font-size: 0.83rem; color: #a0aec0; margin-bottom: 22px; }
+  .write-prompt { font-size: 0.88rem; color: #718096; margin-bottom: 10px; }
+  .accent-note { font-size: 0.78rem; color: #b7791f; background: #fefcbf; padding: 5px 10px; border-radius: 6px; margin-bottom: 14px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #7f9cf5; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #434190; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+
+  .sentence-display { font-size: 1.05rem; font-weight: 500; line-height: 1.9; margin-bottom: 6px; color: #2d3748; }
+  .sentence-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid #4c51bf; color: #4c51bf; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .frase-hint { font-size: 0.83rem; color: #a0aec0; margin-bottom: 18px; }
+  .frase-hint span { color: #718096; font-style: italic; }
+
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #434190; }
+  .next-btn.show { display: block; }
+
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4c51bf, #7f9cf5); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item .mq { font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .mistake-item .ma { color: #276749; }
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+  /* темы (сборка 28.10.2026) */
+  .badge-familia { background: #fffaf0; color: #c05621; }
+  .filter-btn[data-cat="Família"] { color: #c05621; }
+  .filter-btn[data-cat="Família"].active-f { background: #fffaf0; }
+  .badge-aspeto { background: #fff0f3; color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"] { color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"].active-f { background: #fff0f3; }
+  .badge-personalidade { background: #fefcbf; color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"] { color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"].active-f { background: #fefcbf; }
+  .badge-corpo { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"] { color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"].active-f { background: #fff5f5; }
+  .badge-casa { background: #e6fffa; color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"] { color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"].active-f { background: #e6fffa; }
+  .badge-cidade { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"].active-f { background: #ebf8ff; }
+  .badge-comida { background: #fffaf0; color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"] { color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"].active-f { background: #fffaf0; }
+  .badge-natureza { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"] { color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"].active-f { background: #f0fff4; }
+  .badge-tempo { background: #ebf8ff; color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"] { color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"].active-f { background: #ebf8ff; }
+  .badge-profissoes { background: #edf2f7; color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"] { color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"].active-f { background: #edf2f7; }
+  .badge-objetos { background: #f5f0ff; color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"] { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"].active-f { background: #f5f0ff; }
+  .badge-verbos { background: #e6fffa; color: #285e61; }
+  .filter-btn[data-cat="Verbos"] { color: #285e61; }
+  .filter-btn[data-cat="Verbos"].active-f { background: #e6fffa; }
+  .badge-expressoes { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .badge-adjetivos { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"] { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"].active-f { background: #faf5ff; }
+  .badge-conceitos { background: #eef2ff; color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"] { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f { background: #eef2ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>😊 Personalidade e emoções</h1>
+    <p>53 palavras · Escolher · Escrever · Frase</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher<br><small style="font-weight:400;opacity:.8">варианты RU</small></button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever<br><small style="font-weight:400;opacity:.8">RU → пиши PT</small></button>
+    <button class="mode-btn" id="btnFrase" onclick="setMode('frase')">Frase<br><small style="font-weight:400;opacity:.8">вставь в предложение</small></button>
+  </div>
+
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">1 / ?</div>
+
+  <div class="card" id="quizCard">
+    <span class="category-badge" id="catBadge"></span>
+    <div id="choiceArea">
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsDiv"></div>
+    </div>
+    <div id="writeArea" style="display:none">
+      <div class="ru-display" id="ruDisplay"></div>
+      <div class="ru-hint-line" id="ruHintLine"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos (ex.: coração, água, ação)</div>
+      <div class="write-prompt">Escreve em português:</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnW" onclick="checkWrite()">OK</button>
+      </div>
+    </div>
+    <div id="fraseArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="frase-hint" id="fraseHint"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="fraseInput" placeholder="palavra em português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnF" onclick="checkFrase()">OK</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <div class="score-circle"><div class="num" id="scoreNum">0</div><div class="denom" id="scoreDenom">/ 0</div></div>
+    <h2 id="resultTitle"></h2><p id="resultMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+<script>
+const allQ = [
+  // ===== PERSONALIDADE E EMOÇÕES (53) =====
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"meigo", hint:"adj.", answers:["ласковый", "нежный"], options:["ласковая/нежная", "строгая", "грубая", "холодная"], answer:0, ptAnswers:["meiga", "meigo"], sentence:"A professora é muito ___ com os alunos mais novos.", sentenceAnswers:["meiga"], explanation:"Meigo/a = ласковый/ая, нежный/ая. Ex.: Ela é muito meiga com as crianças." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"apreensivo", hint:"adj.", answers:["тревожный", "беспокойный"], options:["тревожный/беспокойный", "уверенный", "спокойный", "весёлый"], answer:0, ptAnswers:["apreensivo", "apreensiva"], sentence:"Fiquei ___ com a notícia do acidente.", sentenceAnswers:["apreensivo", "apreensiva"], explanation:"Apreensivo = тревожный, обеспокоенный. Ex.: Fiquei apreensivo com a notícia." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"confiante", hint:"adj.", answers:["уверенный", "уверенный в себе"], options:["уверенный", "тревожный", "робкий", "нерешительный"], answer:0, ptAnswers:["confiante"], sentence:"Ela entrou na sala ___ e começou a falar.", sentenceAnswers:["confiante"], explanation:"Confiante = уверенный в себе. Ex.: Ela entrou confiante." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"maldisposto", hint:"adj.", answers:["в плохом настроении", "не в духе"], options:["в плохом настроении", "весёлый", "бодрый", "злой"], answer:0, ptAnswers:["maldisposto", "maldisposta"], sentence:"Hoje estou ___ e prefiro ficar em casa.", sentenceAnswers:["maldisposto", "maldisposta"], explanation:"Maldisposto = в плохом настроении, нездоровый. Ex.: Hoje estou maldisposto." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"pontual", hint:"adj.", answers:["пунктуальный"], options:["пунктуальные", "опаздывающие", "усердные", "строгие"], answer:0, ptAnswers:["pontual", "pontuais"], sentence:"Os alemães são conhecidos por ser muito ___.", sentenceAnswers:["pontuais"], explanation:"Pontual = пунктуальный. Ex.: Os portugueses não são muito pontuais." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"apaixonar-se", hint:"v.refl.", answers:["влюбляться", "влюбиться"], options:["влюбляться", "убегать", "узнавать", "зажигать"], answer:0, ptAnswers:["apaixonar-se"], sentence:"Ela ___ por ele à primeira vista.", sentenceAnswers:["apaixonou-se"], explanation:"Apaixonar-se = влюбиться. Ex.: Ela apaixonou-se por ele à primeira vista." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"coragem", hint:"f.", answers:["храбрость", "смелость"], options:["храбрость", "желание", "красота", "одиночество"], answer:0, ptAnswers:["coragem"], sentence:"Teve ___ de dizer a verdade.", sentenceAnswers:["coragem"], explanation:"Coragem = храбрость, смелость. Ex.: Teve coragem de dizer a verdade." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"solidão", hint:"f.", answers:["одиночество"], options:["одиночество", "грусть", "скука", "усталость"], answer:0, ptAnswers:["solidão"], sentence:"Sentia muita ___ depois de se mudar para Lisboa.", sentenceAnswers:["solidão"], explanation:"Solidão = одиночество. Ex.: Sentia muita solidão depois de se mudar para Lisboa." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"alegria", hint:"f.", answers:["радость"], options:["радость", "злость", "страх", "удивление"], answer:0, ptAnswers:["alegria"], sentence:"As crianças gritavam de ___.", sentenceAnswers:["alegria"], explanation:"Alegria = радость. Ex.: As crianças gritavam de alegria." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"desconfiança", hint:"f.", answers:["недоверие"], options:["недоверие", "разочарование", "стыд", "зависть"], answer:0, ptAnswers:["desconfiança"], sentence:"Ele olhou com ___ para o estranho.", sentenceAnswers:["desconfiança"], explanation:"Desconfiança = недоверие. Ex.: Ele olhou com desconfiança para o estranho." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"impressão", hint:"f.", answers:["впечатление"], options:["впечатление", "действие", "влияние", "ссылка"], answer:0, ptAnswers:["impressão"], sentence:"Causou uma boa ___ na entrevista.", sentenceAnswers:["impressão"], explanation:"Impressão = впечатление. Causar boa impressão = произвести хорошее впечатление." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"paixão", hint:"f.", answers:["страсть"], options:["страсть", "грусть", "тоска", "обида"], answer:0, ptAnswers:["paixão"], sentence:"A música é a sua grande ___.", sentenceAnswers:["paixão"], explanation:"Paixão = страсть. Ex.: A música é a sua grande paixão." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"desejo", hint:"m.", answers:["желание"], options:["желание", "радость", "страсть", "тоска"], answer:0, ptAnswers:["desejo"], sentence:"O meu maior ___ é viajar pelo mundo.", sentenceAnswers:["desejo"], explanation:"Desejo = желание. Desejar = хотеть, желать. Ex.: O meu maior desejo é viajar." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"beleza", hint:"f.", answers:["красота"], options:["красота", "реальность", "влияние", "действие"], answer:0, ptAnswers:["beleza"], sentence:"A ___ da natureza impressiona-me.", sentenceAnswers:["beleza"], explanation:"Beleza = красота. Que beleza! = Как красиво!" },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"compassivo", hint:"adj.", answers:["сострадательный"], options:["сострадательный", "рассеянный", "хрупкий", "далёкий"], answer:0, ptAnswers:["compassivo", "compassiva"], sentence:"Ela é muito ___ com quem sofre.", sentenceAnswers:["compassiva", "compassivo"], explanation:"Compassivo = сострадательный. Ex.: Ela é muito compassiva com quem sofre." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"distraído", hint:"adj.", answers:["рассеянный"], options:["рассеянный", "сострадательный", "необычный", "хрупкий"], answer:0, ptAnswers:["distraído", "distraída"], sentence:"Ele é tão ___ que esquece sempre as chaves.", sentenceAnswers:["distraído"], explanation:"Distraído = рассеянный, отвлечённый. Ex.: Ele é tão distraído que esquece sempre as chaves." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"sonhador", hint:"m./f.", answers:["мечтатель", "мечтательница"], options:["мечтатель", "реалист", "режиссёр", "наблюдатель"], answer:0, ptAnswers:["sonhador", "sonhadora"], sentence:"Ela é uma ___ — quer mudar o mundo.", sentenceAnswers:["sonhadora", "sonhador"], explanation:"Sonhador = мечтатель. Ex.: Ela é uma sonhadora — quer mudar o mundo." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"saudades", hint:"f.pl.", answers:["тоска", "ностальгия"], options:["тоска/ностальгия", "радость", "грусть", "одиночество"], answer:0, ptAnswers:["saudades"], sentence:"Tenho muitas ___ da minha família em Portugal.", sentenceAnswers:["saudades"], explanation:"Saudades = тоска, ностальгия (непереводимое слово). Tenho saudades de ti = я скучаю по тебе." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"ter nojo de", hint:"выражение", answers:["испытывать отвращение к", "чувствовать тошноту от"], options:["испытывать отвращение к", "бояться", "скучать по", "стыдиться"], answer:0, ptAnswers:["ter nojo de"], sentence:"Ela tem ___ de baratas.", sentenceAnswers:["nojo"], explanation:"TER NOJO DE = испытывать отвращение. Que nojo! = Какая гадость! Estar com nojo = чувствовать тошноту прямо сейчас." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"sentir falta de", hint:"выражение", answers:["скучать по", "ощущать нехватку"], options:["скучать по", "радоваться", "забывать", "терять"], answer:0, ptAnswers:["sentir falta de"], sentence:"Sinto muita ___ dos meus amigos.", sentenceAnswers:["falta"], explanation:"SENTIR FALTA DE = скучать по, ощущать нехватку. Sinto falta de ti = скучаю по тебе. Mais geral que SAUDADES (que é mais profundo e nostálgico)." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"simpático/simpática", hint:"adj.", answers:["приятный", "дружелюбный", "милый"], options:["приятный/дружелюбный", "в плохом настроении", "нервный", "нетерпеливый"], answer:0, ptAnswers:["simpático", "simpática", "simpático/simpática"], sentence:"A vizinha é muito ___, cumprimenta sempre toda a gente.", sentenceAnswers:["simpática"], explanation:"simpático / simpática = приятный, дружелюбный, милый. В PT simpático = приятный в общении, а не «красивый». Ex.: A vizinha é muito simpática, cumprimenta sempre toda a gente." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"antipático/antipática", hint:"adj.", answers:["неприятный", "недружелюбный"], options:["неприятный/недружелюбный", "раздражённый", "в плохом настроении", "мечтатель"], answer:0, ptAnswers:["antipático", "antipática", "antipático/antipática"], sentence:"O empregado foi ___ connosco.", sentenceAnswers:["antipático"], explanation:"antipático / antipática = неприятный, недружелюбный. Ex.: O empregado foi antipático connosco." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"divertido/divertida", hint:"adj.", answers:["весёлый", "забавный"], options:["весёлый/забавный", "умный", "пунктуальный", "впечатление"], answer:0, ptAnswers:["divertido", "divertida", "divertido/divertida"], sentence:"O filme foi muito ___, rimo-nos imenso.", sentenceAnswers:["divertido"], explanation:"divertido / divertida = весёлый, забавный. Divertir-se = развлекаться. Ex.: O filme foi muito divertido, rimo-nos imenso." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"alegre", hint:"adj.", answers:["весёлый", "жизнерадостный"], options:["весёлый/жизнерадостный", "внимательный", "терпеливый", "неприятный"], answer:0, ptAnswers:["alegre"], sentence:"A minha tia é uma pessoa muito ___, está sempre a rir.", sentenceAnswers:["alegre"], explanation:"alegre = весёлый, жизнерадостный. Alegre — про характер и настроение. «Счастливый» = feliz. Ex.: A minha tia é uma pessoa muito alegre, está sempre a rir." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"triste", hint:"adj.", answers:["грустный"], options:["грустный", "красота", "тревожный", "желание"], answer:0, ptAnswers:["triste"], sentence:"Estou ___ porque as férias acabaram.", sentenceAnswers:["triste"], explanation:"triste = грустный. Ex.: Estou triste porque as férias acabaram." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"calmo/calma", hint:"adj.", answers:["спокойный"], options:["спокойный", "тоска", "мечтатель", "сострадательный"], answer:0, ptAnswers:["calmo", "calma", "calmo/calma"], sentence:"Mesmo com pressa, ele fica sempre ___.", sentenceAnswers:["calmo"], explanation:"calmo / calma = спокойный. Ex.: Mesmo com pressa, ele fica sempre calmo." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"tranquilo/tranquila", hint:"adj.", answers:["спокойный", "безмятежный"], options:["спокойный/безмятежный", "скучать по", "застенчивый", "одиночество"], answer:0, ptAnswers:["tranquilo", "tranquila", "tranquilo/tranquila"], sentence:"O nosso bairro é muito ___ à noite.", sentenceAnswers:["tranquilo"], explanation:"tranquilo / tranquila = спокойный, безмятежный. Не «тихий», а «спокойный»; про место и про человека. Тихий (о звуке) — silencioso. Ex.: O nosso bairro é muito tranquilo à noite." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"nervoso/nervosa", hint:"adj.", answers:["нервный", "взволнованный"], options:["нервный/взволнованный", "страсть", "впечатление", "радость"], answer:0, ptAnswers:["nervoso", "nervosa", "nervoso/nervosa"], sentence:"Fico sempre ___ antes de um exame.", sentenceAnswers:["nervoso"], explanation:"nervoso / nervosa = нервный, взволнованный. Ex.: Fico sempre nervoso antes de um exame." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"tímido/tímida", hint:"adj.", answers:["застенчивый", "робкий"], options:["застенчивый/робкий", "организованный", "красота", "тоска"], answer:0, ptAnswers:["tímido", "tímida", "tímido/tímida"], sentence:"O meu filho é ___ com pessoas novas.", sentenceAnswers:["tímido"], explanation:"tímido / tímida = застенчивый, робкий. Ex.: O meu filho é tímido com pessoas novas." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"extrovertido/extrovertida", hint:"adj.", answers:["общительный", "экстраверт"], options:["общительный/экстраверт", "красота", "испытывать отвращение к", "уверенный"], answer:0, ptAnswers:["extrovertido", "extrovertida", "extrovertido/extrovertida"], sentence:"Ela é muito ___ e faz amigos facilmente.", sentenceAnswers:["extrovertida"], explanation:"extrovertido / extrovertida = общительный, экстраверт. Ex.: Ela é muito extrovertida e faz amigos facilmente." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"introvertido/introvertida", hint:"adj.", answers:["замкнутый", "интроверт"], options:["замкнутый/интроверт", "весёлый", "спокойный", "мечтатель"], answer:0, ptAnswers:["introvertido", "introvertida", "introvertido/introvertida"], sentence:"Ele é ___, prefere ficar em casa a ler.", sentenceAnswers:["introvertido"], explanation:"introvertido / introvertida = замкнутый, интроверт. Ex.: Ele é introvertido, prefere ficar em casa a ler." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"amigo/amiga", hint:"adj.", answers:["дружелюбный", "настоящий друг"], options:["дружелюбный/настоящий друг", "трудолюбивый", "рассеянный", "ленивый"], answer:0, ptAnswers:["amigo", "amiga", "amigo/amiga"], sentence:"O teu cão é muito ___ das crianças.", sentenceAnswers:["amigo"], explanation:"amigo / amiga = дружелюбный, настоящий друг. Ser amigo de alguém = хорошо относиться, дружить. Ex.: O teu cão é muito amigo das crianças." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"generoso/generosa", hint:"adj.", answers:["щедрый"], options:["щедрый", "одиночество", "ласковый", "спокойный"], answer:0, ptAnswers:["generoso", "generosa", "generoso/generosa"], sentence:"O meu avô é muito ___, ajuda toda a família.", sentenceAnswers:["generoso"], explanation:"generoso / generosa = щедрый. Ex.: O meu avô é muito generoso, ajuda toda a família." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"egoísta", hint:"adj.", answers:["эгоистичный", "эгоист"], options:["эгоистичный/эгоист", "желание", "чувствительный", "приятный"], answer:0, ptAnswers:["egoísta"], sentence:"Não sejas ___, partilha o chocolate com a tua irmã!", sentenceAnswers:["egoísta"], explanation:"egoísta = эгоистичный, эгоист. Одна форма для м. и ж. рода. Ex.: Não sejas egoísta, partilha o chocolate com a tua irmã!" },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"trabalhador/trabalhadora", hint:"adj.", answers:["трудолюбивый"], options:["трудолюбивый", "тревожный", "честный", "ответственный"], answer:0, ptAnswers:["trabalhador", "trabalhadora", "trabalhador/trabalhadora"], sentence:"A Joana é muito ___, trabalha dez horas por dia.", sentenceAnswers:["trabalhadora"], explanation:"trabalhador / trabalhadora = трудолюбивый. Ex.: A Joana é muito trabalhadora, trabalha dez horas por dia." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"preguiçoso/preguiçosa", hint:"adj.", answers:["ленивый"], options:["ленивый", "трудолюбивый", "радость", "пунктуальный"], answer:0, ptAnswers:["preguiçoso", "preguiçosa", "preguiçoso/preguiçosa"], sentence:"Ao domingo fico ___ e não saio do sofá.", sentenceAnswers:["preguiçosa"], explanation:"preguiçoso / preguiçosa = ленивый. A preguiça = лень. Ex.: Ao domingo fico preguiçosa e não saio do sofá." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"responsável", hint:"adj.", answers:["ответственный"], options:["ответственный", "невоспитанный", "недоверие", "ласковый"], answer:0, ptAnswers:["responsável"], sentence:"Ele é ___: faz sempre os trabalhos a tempo.", sentenceAnswers:["responsável"], explanation:"responsável = ответственный. Ex.: Ele é responsável: faz sempre os trabalhos a tempo." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"inteligente", hint:"adj.", answers:["умный"], options:["умный", "застенчивый", "надоесть", "страсть"], answer:0, ptAnswers:["inteligente"], sentence:"A tua sobrinha é muito ___.", sentenceAnswers:["inteligente"], explanation:"inteligente = умный. Ex.: A tua sobrinha é muito inteligente." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"educado/educada", hint:"adj.", answers:["вежливый", "воспитанный"], options:["вежливый/воспитанный", "умный", "довольный", "организованный"], answer:0, ptAnswers:["educado", "educada", "educado/educada", "educados"], sentence:"Os teus filhos são muito ___, dizem sempre «obrigado».", sentenceAnswers:["educados"], explanation:"educado / educada = вежливый, воспитанный. Ложный друг: educado ≠ образованный (образованный = culto, instruído). Ex.: Os teus filhos são muito educados, dizem sempre «obrigado»." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"mal-educado/mal-educada", hint:"adj.", answers:["невоспитанный", "грубый"], options:["невоспитанный/грубый", "ответственный", "чувствительный", "общительный"], answer:0, ptAnswers:["mal-educado", "mal-educada", "mal-educado/mal-educada"], sentence:"Não fales assim, é ___!", sentenceAnswers:["mal-educado"], explanation:"mal-educado / mal-educada = невоспитанный, грубый. Ex.: Não fales assim, é mal-educado!" },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"paciente", hint:"adj.", answers:["терпеливый"], options:["терпеливый", "упрямый", "умный", "рассеянный"], answer:0, ptAnswers:["paciente"], sentence:"A professora é muito ___ com os alunos.", sentenceAnswers:["paciente"], explanation:"paciente = терпеливый. Ter paciência = иметь терпение. Ex.: A professora é muito paciente com os alunos." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"impaciente", hint:"adj.", answers:["нетерпеливый"], options:["нетерпеливый", "смелый", "замкнутый", "мечтатель"], answer:0, ptAnswers:["impaciente"], sentence:"Fico ___ quando o autocarro se atrasa.", sentenceAnswers:["impaciente"], explanation:"impaciente = нетерпеливый. Ex.: Fico impaciente quando o autocarro se atrasa." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"honesto/honesta", hint:"adj.", answers:["честный"], options:["честный", "сострадательный", "надоесть", "ответственный"], answer:0, ptAnswers:["honesto", "honesta", "honesto/honesta"], sentence:"Ele é ___: diz sempre a verdade.", sentenceAnswers:["honesto"], explanation:"honesto / honesta = честный. Ex.: Ele é honesto: diz sempre a verdade." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"sensível", hint:"adj.", answers:["чувствительный", "ранимый"], options:["чувствительный/ранимый", "упрямый", "влюбляться", "неприятный"], answer:0, ptAnswers:["sensível"], sentence:"Ela é muito ___ e chora com os filmes.", sentenceAnswers:["sensível"], explanation:"sensível = чувствительный, ранимый. Ex.: Ela é muito sensível e chora com os filmes." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"corajoso/corajosa", hint:"adj.", answers:["смелый", "храбрый"], options:["смелый/храбрый", "организованный", "мечтатель", "неприятный"], answer:0, ptAnswers:["corajoso", "corajosa", "corajoso/corajosa"], sentence:"O bombeiro foi muito ___.", sentenceAnswers:["corajoso"], explanation:"corajoso / corajosa = смелый, храбрый. A coragem = смелость. Ex.: O bombeiro foi muito corajoso." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"teimoso/teimosa", hint:"adj.", answers:["упрямый"], options:["упрямый", "в плохом настроении", "одиночество", "внимательный"], answer:0, ptAnswers:["teimoso", "teimosa", "teimoso/teimosa"], sentence:"O meu filho é ___: nunca muda de opinião.", sentenceAnswers:["teimoso"], explanation:"teimoso / teimosa = упрямый. Ex.: O meu filho é teimoso: nunca muda de opinião." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"organizado/organizada", hint:"adj.", answers:["организованный", "аккуратный"], options:["организованный/аккуратный", "невоспитанный", "нервный", "ласковый"], answer:0, ptAnswers:["organizado", "organizada", "organizado/organizada"], sentence:"A minha secretária está sempre ___.", sentenceAnswers:["organizada"], explanation:"organizado / organizada = организованный, аккуратный. Ex.: A minha secretária está sempre organizada." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"desorganizado/desorganizada", hint:"adj.", answers:["неорганизованный", "несобранный"], options:["неорганизованный/несобранный", "честный", "грустный", "ответственный"], answer:0, ptAnswers:["desorganizado", "desorganizada", "desorganizado/desorganizada"], sentence:"Sou um pouco ___ e perco sempre as chaves.", sentenceAnswers:["desorganizada"], explanation:"desorganizado / desorganizada = неорганизованный, несобранный. Ex.: Sou um pouco desorganizada e perco sempre as chaves." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"atencioso/atenciosa", hint:"adj.", answers:["внимательный", "заботливый"], options:["внимательный/заботливый", "впечатление", "чувствительный", "в плохом настроении"], answer:0, ptAnswers:["atencioso", "atenciosa", "atencioso/atenciosa"], sentence:"O meu marido é muito ___: lembra-se de todas as datas.", sentenceAnswers:["atencioso"], explanation:"atencioso / atenciosa = внимательный, заботливый. Ex.: O meu marido é muito atencioso: lembra-se de todas as datas." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"inseguro/insegura", hint:"adj.", answers:["неуверенный"], options:["неуверенный", "чувствительный", "желание", "вежливый"], answer:0, ptAnswers:["inseguro", "insegura", "inseguro/insegura"], sentence:"Ainda me sinto ___ quando falo ao telefone.", sentenceAnswers:["insegura"], explanation:"inseguro / insegura = неуверенный. Ex.: Ainda me sinto insegura quando falo ao telefone." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"contente", hint:"adj.", answers:["довольный", "радостный"], options:["довольный/радостный", "уверенный", "трудолюбивый", "упрямый"], answer:0, ptAnswers:["contente"], sentence:"Fiquei muito ___ com a tua visita.", sentenceAnswers:["contente"], explanation:"contente = довольный, радостный. Не «счастливый» — это feliz. Ex.: Fiquei muito contente com a tua visita." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"chateado/chateada", hint:"adj.", answers:["раздражённый", "расстроенный", "обиженный"], options:["раздражённый/расстроенный", "тревожный", "страсть", "скучать по"], answer:0, ptAnswers:["chateado", "chateada", "chateado/chateada"], sentence:"Ela está ___ comigo porque cheguei atrasada.", sentenceAnswers:["chateada"], explanation:"chateado / chateada = раздражённый, расстроенный, обиженный. Estar chateado com alguém = злиться/обижаться на кого-то. Chato = зануда, скучный. Ex.: Ela está chateada comigo porque cheguei atrasada." },
+  { cat:"Personalidade e emoções", badge:"badge-personalidade", q:"estar farto de", hint:"выражение", answers:["надоесть", "быть сытым по горло"], options:["надоесть/быть сытым по горло", "довольный", "в плохом настроении", "уверенный"], answer:0, ptAnswers:["estar farto de", "fartos"], sentence:"Estamos ___ de chuva!", sentenceAnswers:["fartos"], explanation:"estar farto de = надоесть, быть сытым по горло. Estou farto/farta de… = мне надоело… Ex.: Estamos fartos de chuva!" },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// Strict matching: case-insensitive, accents required
+function matchPT(input, accepted) {
+  const raw = input.toLowerCase().trim();
+  return accepted.some(a => a.toLowerCase() === raw);
+}
+
+let mode = 'choice';
+let activeFilter = 'Todos';
+let questions = [];
+let current = 0;
+let score = 0;
+let mistakes = [];
+let answered = false;
+let shuffledOpts = [];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'Todos' ? allQ : allQ.filter(q => q.cat === activeFilter);
+  questions = shuffle(pool);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('resultsCard').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + questions.length;
+
+  const badge = document.getElementById('catBadge');
+  badge.textContent = q.cat;
+  badge.className = 'category-badge ' + q.badge;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  ['choiceArea','writeArea','fraseArea'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('questionText').textContent = '\u00ab' + q.q + '\u00bb \u2014 \u0447\u0442\u043e \u044d\u0442\u043e?';
+    const indexed = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+    shuffledOpts = shuffle(indexed);
+    const div = document.getElementById('optionsDiv');
+    div.innerHTML = '';
+    shuffledOpts.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = item.opt;
+      btn.onclick = () => checkChoice(i, btn);
+      div.appendChild(btn);
+    });
+
+  } else if (mode === 'write') {
+    document.getElementById('writeArea').style.display = 'block';
+    document.getElementById('ruDisplay').textContent = q.answers[0];
+    document.getElementById('ruHintLine').textContent = q.hint + (q.answers.length > 1 ? '  \u00b7  ' + q.answers.slice(1).join(' / ') : '');
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnW').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+
+  } else {
+    document.getElementById('fraseArea').style.display = 'block';
+    const parts = q.sentence.split('___');
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blank = document.createElement('span');
+    blank.className = 'sentence-blank'; blank.textContent = '___'; blank.id = 'blankSpan';
+    sd.appendChild(blank);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('fraseHint').innerHTML = '\u041f\u0435\u0440\u0435\u0432\u043e\u0434: <span>' + q.answers[0] + '</span>  \u00b7  ' + q.hint;
+    const inp = document.getElementById('fraseInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnF').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function checkChoice(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (shuffledOpts[i].correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('feedback');
+  if (shuffledOpts[idx].correct) {
+    score++; btn.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. ' + q.explanation;
+    mistakes.push({ q: q.q, explanation: q.explanation });
+  }
+  showNext();
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnW').disabled = true;
+  const correct = matchPT(raw, q.ptAnswers);
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.ptAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.answers[0] + ' (' + q.hint + ')', explanation: 'Correto: ' + q.ptAnswers[0] });
+  }
+  showNext();
+}
+
+function checkFrase() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('fraseInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnF').disabled = true;
+  const correct = matchPT(raw, q.sentenceAnswers);
+  const blank = document.getElementById('blankSpan');
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++;
+    blank.textContent = raw; blank.style.color = '#276749'; blank.style.borderColor = '#68d391';
+    inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    blank.textContent = q.sentenceAnswers[0]; blank.style.color = '#c53030'; blank.style.borderColor = '#fc8181';
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.sentenceAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.sentence.replace('___', '___'), explanation: 'Correto: ' + q.sentenceAnswers[0] });
+  }
+  showNext();
+}
+
+function showNext() {
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current < questions.length - 1 ? 'Pr\u00f3xima \u2192' : 'Ver resultados \u2192';
+  btn.classList.add('show');
+}
+
+function nextQuestion() { current++; showQuestion(); }
+
+function showResults() {
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('resultsCard').classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  const msgs = [['Continua!','Revê as palavras e tenta outra vez.'],['Bom esforço!','Continua a praticar estas palavras.'],['Muito bem!','Só mais um pouco de prática.'],['Excelente!','Vocabulário dominado!']];
+  const m = msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultTitle').textContent = m[0];
+  document.getElementById('resultMsg').textContent = pct + '% correto. ' + m[1];
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Rever (' + mistakes.length + '):</h3>';
+    mistakes.forEach(m => { ml.innerHTML += '<div class="mistake-item"><div class="mq">' + m.q + '</div><div class="ma">' + m.explanation + '</div></div>'; });
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!answered) {
+      if (mode === 'write') checkWrite();
+      else if (mode === 'frase') checkFrase();
+    } else if (document.getElementById('nextBtn').classList.contains('show')) {
+      nextQuestion();
+    }
+  }
+});
+
+restart();
+</script>
+</body>
+</html>

@@ -1,0 +1,472 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Aspeto físico</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #4c51bf; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #4c51bf; }
+
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .mode-btn { flex: 1; padding: 9px 6px; border: none; background: transparent; border-radius: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; line-height: 1.3; }
+  .mode-btn.active { background: #4c51bf; color: white; }
+
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="Todos"].active-f      { background: #edf2f7; }
+  .filter-btn[data-cat="Natureza"]            { color: #276749; }
+  .filter-btn[data-cat="Natureza"].active-f   { background: #f0fff4; }
+  .filter-btn[data-cat="Ações"]               { color: #2c7a7b; }
+  .filter-btn[data-cat="Ações"].active-f      { background: #e6fffa; }
+  .filter-btn[data-cat="Adjetivos"]           { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos"].active-f  { background: #faf5ff; }
+  .filter-btn[data-cat="Comida"]              { color: #c05621; }
+  .filter-btn[data-cat="Comida"].active-f     { background: #fffaf0; }
+  .filter-btn[data-cat="Corpo"]               { color: #b83280; }
+  .filter-btn[data-cat="Corpo"].active-f      { background: #fff0f3; }
+  .filter-btn[data-cat="Emoções"]             { color: #b7791f; }
+  .filter-btn[data-cat="Emoções"].active-f    { background: #fefcbf; }
+  .filter-btn[data-cat="Caráter"]             { color: #c53030; }
+  .filter-btn[data-cat="Caráter"].active-f    { background: #fff5f0; }
+  .filter-btn[data-cat="Conceitos"]           { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f  { background: #eef2ff; }
+  .filter-btn[data-cat="Expressões"]          { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .filter-btn[data-cat="Objetos"]             { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos"].active-f    { background: #f5f0ff; }
+
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #4c51bf, #7f9cf5); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-nat      { background: #f0fff4; color: #276749; }
+  .badge-acoes    { background: #e6fffa; color: #2c7a7b; }
+  .badge-adj      { background: #faf5ff; color: #6b46c1; }
+  .badge-com      { background: #fffaf0; color: #c05621; }
+  .badge-corp     { background: #fff0f3; color: #b83280; }
+  .badge-emocoes  { background: #fefcbf; color: #b7791f; }
+  .badge-carater  { background: #fff5f0; color: #c53030; }
+  .badge-conceitos{ background: #eef2ff; color: #4c51bf; }
+  .badge-expressoes{ background: #ebf8ff; color: #2b6cb0; }
+  .badge-objetos  { background: #f5f0ff; color: #7e3af2; }
+
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #eef2ff; border-color: #c3dafe; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  .ru-display { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .ru-hint-line { font-size: 0.83rem; color: #a0aec0; margin-bottom: 22px; }
+  .write-prompt { font-size: 0.88rem; color: #718096; margin-bottom: 10px; }
+  .accent-note { font-size: 0.78rem; color: #b7791f; background: #fefcbf; padding: 5px 10px; border-radius: 6px; margin-bottom: 14px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #7f9cf5; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #434190; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+
+  .sentence-display { font-size: 1.05rem; font-weight: 500; line-height: 1.9; margin-bottom: 6px; color: #2d3748; }
+  .sentence-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid #4c51bf; color: #4c51bf; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .frase-hint { font-size: 0.83rem; color: #a0aec0; margin-bottom: 18px; }
+  .frase-hint span { color: #718096; font-style: italic; }
+
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #434190; }
+  .next-btn.show { display: block; }
+
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4c51bf, #7f9cf5); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item .mq { font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .mistake-item .ma { color: #276749; }
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+  /* темы (сборка 28.10.2026) */
+  .badge-familia { background: #fffaf0; color: #c05621; }
+  .filter-btn[data-cat="Família"] { color: #c05621; }
+  .filter-btn[data-cat="Família"].active-f { background: #fffaf0; }
+  .badge-aspeto { background: #fff0f3; color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"] { color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"].active-f { background: #fff0f3; }
+  .badge-personalidade { background: #fefcbf; color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"] { color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"].active-f { background: #fefcbf; }
+  .badge-corpo { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"] { color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"].active-f { background: #fff5f5; }
+  .badge-casa { background: #e6fffa; color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"] { color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"].active-f { background: #e6fffa; }
+  .badge-cidade { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"].active-f { background: #ebf8ff; }
+  .badge-comida { background: #fffaf0; color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"] { color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"].active-f { background: #fffaf0; }
+  .badge-natureza { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"] { color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"].active-f { background: #f0fff4; }
+  .badge-tempo { background: #ebf8ff; color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"] { color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"].active-f { background: #ebf8ff; }
+  .badge-profissoes { background: #edf2f7; color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"] { color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"].active-f { background: #edf2f7; }
+  .badge-objetos { background: #f5f0ff; color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"] { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"].active-f { background: #f5f0ff; }
+  .badge-verbos { background: #e6fffa; color: #285e61; }
+  .filter-btn[data-cat="Verbos"] { color: #285e61; }
+  .filter-btn[data-cat="Verbos"].active-f { background: #e6fffa; }
+  .badge-expressoes { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .badge-adjetivos { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"] { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"].active-f { background: #faf5ff; }
+  .badge-conceitos { background: #eef2ff; color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"] { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f { background: #eef2ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>🧑 Aspeto físico</h1>
+    <p>30 palavras · Escolher · Escrever · Frase</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher<br><small style="font-weight:400;opacity:.8">варианты RU</small></button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever<br><small style="font-weight:400;opacity:.8">RU → пиши PT</small></button>
+    <button class="mode-btn" id="btnFrase" onclick="setMode('frase')">Frase<br><small style="font-weight:400;opacity:.8">вставь в предложение</small></button>
+  </div>
+
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">1 / ?</div>
+
+  <div class="card" id="quizCard">
+    <span class="category-badge" id="catBadge"></span>
+    <div id="choiceArea">
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsDiv"></div>
+    </div>
+    <div id="writeArea" style="display:none">
+      <div class="ru-display" id="ruDisplay"></div>
+      <div class="ru-hint-line" id="ruHintLine"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos (ex.: coração, água, ação)</div>
+      <div class="write-prompt">Escreve em português:</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnW" onclick="checkWrite()">OK</button>
+      </div>
+    </div>
+    <div id="fraseArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="frase-hint" id="fraseHint"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="fraseInput" placeholder="palavra em português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnF" onclick="checkFrase()">OK</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <div class="score-circle"><div class="num" id="scoreNum">0</div><div class="denom" id="scoreDenom">/ 0</div></div>
+    <h2 id="resultTitle"></h2><p id="resultMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+<script>
+const allQ = [
+  // ===== ASPETO FÍSICO (30) =====
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"desalinhado", hint:"adj.", answers:["взлохмаченный", "неопрятный"], options:["взлохмаченный/неопрятный", "рассеянный", "строгий", "усталый"], answer:0, ptAnswers:["desalinhado", "desalinhada"], sentence:"Ele chegou ___ à reunião.", sentenceAnswers:["desalinhado"], explanation:"Desalinhado = взлохмаченный, неопрятный, растрёпанный. Ex.: Ele chegou desalinhado à reunião." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"careta", hint:"f.", answers:["гримаса", "рожица"], options:["гримаса", "улыбка", "взгляд", "жест"], answer:0, ptAnswers:["careta"], sentence:"A criança fez uma ___ quando provou o limão.", sentenceAnswers:["careta"], explanation:"Careta = гримаса. Fazer careta = корчить гримасы." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"ar", hint:"m.", answers:["вид", "выражение лица"], options:["вид/выражение лица", "воздух", "дыхание", "пространство"], answer:0, ptAnswers:["ar"], sentence:"Ela tinha um ___ pensativo.", sentenceAnswers:["ar"], explanation:"Ar = вид, выражение лица. Ter um ar = выглядеть. Ex.: Ela tinha um ar triste." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"alto/alta", hint:"adj.", answers:["высокий"], options:["высокий", "длинные волосы", "голубые глаза", "короткие волосы"], answer:0, ptAnswers:["alto", "alta", "alto/alta"], sentence:"O meu irmão é muito ___: tem um metro e noventa.", sentenceAnswers:["alto"], explanation:"alto / alta = высокий. Как в русском: про рост человека. Ex.: O meu irmão é muito alto: tem um metro e noventa." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"baixo/baixa", hint:"adj.", answers:["низкий (ростом)"], options:["низкий (ростом)", "зелёные глаза", "тёмно-коричневый", "косы"], answer:0, ptAnswers:["baixo", "baixa", "baixo/baixa"], sentence:"A minha avó é ___ e magra.", sentenceAnswers:["baixa"], explanation:"baixo / baixa = низкий (ростом). Ещё: falar baixo = говорить тихо. Ex.: A minha avó é baixa e magra." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"magro/magra", hint:"adj.", answers:["худой", "стройный"], options:["худой/стройный", "вид", "крепкий", "старший"], answer:0, ptAnswers:["magro", "magra", "magro/magra"], sentence:"Ele come muito, mas é ___.", sentenceAnswers:["magro"], explanation:"magro / magra = худой, стройный. Ex.: Ele come muito, mas é magro." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"forte", hint:"adj.", answers:["крепкий", "сильный"], options:["крепкий/сильный", "лысый", "голубые глаза", "худой"], answer:0, ptAnswers:["forte"], sentence:"O meu tio é alto e ___.", sentenceAnswers:["forte"], explanation:"forte = крепкий, сильный. Вежливо говорят и про полного человека: «é forte». Ex.: O meu tio é alto e forte." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"gordo/gorda", hint:"adj.", answers:["толстый", "полный"], options:["толстый/полный", "борода", "пожилой", "серый"], answer:0, ptAnswers:["gordo", "gorda", "gordo/gorda"], sentence:"O gato do vizinho está muito ___!", sentenceAnswers:["gordo"], explanation:"gordo / gorda = толстый, полный. Про людей звучит грубо, вежливее — forte. Ex.: O gato do vizinho está muito gordo!" },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"jovem", hint:"adj.", answers:["молодой"], options:["молодой", "взлохмаченный", "волнистые волосы", "короткие волосы"], answer:0, ptAnswers:["jovem"], sentence:"A professora é muito ___, tem 25 anos.", sentenceAnswers:["jovem"], explanation:"jovem = молодой. Os jovens = молодёжь. Ex.: A professora é muito jovem, tem 25 anos." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"idoso/idosa", hint:"adj.", answers:["пожилой"], options:["пожилой", "старший", "борода", "взлохмаченный"], answer:0, ptAnswers:["idoso", "idosa", "idoso/idosa"], sentence:"Ajudei um senhor ___ a atravessar a rua.", sentenceAnswers:["idoso"], explanation:"idoso / idosa = пожилой. Вежливее, чем velho. Ex.: Ajudei um senhor idoso a atravessar a rua." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"bonito/bonita", hint:"adj.", answers:["красивый", "симпатичный"], options:["красивый/симпатичный", "косы", "лысый", "молодой"], answer:0, ptAnswers:["bonito", "bonita", "bonito/bonita"], sentence:"A tua irmã é muito ___.", sentenceAnswers:["bonita"], explanation:"bonito / bonita = красивый, симпатичный. Ex.: A tua irmã é muito bonita." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cabelo comprido", hint:"m.", answers:["длинные волосы"], options:["длинные волосы", "младший", "крепкий", "веснушки"], answer:0, ptAnswers:["cabelo comprido", "o cabelo comprido", "comprido"], sentence:"Ela tem o cabelo ___ até à cintura.", sentenceAnswers:["comprido"], explanation:"o cabelo comprido = длинные волосы. Comprido = длинный (про длину). Longo — тоже, но в разговоре чаще comprido. Ex.: Ela tem o cabelo comprido até à cintura." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cabelo curto", hint:"m.", answers:["короткие волосы"], options:["короткие волосы", "вид", "усы", "борода"], answer:0, ptAnswers:["cabelo curto", "o cabelo curto", "curto"], sentence:"No verão gosto de ter o cabelo ___.", sentenceAnswers:["curto"], explanation:"o cabelo curto = короткие волосы. Ex.: No verão gosto de ter o cabelo curto." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cabelo liso", hint:"m.", answers:["прямые волосы"], options:["прямые волосы", "голубые глаза", "пожилой", "усы"], answer:0, ptAnswers:["cabelo liso", "o cabelo liso", "liso"], sentence:"Ela tem o cabelo ___ e loiro.", sentenceAnswers:["liso"], explanation:"o cabelo liso = прямые волосы. Ex.: Ela tem o cabelo liso e loiro." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cabelo ondulado", hint:"m.", answers:["волнистые волосы"], options:["волнистые волосы", "борода", "зелёные глаза", "пожилой"], answer:0, ptAnswers:["cabelo ondulado", "o cabelo ondulado", "ondulado"], sentence:"O João tem o cabelo ___.", sentenceAnswers:["ondulado"], explanation:"o cabelo ondulado = волнистые волосы. Ex.: O João tem o cabelo ondulado." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cabelo encaracolado", hint:"m.", answers:["кудрявые волосы"], options:["кудрявые волосы", "взлохмаченный", "крепкий", "гримаса"], answer:0, ptAnswers:["cabelo encaracolado", "o cabelo encaracolado", "encaracolado"], sentence:"A minha filha tem o cabelo ___, cheio de caracóis.", sentenceAnswers:["encaracolado"], explanation:"o cabelo encaracolado = кудрявые волосы. O caracol = локон (и улитка). Ex.: A minha filha tem o cabelo encaracolado, cheio de caracóis." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cabelo grisalho", hint:"m.", answers:["седые волосы"], options:["седые волосы", "серый", "карие глаза", "молодой"], answer:0, ptAnswers:["cabelo grisalho", "o cabelo grisalho", "grisalho"], sentence:"O meu pai já tem o cabelo ___.", sentenceAnswers:["grisalho"], explanation:"o cabelo grisalho = седые волосы. Ex.: O meu pai já tem o cabelo grisalho." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"careca", hint:"adj.", answers:["лысый"], options:["лысый", "волнистые волосы", "гримаса", "борода"], answer:0, ptAnswers:["careca"], sentence:"O meu avô é ___, não tem cabelo nenhum.", sentenceAnswers:["careca"], explanation:"careca = лысый. Ex.: O meu avô é careca, não tem cabelo nenhum." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"olhos azuis", hint:"m.pl.", answers:["голубые глаза"], options:["голубые глаза", "толстый", "усы", "зелёные глаза"], answer:0, ptAnswers:["olhos azuis", "os olhos azuis", "azuis"], sentence:"O bebé tem os olhos ___ como a mãe.", sentenceAnswers:["azuis"], explanation:"os olhos azuis = голубые глаза. Ex.: O bebé tem os olhos azuis como a mãe." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"olhos verdes", hint:"m.pl.", answers:["зелёные глаза"], options:["зелёные глаза", "борода", "голубые глаза", "короткие волосы"], answer:0, ptAnswers:["olhos verdes", "os olhos verdes", "verdes"], sentence:"Ela tem os olhos ___.", sentenceAnswers:["verdes"], explanation:"os olhos verdes = зелёные глаза. Ex.: Ela tem os olhos verdes." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"olhos castanhos", hint:"m.pl.", answers:["карие глаза"], options:["карие глаза", "худой", "серый", "зелёные глаза"], answer:0, ptAnswers:["olhos castanhos", "os olhos castanhos", "castanhos"], sentence:"A maioria dos portugueses tem os olhos ___.", sentenceAnswers:["castanhos"], explanation:"os olhos castanhos = карие глаза. Castanho = каштановый, коричневый (и карий). Ex.: A maioria dos portugueses tem os olhos castanhos." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"castanho-escuro", hint:"adj.", answers:["тёмно-коричневый", "тёмно-карий"], options:["тёмно-коричневый/тёмно-карий", "взлохмаченный", "пожилой", "толстый"], answer:0, ptAnswers:["castanho-escuro", "escuros"], sentence:"Ela tem os olhos castanho-___.", sentenceAnswers:["escuros"], explanation:"castanho-escuro = тёмно-коричневый, тёмно-карий. Составной цвет: согласуется только последнее слово — olhos castanho-escuros. Ex.: Ela tem os olhos castanho-escuros." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"cinzento/cinzenta", hint:"adj.", answers:["серый"], options:["серый", "длинные волосы", "носить очки", "прямые волосы"], answer:0, ptAnswers:["cinzento", "cinzenta", "cinzento/cinzenta"], sentence:"Hoje o céu está ___.", sentenceAnswers:["cinzento"], explanation:"cinzento / cinzenta = серый. В Бразилии — cinza. Ex.: Hoje o céu está cinzento." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"barba", hint:"f.", answers:["борода"], options:["борода", "носить очки", "высокий", "длинные волосы"], answer:0, ptAnswers:["barba", "a barba"], sentence:"O meu marido deixou crescer a ___.", sentenceAnswers:["barba"], explanation:"a barba = борода. Fazer a barba = бриться. Ex.: O meu marido deixou crescer a barba." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"bigode", hint:"m.", answers:["усы"], options:["усы", "красивый", "седые волосы", "борода"], answer:0, ptAnswers:["bigode", "o bigode"], sentence:"O senhor do café tem um ___ grande.", sentenceAnswers:["bigode"], explanation:"o bigode = усы. Ex.: O senhor do café tem um bigode grande." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"usar óculos", hint:"выражение", answers:["носить очки"], options:["носить очки", "серый", "младший", "старший"], answer:0, ptAnswers:["usar óculos", "uso"], sentence:"Eu ___ óculos para ler.", sentenceAnswers:["uso"], explanation:"usar óculos = носить очки. Usar = носить (очки, одежду), а не только «использовать». Ex.: Eu uso óculos para ler." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"sardas", hint:"f.pl.", answers:["веснушки"], options:["веснушки", "гримаса", "старший", "усы"], answer:0, ptAnswers:["sardas", "as sardas"], sentence:"No verão aparecem-me ___ na cara.", sentenceAnswers:["sardas"], explanation:"as sardas = веснушки. Ter sardas = быть в веснушках. Ex.: No verão aparecem-me sardas na cara." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"tranças", hint:"f.pl.", answers:["косы"], options:["косы", "серый", "лысый", "гримаса"], answer:0, ptAnswers:["tranças", "as tranças"], sentence:"A menina tem duas ___ compridas.", sentenceAnswers:["tranças"], explanation:"as tranças = косы. Ex.: A menina tem duas tranças compridas." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"mais velho/mais velha", hint:"выражение", answers:["старший"], options:["старший", "крепкий", "косы", "борода"], answer:0, ptAnswers:["mais velho/mais velha", "velha"], sentence:"A minha irmã mais ___ tem 40 anos.", sentenceAnswers:["velha"], explanation:"mais velho / mais velha = старший. Согласуется: o irmão mais velho, as irmãs mais velhas. Ex.: A minha irmã mais velha tem 40 anos." },
+  { cat:"Aspeto físico", badge:"badge-aspeto", q:"mais novo/mais nova", hint:"выражение", answers:["младший"], options:["младший", "седые волосы", "серый", "вид"], answer:0, ptAnswers:["mais novo/mais nova", "novo"], sentence:"O meu irmão mais ___ ainda estuda.", sentenceAnswers:["novo"], explanation:"mais novo / mais nova = младший. Согласуется: a irmã mais nova, os irmãos mais novos. Ex.: O meu irmão mais novo ainda estuda." },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// Strict matching: case-insensitive, accents required
+function matchPT(input, accepted) {
+  const raw = input.toLowerCase().trim();
+  return accepted.some(a => a.toLowerCase() === raw);
+}
+
+let mode = 'choice';
+let activeFilter = 'Todos';
+let questions = [];
+let current = 0;
+let score = 0;
+let mistakes = [];
+let answered = false;
+let shuffledOpts = [];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'Todos' ? allQ : allQ.filter(q => q.cat === activeFilter);
+  questions = shuffle(pool);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('resultsCard').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + questions.length;
+
+  const badge = document.getElementById('catBadge');
+  badge.textContent = q.cat;
+  badge.className = 'category-badge ' + q.badge;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  ['choiceArea','writeArea','fraseArea'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('questionText').textContent = '\u00ab' + q.q + '\u00bb \u2014 \u0447\u0442\u043e \u044d\u0442\u043e?';
+    const indexed = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+    shuffledOpts = shuffle(indexed);
+    const div = document.getElementById('optionsDiv');
+    div.innerHTML = '';
+    shuffledOpts.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = item.opt;
+      btn.onclick = () => checkChoice(i, btn);
+      div.appendChild(btn);
+    });
+
+  } else if (mode === 'write') {
+    document.getElementById('writeArea').style.display = 'block';
+    document.getElementById('ruDisplay').textContent = q.answers[0];
+    document.getElementById('ruHintLine').textContent = q.hint + (q.answers.length > 1 ? '  \u00b7  ' + q.answers.slice(1).join(' / ') : '');
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnW').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+
+  } else {
+    document.getElementById('fraseArea').style.display = 'block';
+    const parts = q.sentence.split('___');
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blank = document.createElement('span');
+    blank.className = 'sentence-blank'; blank.textContent = '___'; blank.id = 'blankSpan';
+    sd.appendChild(blank);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('fraseHint').innerHTML = '\u041f\u0435\u0440\u0435\u0432\u043e\u0434: <span>' + q.answers[0] + '</span>  \u00b7  ' + q.hint;
+    const inp = document.getElementById('fraseInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnF').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function checkChoice(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (shuffledOpts[i].correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('feedback');
+  if (shuffledOpts[idx].correct) {
+    score++; btn.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. ' + q.explanation;
+    mistakes.push({ q: q.q, explanation: q.explanation });
+  }
+  showNext();
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnW').disabled = true;
+  const correct = matchPT(raw, q.ptAnswers);
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.ptAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.answers[0] + ' (' + q.hint + ')', explanation: 'Correto: ' + q.ptAnswers[0] });
+  }
+  showNext();
+}
+
+function checkFrase() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('fraseInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnF').disabled = true;
+  const correct = matchPT(raw, q.sentenceAnswers);
+  const blank = document.getElementById('blankSpan');
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++;
+    blank.textContent = raw; blank.style.color = '#276749'; blank.style.borderColor = '#68d391';
+    inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    blank.textContent = q.sentenceAnswers[0]; blank.style.color = '#c53030'; blank.style.borderColor = '#fc8181';
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.sentenceAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.sentence.replace('___', '___'), explanation: 'Correto: ' + q.sentenceAnswers[0] });
+  }
+  showNext();
+}
+
+function showNext() {
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current < questions.length - 1 ? 'Pr\u00f3xima \u2192' : 'Ver resultados \u2192';
+  btn.classList.add('show');
+}
+
+function nextQuestion() { current++; showQuestion(); }
+
+function showResults() {
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('resultsCard').classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  const msgs = [['Continua!','Revê as palavras e tenta outra vez.'],['Bom esforço!','Continua a praticar estas palavras.'],['Muito bem!','Só mais um pouco de prática.'],['Excelente!','Vocabulário dominado!']];
+  const m = msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultTitle').textContent = m[0];
+  document.getElementById('resultMsg').textContent = pct + '% correto. ' + m[1];
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Rever (' + mistakes.length + '):</h3>';
+    mistakes.forEach(m => { ml.innerHTML += '<div class="mistake-item"><div class="mq">' + m.q + '</div><div class="ma">' + m.explanation + '</div></div>'; });
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!answered) {
+      if (mode === 'write') checkWrite();
+      else if (mode === 'frase') checkFrase();
+    } else if (document.getElementById('nextBtn').classList.contains('show')) {
+      nextQuestion();
+    }
+  }
+});
+
+restart();
+</script>
+</body>
+</html>

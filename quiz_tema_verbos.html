@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Verbos</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #4c51bf; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #4c51bf; }
+
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 16px; }
+  .mode-btn { flex: 1; padding: 9px 6px; border: none; background: transparent; border-radius: 9px; font-size: 0.82rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; line-height: 1.3; }
+  .mode-btn.active { background: #4c51bf; color: white; }
+
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="Todos"].active-f      { background: #edf2f7; }
+  .filter-btn[data-cat="Natureza"]            { color: #276749; }
+  .filter-btn[data-cat="Natureza"].active-f   { background: #f0fff4; }
+  .filter-btn[data-cat="Ações"]               { color: #2c7a7b; }
+  .filter-btn[data-cat="Ações"].active-f      { background: #e6fffa; }
+  .filter-btn[data-cat="Adjetivos"]           { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos"].active-f  { background: #faf5ff; }
+  .filter-btn[data-cat="Comida"]              { color: #c05621; }
+  .filter-btn[data-cat="Comida"].active-f     { background: #fffaf0; }
+  .filter-btn[data-cat="Corpo"]               { color: #b83280; }
+  .filter-btn[data-cat="Corpo"].active-f      { background: #fff0f3; }
+  .filter-btn[data-cat="Emoções"]             { color: #b7791f; }
+  .filter-btn[data-cat="Emoções"].active-f    { background: #fefcbf; }
+  .filter-btn[data-cat="Caráter"]             { color: #c53030; }
+  .filter-btn[data-cat="Caráter"].active-f    { background: #fff5f0; }
+  .filter-btn[data-cat="Conceitos"]           { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f  { background: #eef2ff; }
+  .filter-btn[data-cat="Expressões"]          { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .filter-btn[data-cat="Objetos"]             { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos"].active-f    { background: #f5f0ff; }
+
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #4c51bf, #7f9cf5); transition: width 0.4s; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  .card { background: white; border-radius: 16px; padding: 28px 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.73rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-nat      { background: #f0fff4; color: #276749; }
+  .badge-acoes    { background: #e6fffa; color: #2c7a7b; }
+  .badge-adj      { background: #faf5ff; color: #6b46c1; }
+  .badge-com      { background: #fffaf0; color: #c05621; }
+  .badge-corp     { background: #fff0f3; color: #b83280; }
+  .badge-emocoes  { background: #fefcbf; color: #b7791f; }
+  .badge-carater  { background: #fff5f0; color: #c53030; }
+  .badge-conceitos{ background: #eef2ff; color: #4c51bf; }
+  .badge-expressoes{ background: #ebf8ff; color: #2b6cb0; }
+  .badge-objetos  { background: #f5f0ff; color: #7e3af2; }
+
+  .question { font-size: 1.1rem; font-weight: 600; line-height: 1.6; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #eef2ff; border-color: #c3dafe; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong   { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  .ru-display { font-size: 1.6rem; font-weight: 700; color: #2d3748; margin-bottom: 4px; }
+  .ru-hint-line { font-size: 0.83rem; color: #a0aec0; margin-bottom: 22px; }
+  .write-prompt { font-size: 0.88rem; color: #718096; margin-bottom: 10px; }
+  .accent-note { font-size: 0.78rem; color: #b7791f; background: #fefcbf; padding: 5px 10px; border-radius: 6px; margin-bottom: 14px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #7f9cf5; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #434190; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+
+  .sentence-display { font-size: 1.05rem; font-weight: 500; line-height: 1.9; margin-bottom: 6px; color: #2d3748; }
+  .sentence-blank { display: inline-block; min-width: 100px; border-bottom: 3px solid #4c51bf; color: #4c51bf; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .frase-hint { font-size: 0.83rem; color: #a0aec0; margin-bottom: 18px; }
+  .frase-hint span { color: #718096; font-style: italic; }
+
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #434190; }
+  .next-btn.show { display: block; }
+
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #4c51bf, #7f9cf5); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #4c51bf; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 10px; padding: 12px 16px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item .mq { font-weight: 600; color: #2d3748; margin-bottom: 3px; }
+  .mistake-item .ma { color: #276749; }
+  footer { text-align: center; padding: 32px 0 20px; font-size: 0.8rem; color: #cbd5e0; }
+  /* темы (сборка 28.10.2026) */
+  .badge-familia { background: #fffaf0; color: #c05621; }
+  .filter-btn[data-cat="Família"] { color: #c05621; }
+  .filter-btn[data-cat="Família"].active-f { background: #fffaf0; }
+  .badge-aspeto { background: #fff0f3; color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"] { color: #b83280; }
+  .filter-btn[data-cat="Aspeto físico"].active-f { background: #fff0f3; }
+  .badge-personalidade { background: #fefcbf; color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"] { color: #b7791f; }
+  .filter-btn[data-cat="Personalidade e emoções"].active-f { background: #fefcbf; }
+  .badge-corpo { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"] { color: #c53030; }
+  .filter-btn[data-cat="Corpo e saúde"].active-f { background: #fff5f5; }
+  .badge-casa { background: #e6fffa; color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"] { color: #2c7a7b; }
+  .filter-btn[data-cat="Casa e morada"].active-f { background: #e6fffa; }
+  .badge-cidade { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Cidade e transportes"].active-f { background: #ebf8ff; }
+  .badge-comida { background: #fffaf0; color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"] { color: #dd6b20; }
+  .filter-btn[data-cat="Comida e restaurante"].active-f { background: #fffaf0; }
+  .badge-natureza { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"] { color: #276749; }
+  .filter-btn[data-cat="Natureza e animais"].active-f { background: #f0fff4; }
+  .badge-tempo { background: #ebf8ff; color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"] { color: #3182ce; }
+  .filter-btn[data-cat="Tempo e clima"].active-f { background: #ebf8ff; }
+  .badge-profissoes { background: #edf2f7; color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"] { color: #4a5568; }
+  .filter-btn[data-cat="Profissões e trabalho"].active-f { background: #edf2f7; }
+  .badge-objetos { background: #f5f0ff; color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"] { color: #7e3af2; }
+  .filter-btn[data-cat="Objetos e roupa"].active-f { background: #f5f0ff; }
+  .badge-verbos { background: #e6fffa; color: #285e61; }
+  .filter-btn[data-cat="Verbos"] { color: #285e61; }
+  .filter-btn[data-cat="Verbos"].active-f { background: #e6fffa; }
+  .badge-expressoes { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"] { color: #2b6cb0; }
+  .filter-btn[data-cat="Expressões"].active-f { background: #ebf8ff; }
+  .badge-adjetivos { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"] { color: #6b46c1; }
+  .filter-btn[data-cat="Adjetivos e advérbios"].active-f { background: #faf5ff; }
+  .badge-conceitos { background: #eef2ff; color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"] { color: #4c51bf; }
+  .filter-btn[data-cat="Conceitos"].active-f { background: #eef2ff; }
+</style>
+</head>
+<body>
+<div class="container">
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>🏃 Verbos</h1>
+    <p>116 palavras · Escolher · Escrever · Frase</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher<br><small style="font-weight:400;opacity:.8">варианты RU</small></button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever<br><small style="font-weight:400;opacity:.8">RU → пиши PT</small></button>
+    <button class="mode-btn" id="btnFrase" onclick="setMode('frase')">Frase<br><small style="font-weight:400;opacity:.8">вставь в предложение</small></button>
+  </div>
+
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel">1 / ?</div>
+
+  <div class="card" id="quizCard">
+    <span class="category-badge" id="catBadge"></span>
+    <div id="choiceArea">
+      <div class="question" id="questionText"></div>
+      <div class="options" id="optionsDiv"></div>
+    </div>
+    <div id="writeArea" style="display:none">
+      <div class="ru-display" id="ruDisplay"></div>
+      <div class="ru-hint-line" id="ruHintLine"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos (ex.: coração, água, ação)</div>
+      <div class="write-prompt">Escreve em português:</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnW" onclick="checkWrite()">OK</button>
+      </div>
+    </div>
+    <div id="fraseArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="frase-hint" id="fraseHint"></div>
+      <div class="accent-note">Atenção: escreve com acentos correctos</div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="fraseInput" placeholder="palavra em português..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtnF" onclick="checkFrase()">OK</button>
+      </div>
+    </div>
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima →</button>
+  </div>
+
+  <div class="card results" id="resultsCard">
+    <div class="score-circle"><div class="num" id="scoreNum">0</div><div class="denom" id="scoreDenom">/ 0</div></div>
+    <h2 id="resultTitle"></h2><p id="resultMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Recomeçar</button>
+      <a class="home-btn" href="index.html">Menu</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+</div>
+<footer>Português Europeu (PE) · Nível A2–B1</footer>
+
+<script>
+const allQ = [
+  // ===== VERBOS (116) =====
+  { cat:"Verbos", badge:"badge-verbos", q:"subir", hint:"v.", answers:["подниматься"], options:["подниматься", "спускаться", "гулять", "бегать"], answer:0, ptAnswers:["subir"], sentence:"Temos de ___ até ao cume da montanha.", sentenceAnswers:["subir"], explanation:"Subir = подниматься. Ex.: Subimos a serra a pé. / O preço subiu = цена поднялась." },
+  { cat:"Verbos", badge:"badge-verbos", q:"seguir", hint:"v.", answers:["следовать", "продолжать"], options:["следовать/продолжать", "остановиться", "вернуться", "подниматься"], answer:0, ptAnswers:["seguir"], sentence:"Vamos ___ em frente até ao semáforo.", sentenceAnswers:["seguir"], explanation:"Seguir = следовать, продолжать. Ex.: Segue em frente = иди прямо." },
+  { cat:"Verbos", badge:"badge-verbos", q:"sonhar", hint:"v.", answers:["мечтать", "видеть сны"], options:["мечтать/видеть сны", "думать", "смотреть", "слушать"], answer:0, ptAnswers:["sonhar"], sentence:"Ela adora ___ com viagens a países distantes.", sentenceAnswers:["sonhar"], explanation:"Sonhar = мечтать или видеть сны. Ex.: Sonhei contigo = я видел(а) тебя во сне." },
+  { cat:"Verbos", badge:"badge-verbos", q:"adormecer", hint:"v.", answers:["засыпать", "заснуть"], options:["засыпать", "просыпаться", "спать", "мечтать"], answer:0, ptAnswers:["adormecer"], sentence:"O bebé começou a ___ no colo da mãe.", sentenceAnswers:["adormecer"], explanation:"Adormecer = засыпать. Ex.: Ele adormeceu no sofá = он заснул на диване." },
+  { cat:"Verbos", badge:"badge-verbos", q:"regressar", hint:"v.", answers:["возвращаться", "вернуться"], options:["вернулся/ась", "ушёл", "уехал", "прибыл"], answer:0, ptAnswers:["regressar", "regressou"], sentence:"Ela ___ de Lisboa ontem à tarde.", sentenceAnswers:["regressou"], explanation:"Regressar = возвращаться. Regressou = он/она вернулся/ась (PPS)." },
+  { cat:"Verbos", badge:"badge-verbos", q:"atravessar", hint:"v.", answers:["пересекать", "перейти"], options:["пересекать", "объезжать", "подниматься", "следовать"], answer:0, ptAnswers:["atravessar"], sentence:"Cuidado ao ___ a estrada com trânsito!", sentenceAnswers:["atravessar"], explanation:"Atravessar = пересекать. Ex.: Atravessar a rua = перейти улицу." },
+  { cat:"Verbos", badge:"badge-verbos", q:"agitar", hint:"v.", answers:["трясти", "взбалтывать"], options:["трясти/взбалтывать", "бросать", "толкать", "класть"], answer:0, ptAnswers:["agitar"], sentence:"É preciso ___ bem a garrafa antes de usar.", sentenceAnswers:["agitar"], explanation:"Agitar = трясти, взбалтывать. Ex.: Agitar antes de usar = взбалтывать перед употреблением." },
+  { cat:"Verbos", badge:"badge-verbos", q:"empurrar", hint:"v.", answers:["толкать", "пихать"], options:["толкать", "тянуть", "бросать", "поднимать"], answer:0, ptAnswers:["empurrar"], sentence:"Para abrir esta porta, deves ___ com força.", sentenceAnswers:["empurrar"], explanation:"Empurrar = толкать. Oposto: puxar = тянуть." },
+  { cat:"Verbos", badge:"badge-verbos", q:"colocar", hint:"v.", answers:["класть", "ставить"], options:["класть/ставить", "брать", "убирать", "бросать"], answer:0, ptAnswers:["colocar"], sentence:"Podes ___ o livro na prateleira, por favor?", sentenceAnswers:["colocar"], explanation:"Colocar = класть, ставить. Синоним: pôr." },
+  { cat:"Verbos", badge:"badge-verbos", q:"acontecer", hint:"v.", answers:["случаться", "происходить"], options:["случилось", "началось", "закончилось", "изменилось"], answer:0, ptAnswers:["acontecer", "aconteceu"], sentence:"O que ___? — Caí e magoei o joelho.", sentenceAnswers:["aconteceu"], explanation:"Acontecer = случаться. Aconteceu = случилось (PPS). Ex.: O que aconteceu? = Что случилось?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"obedecer", hint:"v.", answers:["слушаться", "подчиняться"], options:["слушаться", "учить", "помогать", "уходить"], answer:0, ptAnswers:["obedecer"], sentence:"É importante ___ às regras de trânsito.", sentenceAnswers:["obedecer"], explanation:"Obedecer = слушаться. Ex.: As crianças devem obedecer aos pais." },
+  { cat:"Verbos", badge:"badge-verbos", q:"agradecer", hint:"v.", answers:["благодарить"], options:["благодарить", "извиняться", "просить", "отвечать"], answer:0, ptAnswers:["agradecer"], sentence:"Quero ___ a tua ajuda durante o exame.", sentenceAnswers:["agradecer"], explanation:"Agradecer = благодарить. Ex.: Agradeço a tua ajuda = благодарю за помощь." },
+  { cat:"Verbos", badge:"badge-verbos", q:"detestar", hint:"v.", answers:["ненавидеть", "терпеть не мочь"], options:["ненавидеть", "любить", "терпеть", "игнорировать"], answer:0, ptAnswers:["detestar"], sentence:"Ela diz que ___ acordar cedo e prefere a noite.", sentenceAnswers:["detestar"], explanation:"Detestar = ненавидеть. Mais forte que «não gostar». Ex.: Detesto acordar cedo." },
+  { cat:"Verbos", badge:"badge-verbos", q:"pôr (pusemos)", hint:"v.", answers:["класть (мы положили)", "pôr = класть/ставить"], options:["мы положили/поставили", "мы взяли", "мы убрали", "мы нашли"], answer:0, ptAnswers:["pusemos", "pôr", "por"], sentence:"Nós ___ a mesa para o jantar.", sentenceAnswers:["pusemos"], explanation:"Pôr = класть, ставить. Nós pusemos = мы положили (PPS). Ex.: Pusemos a mesa = накрыли стол." },
+  { cat:"Verbos", badge:"badge-verbos", q:"magoar", hint:"v.", answers:["обидеть", "причинить боль"], options:["мы обидели", "мы помогли", "мы услышали", "мы забыли"], answer:0, ptAnswers:["magoar", "magoamos"], sentence:"Sem querer, nós ___ os sentimentos dela.", sentenceAnswers:["magoamos"], explanation:"Magoar = обидеть, причинить боль. Magoei-me = я ушиб(ла)ся." },
+  { cat:"Verbos", badge:"badge-verbos", q:"emprestar", hint:"v.", answers:["одалживать", "давать взаймы"], options:["одалживает", "берёт взаймы", "покупает", "дарит"], answer:0, ptAnswers:["emprestar", "empresta"], sentence:"Ela sempre ___ os seus livros aos amigos.", sentenceAnswers:["empresta"], explanation:"Emprestar = одалживать. Ex.: Podes emprestar-me o livro?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"despedir-se", hint:"v.", answers:["прощаться", "попрощаться"], options:["прощаться", "встречаться", "уходить", "приходить"], answer:0, ptAnswers:["despedir-se", "despedir-nos", "despedirmo-nos"], sentence:"Fomos ___ dele antes da viagem.", sentenceAnswers:["despedir-nos", "despedirmo-nos"], explanation:"Despedir-se = прощаться. Ex.: Fomos despedir-nos dele = мы пошли с ним проститься." },
+  { cat:"Verbos", badge:"badge-verbos", q:"esquiar", hint:"v.", answers:["кататься на лыжах"], options:["катался на лыжах", "катался на велосипеде", "плавал", "бегал"], answer:0, ptAnswers:["esquiar", "esquiei"], sentence:"No inverno passado ___ pela primeira vez na vida.", sentenceAnswers:["esquiei"], explanation:"Esquiar = кататься на лыжах. Eu esquiei = я катался/ась (PPS)." },
+  { cat:"Verbos", badge:"badge-verbos", q:"andar de patins", hint:"выражение", answers:["кататься на коньках", "кататься на роликах"], options:["кататься на коньках/роликах", "кататься на лыжах", "ехать на велосипеде", "прыгать"], answer:0, ptAnswers:["andar de patins"], sentence:"Ao fim de semana gosto de ___ no parque.", sentenceAnswers:["andar de patins"], explanation:"Andar de patins = кататься на коньках или роликах. Patins de gelo = коньки." },
+  { cat:"Verbos", badge:"badge-verbos", q:"conviver", hint:"v.", answers:["общаться", "жить вместе"], options:["общаться/жить вместе", "trabalhar", "учиться", "путешествовать"], answer:0, ptAnswers:["conviver"], sentence:"É muito importante ___ com a família e os amigos.", sentenceAnswers:["conviver"], explanation:"Conviver = общаться, жить вместе. Ex.: É importante conviver com a família." },
+  { cat:"Verbos", badge:"badge-verbos", q:"fugir", hint:"v.", answers:["сбежать", "убежать"], options:["сбежать", "узнать", "управлять", "реагировать"], answer:0, ptAnswers:["fugir"], sentence:"O ladrão tentou ___ da polícia.", sentenceAnswers:["fugir"], explanation:"Fugir = сбежать, убежать. Ex.: O ladrão tentou fugir da polícia." },
+  { cat:"Verbos", badge:"badge-verbos", q:"descobrir", hint:"v.", answers:["узнать", "открыть", "обнаружить"], options:["узнать/открыть", "зажечь", "заменить", "бросить"], answer:0, ptAnswers:["descobrir"], sentence:"Ela ___ a verdade por acidente.", sentenceAnswers:["descobriu"], explanation:"Descobrir = узнать, открыть, обнаружить. Ex.: Ela descobriu a verdade por acidente." },
+  { cat:"Verbos", badge:"badge-verbos", q:"acender", hint:"v.", answers:["зажечь", "включить (свет)"], options:["зажечь/включить", "убежать", "заменить", "светить"], answer:0, ptAnswers:["acender"], sentence:"Podes ___ a luz, por favor?", sentenceAnswers:["acender"], explanation:"Acender = зажечь, включить (свет). Apagar = выключить." },
+  { cat:"Verbos", badge:"badge-verbos", q:"reagir", hint:"v.", answers:["реагировать"], options:["реагировать", "управлять", "бросать", "отправлять"], answer:0, ptAnswers:["reagir"], sentence:"Como é que ela vai ___ à notícia?", sentenceAnswers:["reagir"], explanation:"Reagir = реагировать. Ex.: Como é que ela vai reagir à notícia?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"substituir", hint:"v.", answers:["заменить"], options:["заменить", "объединить", "передать", "назначить"], answer:0, ptAnswers:["substituir"], sentence:"Temos de ___ o professor que ficou doente.", sentenceAnswers:["substituir"], explanation:"Substituir = заменить. Ex.: Temos de substituir o professor que ficou doente." },
+  { cat:"Verbos", badge:"badge-verbos", q:"atirar", hint:"v.", answers:["бросать", "стрелять"], options:["бросать/стрелять", "зажигать", "управлять", "узнавать"], answer:0, ptAnswers:["atirar"], sentence:"Ela ___ a bola para ele.", sentenceAnswers:["atirou", "atirar"], explanation:"Atirar = бросать или стрелять. Ex.: Ela atirou a bola para ele." },
+  { cat:"Verbos", badge:"badge-verbos", q:"enfrentar", hint:"v.", answers:["противостоять", "встретить лицом к лицу"], options:["противостоять", "убежать", "заменить", "потерять"], answer:0, ptAnswers:["enfrentar"], sentence:"Temos de ___ os nossos medos.", sentenceAnswers:["enfrentar"], explanation:"Enfrentar = противостоять, встретить лицом к лицу. Enfrentar um problema = справиться с проблемой." },
+  { cat:"Verbos", badge:"badge-verbos", q:"enviar", hint:"v.", answers:["отправить"], options:["отправить", "наблюдать", "собрать", "искать"], answer:0, ptAnswers:["enviar"], sentence:"Podes ___ o documento por email?", sentenceAnswers:["enviar"], explanation:"Enviar = отправить. Ex.: Podes enviar o documento por email?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"surgir", hint:"v.", answers:["возникнуть", "появиться"], options:["возникнуть/появиться", "исчезнуть", "остаться", "бежать"], answer:0, ptAnswers:["surgir"], sentence:"___ um problema inesperado no sistema.", sentenceAnswers:["surgiu"], explanation:"Surgir = возникнуть, появиться. Ex.: Surgiu um problema inesperado." },
+  { cat:"Verbos", badge:"badge-verbos", q:"lidar com", hint:"выражение", answers:["справляться с"], options:["справляться с", "убегать от", "бросить", "объединить"], answer:0, ptAnswers:["lidar"], sentence:"É difícil ___ com o stress do trabalho.", sentenceAnswers:["lidar"], explanation:"Lidar com = справляться с чем-то. Ex.: Não sei lidar com esta situação." },
+  { cat:"Verbos", badge:"badge-verbos", q:"procurar", hint:"v.", answers:["искать"], options:["искать", "помнить", "учить", "наблюдать"], answer:0, ptAnswers:["procurar"], sentence:"Estou a ___ as minhas chaves.", sentenceAnswers:["procurar"], explanation:"Procurar = искать. Ex.: Estou a procurar as minhas chaves." },
+  { cat:"Verbos", badge:"badge-verbos", q:"brilhar", hint:"v.", answers:["сиять", "блестеть"], options:["сиять/блестеть", "гореть", "светить", "темнеть"], answer:0, ptAnswers:["brilhar"], sentence:"Os olhos dela ___ de alegria.", sentenceAnswers:["brilhavam", "brilhar"], explanation:"Brilhar = сиять, блестеть. Ex.: Os olhos dela brilhavam de alegria." },
+  { cat:"Verbos", badge:"badge-verbos", q:"transmitir", hint:"v.", answers:["передать", "транслировать"], options:["передать", "получить", "отправить", "наблюдать"], answer:0, ptAnswers:["transmitir"], sentence:"Ele conseguiu ___ a sua emoção ao público.", sentenceAnswers:["transmitir"], explanation:"Transmitir = передать. Ex.: Ele conseguiu transmitir a sua emoção ao público." },
+  { cat:"Verbos", badge:"badge-verbos", q:"lembrar", hint:"v.", answers:["помнить", "вспоминать"], options:["помнить", "забыть", "искать", "знать"], answer:0, ptAnswers:["lembrar", "lembrar-se"], sentence:"Não me ___ do nome dele.", sentenceAnswers:["lembro"], explanation:"Lembrar = помнить. Não me lembro = не помню. Lembrar-se de = вспомнить о чём-то." },
+  { cat:"Verbos", badge:"badge-verbos", q:"combinar", hint:"v.", answers:["договориться", "объединить"], options:["объединить/договориться", "отменить", "разделить", "сравнить"], answer:0, ptAnswers:["combinar"], sentence:"Vamos ___ um encontro para a próxima semana.", sentenceAnswers:["combinar"], explanation:"Combinar = объединить, сочетать, договориться. Ex.: Vamos combinar um encontro." },
+  { cat:"Verbos", badge:"badge-verbos", q:"tornar-se", hint:"v.", answers:["стать", "сделаться"], options:["стать/сделать", "вернуть", "повернуть", "дать"], answer:0, ptAnswers:["tornar-se", "tornar"], sentence:"Ela ___ famosa com o primeiro livro.", sentenceAnswers:["tornou-se"], explanation:"Tornar(-se) = стать. Ex.: Ela tornou-se famosa. Tornar possível = сделать возможным." },
+  { cat:"Verbos", badge:"badge-verbos", q:"rever", hint:"v.", answers:["снова увидеть", "встретиться снова"], options:["снова увидеть", "пересмотреть мнение", "вернуться", "забыть"], answer:0, ptAnswers:["rever"], sentence:"Foi tão bom ___ os amigos da infância.", sentenceAnswers:["rever"], explanation:"REVER = снова увидеть (после долгой разлуки). RE + VER. Que bom revê-la! = Как хорошо снова её увидеть!" },
+  { cat:"Verbos", badge:"badge-verbos", q:"tentar", hint:"v.", answers:["стараться", "пытаться"], options:["стараться/пытаться", "успевать", "мочь", "хотеть"], answer:0, ptAnswers:["tentar"], sentence:"Vou ___ resolver o problema.", sentenceAnswers:["tentar"], explanation:"TENTAR = стараться, пытаться. Tentei mas não consegui = Я пытался, но не смог. Não confundir com CONSEGUIR (удаётся)." },
+  { cat:"Verbos", badge:"badge-verbos", q:"experimentar", hint:"v.", answers:["попробовать", "испытать"], options:["попробовать/испытать", "приготовить", "купить", "предложить"], answer:0, ptAnswers:["experimentar"], sentence:"Queres ___ este bolo?", sentenceAnswers:["experimentar"], explanation:"EXPERIMENTAR = попробовать (еду, одежду, опыт). Vou experimentar a nova receita = Попробую новый рецепт. Mais amplo que PROVAR." },
+  { cat:"Verbos", badge:"badge-verbos", q:"provar", hint:"v.", answers:["пробовать еду", "доказывать"], options:["пробовать еду", "готовить", "покупать", "нравиться"], answer:0, ptAnswers:["provar"], sentence:"___ este queijo — é delicioso!", sentenceAnswers:["prova"], explanation:"PROVAR = пробовать на вкус. Pode ser imperativo: Prova! = Попробуй! Também: provar (доказывать): provar que é inocente." },
+  { cat:"Verbos", badge:"badge-verbos", q:"saborear", hint:"v.", answers:["смаковать", "наслаждаться вкусом"], options:["смаковать", "есть быстро", "готовить", "пробовать впервые"], answer:0, ptAnswers:["saborear"], sentence:"Ela ___ cada gole de café devagar.", sentenceAnswers:["saboreou"], explanation:"SABOREAR = смаковать, наслаждаться вкусом медленно. Saborear = sabor (вкус) + ear. Mais enfático que provar." },
+  { cat:"Verbos", badge:"badge-verbos", q:"esconder", hint:"v.", answers:["прятать", "скрывать"], options:["прятать/скрывать", "искать", "находить", "давать"], answer:0, ptAnswers:["esconder"], sentence:"A criança ___ o brinquedo debaixo da cama.", sentenceAnswers:["escondeu"], explanation:"ESCONDER = прятать. ESCONDER-SE = прятаться. Onde está o gato escondido? = Где спрятался кот?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"aproveitar", hint:"v.", answers:["воспользоваться", "насладиться"], options:["воспользоваться/насладиться", "потерять", "ждать", "пропустить"], answer:0, ptAnswers:["aproveitar"], sentence:"___ o bom tempo e vai à praia!", sentenceAnswers:["aproveita"], explanation:"APROVEITAR = воспользоваться, не упустить момент. Aproveitar a vida = наслаждаться жизнью. Aproveitar a oportunidade = воспользоваться возможностью." },
+  { cat:"Verbos", badge:"badge-verbos", q:"culpar", hint:"v.", answers:["винить", "обвинять"], options:["винить", "прощать", "помогать", "понимать"], answer:0, ptAnswers:["culpar"], sentence:"Não me ___ pelo que aconteceu!", sentenceAnswers:["culpes", "culpar"], explanation:"CULPAR = винить. A culpa = вина. Ter culpa = быть виноватым. Não é culpa minha = Это не моя вина." },
+  { cat:"Verbos", badge:"badge-verbos", q:"desculpar", hint:"v.", answers:["прощать", "извинять"], options:["прощать", "обвинять", "забывать", "понимать"], answer:0, ptAnswers:["desculpar"], sentence:"___-me pelo atraso!", sentenceAnswers:["desculpa"], explanation:"DESCULPAR = прощать, извинять. Desculpa! = Извини! (неформ.) Peço desculpa = Прошу прощения. DES+CULPAR = снять вину." },
+  { cat:"Verbos", badge:"badge-verbos", q:"fazer malha", hint:"выражение", answers:["вязать"], options:["вязать", "причёсываться", "обидеть", "присматривать за"], answer:0, ptAnswers:["fazer malha"], sentence:"A minha avó gosta de ___ ao fim da tarde.", sentenceAnswers:["fazer malha"], explanation:"fazer malha = вязать. PT-PT fazer malha; ещё tricotar. Ex.: A minha avó gosta de fazer malha ao fim da tarde." },
+  { cat:"Verbos", badge:"badge-verbos", q:"tomar conta de", hint:"выражение", answers:["присматривать за", "заботиться о"], options:["присматривать за/заботиться о", "отказываться", "класть (мы положили)", "исправлять"], answer:0, ptAnswers:["tomar conta de", "toma conta"], sentence:"A avó ___ dos netos durante as férias.", sentenceAnswers:["toma conta"], explanation:"tomar conta de = присматривать за, заботиться о. Tomar conta das crianças = присматривать за детьми. Ex.: A avó toma conta dos netos durante as férias." },
+  { cat:"Verbos", badge:"badge-verbos", q:"contar", hint:"v.", answers:["рассказывать", "считать"], options:["рассказывать/считать", "менять", "уносить", "следовать"], answer:0, ptAnswers:["contar", "conta"], sentence:"Conta-me o que aconteceu ontem! / Ele ___ uma história aos filhos.", sentenceAnswers:["conta"], explanation:"contar = рассказывать, считать. Contar uma história = рассказать; contar até dez = считать. Ex.: Conta-me o que aconteceu ontem! / Ele conta uma história aos filhos." },
+  { cat:"Verbos", badge:"badge-verbos", q:"imprimir", hint:"v.", answers:["печатать (на принтере)"], options:["печатать (на принтере)", "делить", "договориться", "прощать"], answer:0, ptAnswers:["imprimir"], sentence:"Preciso de ___ duas folhas a preto e branco.", sentenceAnswers:["imprimir"], explanation:"imprimir = печатать (на принтере). Ex.: Preciso de imprimir duas folhas a preto e branco." },
+  { cat:"Verbos", badge:"badge-verbos", q:"dividir", hint:"v.", answers:["делить"], options:["делить", "прятать", "печатать (на принтере)", "стараться"], answer:0, ptAnswers:["dividir"], sentence:"Vamos ___ a conta?", sentenceAnswers:["dividir"], explanation:"dividir = делить. Ex.: Vamos dividir a conta?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"discutir", hint:"v.", answers:["обсуждать", "спорить"], options:["обсуждать/спорить", "воспользоваться", "менять", "брать"], answer:0, ptAnswers:["discutir", "discutem"], sentence:"Eles ___ sempre sobre política.", sentenceAnswers:["discutem"], explanation:"discutir = обсуждать, спорить. Ex.: Eles discutem sempre sobre política." },
+  { cat:"Verbos", badge:"badge-verbos", q:"mentir", hint:"v.", answers:["лгать"], options:["лгать", "защищать", "вязать", "садиться"], answer:0, ptAnswers:["mentir", "minto"], sentence:"Eu nunca ___.", sentenceAnswers:["minto"], explanation:"mentir = лгать. Eu minto (e→i). A mentira = ложь. Ex.: Eu nunca minto." },
+  { cat:"Verbos", badge:"badge-verbos", q:"tossir", hint:"v.", answers:["кашлять"], options:["кашлять", "забрать", "звонить", "противостоять"], answer:0, ptAnswers:["tossir", "tusso"], sentence:"Eu ___ muito quando estou constipada.", sentenceAnswers:["tusso"], explanation:"tossir = кашлять. Eu tusso (o→u). Ex.: Eu tusso muito quando estou constipada." },
+  { cat:"Verbos", badge:"badge-verbos", q:"conduzir", hint:"v.", answers:["водить (машину)"], options:["водить (машину)", "выговориться", "приезжать", "ненавидеть"], answer:0, ptAnswers:["conduzir", "conduz"], sentence:"Ele ___ muito bem.", sentenceAnswers:["conduz"], explanation:"conduzir = водить (машину). Ele conduz (без -e). Escola de condução = автошкола. Ex.: Ele conduz muito bem." },
+  { cat:"Verbos", badge:"badge-verbos", q:"traduzir", hint:"v.", answers:["переводить"], options:["переводить", "ловить", "длиться", "забрать"], answer:0, ptAnswers:["traduzir"], sentence:"Podes ___ esta frase?", sentenceAnswers:["traduzir"], explanation:"traduzir = переводить. Ex.: Podes traduzir esta frase?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"corrigir", hint:"v.", answers:["исправлять"], options:["исправлять", "отправить", "убирать", "ложиться"], answer:0, ptAnswers:["corrigir", "corrige"], sentence:"A professora ___ os erros.", sentenceAnswers:["corrige"], explanation:"corrigir = исправлять. Eu corrijo. Ex.: A professora corrige os erros." },
+  { cat:"Verbos", badge:"badge-verbos", q:"proteger", hint:"v.", answers:["защищать"], options:["защищать", "уносить", "вставать", "забрать"], answer:0, ptAnswers:["proteger", "protege"], sentence:"O protetor solar ___ a pele.", sentenceAnswers:["protege"], explanation:"proteger = защищать. Eu protejo. Ex.: O protetor solar protege a pele." },
+  { cat:"Verbos", badge:"badge-verbos", q:"nascer", hint:"v.", answers:["рождаться"], options:["рождаться", "засыпать", "исправлять", "узнать"], answer:0, ptAnswers:["nascer", "nasci"], sentence:"Eu ___ em 1980.", sentenceAnswers:["nasci"], explanation:"nascer = рождаться. Eu nasço; eu nasci. «Ele foi nascido» — неправильно, правильно ele nasceu. Ex.: Eu nasci em 1980." },
+  { cat:"Verbos", badge:"badge-verbos", q:"crescer", hint:"v.", answers:["расти"], options:["расти", "помнить", "попробовать", "пересекать"], answer:0, ptAnswers:["crescer", "crescem"], sentence:"As crianças ___ muito depressa.", sentenceAnswers:["crescem"], explanation:"crescer = расти. Ex.: As crianças crescem muito depressa." },
+  { cat:"Verbos", badge:"badge-verbos", q:"descer", hint:"v.", answers:["спускаться"], options:["спускаться", "развлекаться", "кашлять", "трясти"], answer:0, ptAnswers:["descer"], sentence:"Vamos ___ as escadas.", sentenceAnswers:["descer"], explanation:"descer = спускаться. Ex.: Vamos descer as escadas." },
+  { cat:"Verbos", badge:"badge-verbos", q:"custar", hint:"v.", answers:["стоить"], options:["стоить", "отправить", "передать", "справляться с"], answer:0, ptAnswers:["custar", "custa"], sentence:"Quanto ___ este casaco?", sentenceAnswers:["custa"], explanation:"custar = стоить. Ex.: Quanto custa este casaco?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"demorar", hint:"v.", answers:["длиться", "занимать время", "задерживаться"], options:["длиться/занимать время", "останавливать(ся)", "справляться с", "благодарить"], answer:0, ptAnswers:["demorar", "demora"], sentence:"Quanto tempo ___ um jogo de futebol?", sentenceAnswers:["demora"], explanation:"demorar = длиться, занимать время, задерживаться. Ex.: Quanto tempo demora um jogo de futebol?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"estacionar", hint:"v.", answers:["парковаться"], options:["парковаться", "одеваться", "посещать (регулярно)", "расти"], answer:0, ptAnswers:["estacionar", "estaciono"], sentence:"___ sempre à frente da escola.", sentenceAnswers:["estaciono"], explanation:"estacionar = парковаться. Ex.: Estaciono sempre à frente da escola." },
+  { cat:"Verbos", badge:"badge-verbos", q:"limpar", hint:"v.", answers:["убирать", "чистить"], options:["убирать/чистить", "исправлять", "трясти", "прятать"], answer:0, ptAnswers:["limpar", "limpo"], sentence:"Ao sábado ___ a casa.", sentenceAnswers:["limpo"], explanation:"limpar = убирать, чистить. Ex.: Ao sábado limpo a casa." },
+  { cat:"Verbos", badge:"badge-verbos", q:"convidar", hint:"v.", answers:["приглашать"], options:["приглашать", "стараться", "обидеть", "объяснять"], answer:0, ptAnswers:["convidar", "convidam"], sentence:"Eles ___-nos todos os anos para o Ano Novo.", sentenceAnswers:["convidam"], explanation:"convidar = приглашать. O convite = приглашение; os convidados = гости. Ex.: Eles convidam-nos todos os anos para o Ano Novo." },
+  { cat:"Verbos", badge:"badge-verbos", q:"aceitar", hint:"v.", answers:["принимать (предложение)"], options:["принимать (предложение)", "ненавидеть", "договориться", "кричать"], answer:0, ptAnswers:["aceitar", "aceito"], sentence:"Obrigada, ___ o convite com prazer.", sentenceAnswers:["aceito"], explanation:"aceitar = принимать (предложение). Ex.: Obrigada, aceito o convite com prazer." },
+  { cat:"Verbos", badge:"badge-verbos", q:"recusar", hint:"v.", answers:["отказываться", "отклонять"], options:["отказываться/отклонять", "выговориться", "иметь обыкновение", "кашлять"], answer:0, ptAnswers:["recusar"], sentence:"Infelizmente tenho de ___ o convite.", sentenceAnswers:["recusar"], explanation:"recusar = отказываться, отклонять. Ex.: Infelizmente tenho de recusar o convite." },
+  { cat:"Verbos", badge:"badge-verbos", q:"confirmar", hint:"v.", answers:["подтверждать"], options:["подтверждать", "бросать", "одалживать", "прятать"], answer:0, ptAnswers:["confirmar"], sentence:"Pode ___ a sua reserva?", sentenceAnswers:["confirmar"], explanation:"confirmar = подтверждать. A confirmação = подтверждение. Ex.: Pode confirmar a sua reserva?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"receber", hint:"v.", answers:["получать", "принимать (гостей)"], options:["получать/принимать (гостей)", "трясти", "узнать", "толкать"], answer:0, ptAnswers:["receber", "recebe"], sentence:"Ele ___ os convidados todos os sábados.", sentenceAnswers:["recebe"], explanation:"receber = получать, принимать (гостей). Ex.: Ele recebe os convidados todos os sábados." },
+  { cat:"Verbos", badge:"badge-verbos", q:"celebrar", hint:"v.", answers:["праздновать"], options:["праздновать", "забывать", "убирать", "исправлять"], answer:0, ptAnswers:["celebrar"], sentence:"Vamos ___ o aniversário no restaurante.", sentenceAnswers:["celebrar"], explanation:"celebrar = праздновать. Ex.: Vamos celebrar o aniversário no restaurante." },
+  { cat:"Verbos", badge:"badge-verbos", q:"conversar", hint:"v.", answers:["разговаривать", "беседовать"], options:["разговаривать/беседовать", "кататься на лыжах", "снова увидеть", "останавливать(ся)"], answer:0, ptAnswers:["conversar"], sentence:"Nós precisamos de ___.", sentenceAnswers:["conversar"], explanation:"conversar = разговаривать, беседовать. Ex.: Nós precisamos de conversar." },
+  { cat:"Verbos", badge:"badge-verbos", q:"fofocar", hint:"v.", answers:["сплетничать"], options:["сплетничать", "одалживать", "водить (машину)", "делить"], answer:0, ptAnswers:["fofocar", "fofocam"], sentence:"Na escola ___ muito.", sentenceAnswers:["fofocam"], explanation:"fofocar = сплетничать. A fofoca = сплетня. Ex.: Na escola fofocam muito." },
+  { cat:"Verbos", badge:"badge-verbos", q:"desabafar", hint:"v.", answers:["выговориться", "излить душу"], options:["выговориться/излить душу", "кашлять", "встретиться с", "исправлять"], answer:0, ptAnswers:["desabafar"], sentence:"Preciso de ___ com uma amiga.", sentenceAnswers:["desabafar"], explanation:"desabafar = выговориться, излить душу. Ex.: Preciso de desabafar com uma amiga." },
+  { cat:"Verbos", badge:"badge-verbos", q:"gritar", hint:"v.", answers:["кричать"], options:["кричать", "водить (машину)", "возвращать (вещь)", "стоить"], answer:0, ptAnswers:["gritar", "grites"], sentence:"Não ___, o bebé está a dormir!", sentenceAnswers:["grites"], explanation:"gritar = кричать. Ex.: Não grites, o bebé está a dormir!" },
+  { cat:"Verbos", badge:"badge-verbos", q:"explicar", hint:"v.", answers:["объяснять"], options:["объяснять", "договориться", "благодарить", "поворачивать"], answer:0, ptAnswers:["explicar"], sentence:"Podes ___ outra vez?", sentenceAnswers:["explicar"], explanation:"explicar = объяснять. Ex.: Podes explicar outra vez?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"trocar", hint:"v.", answers:["менять", "обменивать"], options:["менять/обменивать", "переводить", "попробовать", "прятать"], answer:0, ptAnswers:["trocar"], sentence:"Queria ___ isto para o tamanho S.", sentenceAnswers:["trocar"], explanation:"trocar = менять, обменивать. Trocar dinheiro = обменять деньги. Ex.: Queria trocar isto para o tamanho S." },
+  { cat:"Verbos", badge:"badge-verbos", q:"mudar-se", hint:"v.refl.", answers:["переезжать"], options:["переезжать", "приглашать", "слушаться", "заблудиться"], answer:0, ptAnswers:["mudar-se", "mudámo-nos"], sentence:"Nós ___ para Portugal em 2023.", sentenceAnswers:["mudámo-nos"], explanation:"mudar-se = переезжать. As mudanças = переезд. Ex.: Nós mudámo-nos para Portugal em 2023." },
+  { cat:"Verbos", badge:"badge-verbos", q:"devolver", hint:"v.", answers:["возвращать (вещь)"], options:["возвращать (вещь)", "забывать", "кататься на коньках", "садиться"], answer:0, ptAnswers:["devolver"], sentence:"Queria ___ este casaco.", sentenceAnswers:["devolver"], explanation:"devolver = возвращать (вещь). A devolução = возврат. Ex.: Queria devolver este casaco." },
+  { cat:"Verbos", badge:"badge-verbos", q:"tirar", hint:"v.", answers:["брать", "снимать", "вынимать"], options:["брать/снимать", "приносить", "защищать", "передать"], answer:0, ptAnswers:["tirar"], sentence:"Posso ___ uma fatia de bolo?", sentenceAnswers:["tirar"], explanation:"tirar = брать, снимать, вынимать. Tirar os sapatos, tirar fotografias, tirar um café, tirar o curso. Ex.: Posso tirar uma fatia de bolo?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"ir buscar", hint:"выражение", answers:["забрать", "сходить за"], options:["забрать/сходить за", "обувать", "парковаться", "наступать"], answer:0, ptAnswers:["ir buscar", "buscar"], sentence:"Vou ___ o meu filho à escola.", sentenceAnswers:["buscar"], explanation:"ir buscar = забрать, сходить за. Vir buscar = прийти за. Ex.: Vou buscar o meu filho à escola." },
+  { cat:"Verbos", badge:"badge-verbos", q:"ir ter com", hint:"выражение", answers:["встретиться с", "пойти к"], options:["встретиться с/пойти к", "пересекать", "реагировать", "тянуть"], answer:0, ptAnswers:["ir ter com", "com"], sentence:"Depois da aula vou ter ___ os meus amigos.", sentenceAnswers:["com"], explanation:"ir ter com = встретиться с, пойти к. Ex.: Depois da aula vou ter com os meus amigos." },
+  { cat:"Verbos", badge:"badge-verbos", q:"levar", hint:"v.", answers:["уносить", "отвозить"], options:["уносить/отвозить", "убирать", "переводить", "останавливать(ся)"], answer:0, ptAnswers:["levar", "levo"], sentence:"Hoje ___ os filhos à escola.", sentenceAnswers:["levo"], explanation:"levar = уносить, отвозить. Levar a casa = подвезти до дома. Ex.: Hoje levo os filhos à escola." },
+  { cat:"Verbos", badge:"badge-verbos", q:"trazer", hint:"v.", answers:["приносить", "привозить"], options:["приносить/привозить", "засыпать", "оставлять", "тренироваться"], answer:0, ptAnswers:["trazer", "trago"], sentence:"Amanhã ___-te este livro.", sentenceAnswers:["trago"], explanation:"trazer = приносить, привозить. Eu trago, eu trouxe. Ex.: Amanhã trago-te este livro." },
+  { cat:"Verbos", badge:"badge-verbos", q:"pôr a mesa", hint:"выражение", answers:["накрывать на стол"], options:["накрывать на стол", "заблудиться", "печатать (на принтере)", "выговориться"], answer:0, ptAnswers:["pôr a mesa", "pôr"], sentence:"Podes ___ a mesa, por favor?", sentenceAnswers:["pôr"], explanation:"pôr a mesa = накрывать на стол. Ex.: Podes pôr a mesa, por favor?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"calçar", hint:"v.", answers:["обувать"], options:["обувать", "накрывать на стол", "развлекаться", "заблудиться"], answer:0, ptAnswers:["calçar", "calça"], sentence:"___ os sapatos e vamos!", sentenceAnswers:["calça"], explanation:"calçar = обувать. Calçar-se = обуться. Ex.: Calça os sapatos e vamos!" },
+  { cat:"Verbos", badge:"badge-verbos", q:"pentear-se", hint:"v.refl.", answers:["причёсываться"], options:["причёсываться", "обидеть", "прощать", "наступать"], answer:0, ptAnswers:["pentear-se", "penteia-se"], sentence:"Ela ___ todas as manhãs.", sentenceAnswers:["penteia-se"], explanation:"pentear-se = причёсываться. Ex.: Ela penteia-se todas as manhãs." },
+  { cat:"Verbos", badge:"badge-verbos", q:"despachar-se", hint:"v.refl.", answers:["торопиться"], options:["торопиться", "брать", "развлекаться", "прятать"], answer:0, ptAnswers:["despachar-se", "despacha-te"], sentence:"___, vamos chegar atrasados!", sentenceAnswers:["despacha-te"], explanation:"despachar-se = торопиться. Ex.: Despacha-te, vamos chegar atrasados!" },
+  { cat:"Verbos", badge:"badge-verbos", q:"esquecer-se de", hint:"v.refl.", answers:["забывать"], options:["забывать", "тренироваться", "искать", "хранить"], answer:0, ptAnswers:["esquecer-se de", "das"], sentence:"Esqueci-me ___ chaves em casa.", sentenceAnswers:["das"], explanation:"esquecer-se de = забывать. Ex.: Esqueci-me das chaves em casa." },
+  { cat:"Verbos", badge:"badge-verbos", q:"preocupar-se com", hint:"v.refl.", answers:["беспокоиться о"], options:["беспокоиться о", "звонить", "убирать", "пересекать"], answer:0, ptAnswers:["preocupar-se com", "preocupes"], sentence:"Não te ___, está tudo bem.", sentenceAnswers:["preocupes"], explanation:"preocupar-se com = беспокоиться о. Ex.: Não te preocupes, está tudo bem." },
+  { cat:"Verbos", badge:"badge-verbos", q:"divertir-se", hint:"v.refl.", answers:["развлекаться", "веселиться"], options:["развлекаться/веселиться", "посещать (регулярно)", "тянуть", "вязать"], answer:0, ptAnswers:["divertir-se", "diverte-te", "divirtam-se"], sentence:"___ na festa!", sentenceAnswers:["diverte-te", "divirtam-se"], explanation:"divertir-se = развлекаться, веселиться. Ex.: Diverte-te na festa!" },
+  { cat:"Verbos", badge:"badge-verbos", q:"costumar", hint:"v.", answers:["иметь обыкновение"], options:["иметь обыкновение", "тянуть", "кататься на коньках", "искать"], answer:0, ptAnswers:["costumar", "costumo"], sentence:"Eu ___ ler à noite.", sentenceAnswers:["costumo"], explanation:"costumar = иметь обыкновение. Costumar + infinitivo = обычно делать. Ex.: Eu costumo ler à noite." },
+  { cat:"Verbos", badge:"badge-verbos", q:"frequentar", hint:"v.", answers:["посещать (регулярно)"], options:["посещать (регулярно)", "зажечь", "подтверждать", "пересекать"], answer:0, ptAnswers:["frequentar", "frequenta"], sentence:"Ela ___ aulas de dança.", sentenceAnswers:["frequenta"], explanation:"frequentar = посещать (регулярно). Ex.: Ela frequenta aulas de dança." },
+  { cat:"Verbos", badge:"badge-verbos", q:"participar em", hint:"выражение", answers:["участвовать в"], options:["участвовать в", "смаковать", "отправить", "реагировать"], answer:0, ptAnswers:["participar em", "participar"], sentence:"Vou ___ na competição.", sentenceAnswers:["participar"], explanation:"participar em = участвовать в. Ex.: Vou participar na competição." },
+  { cat:"Verbos", badge:"badge-verbos", q:"realçar", hint:"v.", answers:["подчёркивать", "выделять"], options:["подчёркивать/выделять", "водить (машину)", "попробовать", "ненавидеть"], answer:0, ptAnswers:["realçar", "realça"], sentence:"O autor ___ a importância da família.", sentenceAnswers:["realça"], explanation:"realçar = подчёркивать, выделять. Ex.: O autor realça a importância da família." },
+  { cat:"Verbos", badge:"badge-verbos", q:"puxar", hint:"v.", answers:["тянуть"], options:["тянуть", "уносить", "снова увидеть", "узнать"], answer:0, ptAnswers:["puxar", "puxe"], sentence:"___ a porta para abrir.", sentenceAnswers:["puxe"], explanation:"puxar = тянуть. É puxado = это тяжело. Ex.: Puxe a porta para abrir." },
+  { cat:"Verbos", badge:"badge-verbos", q:"pisar", hint:"v.", answers:["наступать"], options:["наступать", "узнать", "общаться", "забрать"], answer:0, ptAnswers:["pisar", "pises"], sentence:"Não ___ a relva!", sentenceAnswers:["pises"], explanation:"pisar = наступать. Ex.: Não pises a relva!" },
+  { cat:"Verbos", badge:"badge-verbos", q:"abraçar", hint:"v.", answers:["обнимать"], options:["обнимать", "ненавидеть", "водить (машину)", "толкать"], answer:0, ptAnswers:["abraçar", "abraçou"], sentence:"Ela ___ a avó.", sentenceAnswers:["abraçou"], explanation:"abraçar = обнимать. O abraço = объятие. Ex.: Ela abraçou a avó." },
+  { cat:"Verbos", badge:"badge-verbos", q:"sentar-se", hint:"v.refl.", answers:["садиться"], options:["садиться", "подниматься", "класть (мы положили)", "вязать"], answer:0, ptAnswers:["sentar-se", "sentou-se"], sentence:"Ele ___ no sofá.", sentenceAnswers:["sentou-se"], explanation:"sentar-se = садиться. Sentar-se (действие) ≠ estar sentado (состояние). Ex.: Ele sentou-se no sofá." },
+  { cat:"Verbos", badge:"badge-verbos", q:"deitar-se", hint:"v.refl.", answers:["ложиться"], options:["ложиться", "засыпать", "расти", "обувать"], answer:0, ptAnswers:["deitar-se", "deito-me"], sentence:"Eu ___ às onze.", sentenceAnswers:["deito-me"], explanation:"deitar-se = ложиться. Estar deitado = лежать. Ex.: Eu deito-me às onze." },
+  { cat:"Verbos", badge:"badge-verbos", q:"levantar-se", hint:"v.refl.", answers:["вставать"], options:["вставать", "прощать", "делить", "встретиться с"], answer:0, ptAnswers:["levantar-se", "levanto-me"], sentence:"Eu ___ às sete.", sentenceAnswers:["levanto-me"], explanation:"levantar-se = вставать. Ex.: Eu levanto-me às sete." },
+  { cat:"Verbos", badge:"badge-verbos", q:"vestir-se", hint:"v.refl.", answers:["одеваться"], options:["одеваться", "иметь обыкновение", "звонить", "мыться (принимать душ/ванну)"], answer:0, ptAnswers:["vestir-se", "veste-se"], sentence:"Ela ___ muito bem.", sentenceAnswers:["veste-se"], explanation:"vestir-se = одеваться. Eu visto-me. Ex.: Ela veste-se muito bem." },
+  { cat:"Verbos", badge:"badge-verbos", q:"tomar banho", hint:"выражение", answers:["мыться (принимать душ/ванну)"], options:["мыться (принимать душ/ванну)", "обидеть", "рождаться", "кричать"], answer:0, ptAnswers:["tomar banho"], sentence:"Vou ___ antes do jantar.", sentenceAnswers:["tomar banho"], explanation:"tomar banho = мыться (принимать душ/ванну). Не «lavar-se», а tomar banho. Ex.: Vou tomar banho antes do jantar." },
+  { cat:"Verbos", badge:"badge-verbos", q:"cancelar", hint:"v.", answers:["отменять"], options:["отменять", "попробовать", "исправлять", "звонить"], answer:0, ptAnswers:["cancelar", "cancelou"], sentence:"Ele ___ em cima da hora.", sentenceAnswers:["cancelou"], explanation:"cancelar = отменять. Ex.: Ele cancelou em cima da hora." },
+  { cat:"Verbos", badge:"badge-verbos", q:"ligar", hint:"v.", answers:["звонить", "включать"], options:["звонить/включать", "сиять", "быть должным", "садиться"], answer:0, ptAnswers:["ligar"], sentence:"Liga-me quando chegares. / Não sei ___ este forno.", sentenceAnswers:["ligar"], explanation:"ligar = звонить, включать. Desligar = выключать. Ex.: Liga-me quando chegares. / Não sei ligar este forno." },
+  { cat:"Verbos", badge:"badge-verbos", q:"carregar", hint:"v.", answers:["заряжать", "нести"], options:["заряжать/нести", "объяснять", "присматривать за", "лгать"], answer:0, ptAnswers:["carregar"], sentence:"Pus o telemóvel a ___.", sentenceAnswers:["carregar"], explanation:"carregar = заряжать, нести. Ex.: Pus o telemóvel a carregar." },
+  { cat:"Verbos", badge:"badge-verbos", q:"reservar", hint:"v.", answers:["бронировать"], options:["бронировать", "встретиться с", "заблудиться", "поворачивать"], answer:0, ptAnswers:["reservar"], sentence:"Temos de ___ mesa com antecedência.", sentenceAnswers:["reservar"], explanation:"reservar = бронировать. Com antecedência = заранее. Ex.: Temos de reservar mesa com antecedência." },
+  { cat:"Verbos", badge:"badge-verbos", q:"treinar", hint:"v.", answers:["тренироваться"], options:["тренироваться", "одалживать", "приглашать", "переезжать"], answer:0, ptAnswers:["treinar", "treina"], sentence:"Ele ___ três vezes por semana.", sentenceAnswers:["treina"], explanation:"treinar = тренироваться. O treino = тренировка. Ex.: Ele treina três vezes por semana." },
+  { cat:"Verbos", badge:"badge-verbos", q:"dever", hint:"v.", answers:["быть должным", "следовать"], options:["быть должным/следовать", "стараться", "оставлять", "переезжать"], answer:0, ptAnswers:["dever", "devo"], sentence:"Eu ___-lhe 5 euros. / Deves descansar.", sentenceAnswers:["devo"], explanation:"dever = быть должным, следовать. Dever + inf. = следует; hoje não deve chover = сегодня, наверное, не будет дождя. Ex.: Eu devo-lhe 5 euros. / Deves descansar." },
+  { cat:"Verbos", badge:"badge-verbos", q:"deixar", hint:"v.", answers:["оставлять", "позволять"], options:["оставлять/позволять", "убирать", "узнать", "присматривать за"], answer:0, ptAnswers:["deixar", "deixe"], sentence:"Deixei o casaco na escola. / ___-me passar, por favor.", sentenceAnswers:["deixe"], explanation:"deixar = оставлять, позволять. Deixa estar = оставь, ничего. Deixa-me em paz = оставь меня в покое. Ex.: Deixei o casaco na escola. / deixe-me passar, por favor." },
+  { cat:"Verbos", badge:"badge-verbos", q:"guardar", hint:"v.", answers:["хранить", "откладывать"], options:["хранить/откладывать", "тянуть", "убирать", "кататься на коньках"], answer:0, ptAnswers:["guardar"], sentence:"Pondo dinheiro na conta, consigo ___ melhor.", sentenceAnswers:["guardar"], explanation:"guardar = хранить, откладывать. Ex.: Pondo dinheiro na conta, consigo guardar melhor." },
+  { cat:"Verbos", badge:"badge-verbos", q:"parar", hint:"v.", answers:["останавливать(ся)"], options:["останавливать(ся)", "бросать", "выговориться", "делить"], answer:0, ptAnswers:["parar"], sentence:"Pode ___ aqui, por favor?", sentenceAnswers:["parar"], explanation:"parar = останавливать(ся). Estar quieto = не двигаться; para quieto! = сиди спокойно! Ex.: Pode parar aqui, por favor?" },
+  { cat:"Verbos", badge:"badge-verbos", q:"virar", hint:"v.", answers:["поворачивать"], options:["поворачивать", "ненавидеть", "останавливать(ся)", "переводить"], answer:0, ptAnswers:["virar", "vire", "vira"], sentence:"Na rotunda ___ à direita.", sentenceAnswers:["vire", "vira"], explanation:"virar = поворачивать. Virar à esquerda / à direita. Ex.: Na rotunda vire à direita." },
+  { cat:"Verbos", badge:"badge-verbos", q:"voltar", hint:"v.", answers:["возвращаться"], options:["возвращаться", "печатать (на принтере)", "прощать", "реагировать"], answer:0, ptAnswers:["voltar"], sentence:"Tenho de ___ a casa, esqueci-me do telemóvel.", sentenceAnswers:["voltar"], explanation:"voltar = возвращаться. Voltar para trás = вернуться назад. Ex.: Tenho de voltar a casa, esqueci-me do telemóvel." },
+  { cat:"Verbos", badge:"badge-verbos", q:"chegar", hint:"v.", answers:["приезжать", "хватать"], options:["приезжать/хватать", "винить", "быть должным", "принимать (предложение)"], answer:0, ptAnswers:["chegar", "chega"], sentence:"Esta carne não ___ para todos.", sentenceAnswers:["chega"], explanation:"chegar = приезжать, хватать. Chegar = прибыть И «хватить». Ex.: Esta carne não chega para todos." },
+  { cat:"Verbos", badge:"badge-verbos", q:"apanhar", hint:"v.", answers:["ловить", "садиться на (транспорт)"], options:["ловить", "менять", "развлекаться", "разговаривать"], answer:0, ptAnswers:["apanhar"], sentence:"Vou ___ o autocarro das nove.", sentenceAnswers:["apanhar"], explanation:"apanhar = ловить, садиться на (транспорт). Ex.: Vou apanhar o autocarro das nove." },
+  { cat:"Verbos", badge:"badge-verbos", q:"perder-se", hint:"v.refl.", answers:["заблудиться"], options:["заблудиться", "возникнуть", "ненавидеть", "прощать"], answer:0, ptAnswers:["perder-se", "perdi-me"], sentence:"Eu ___ em Lisboa no primeiro dia.", sentenceAnswers:["perdi-me"], explanation:"perder-se = заблудиться. Ex.: Eu perdi-me em Lisboa no primeiro dia." },
+];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+// Strict matching: case-insensitive, accents required
+function matchPT(input, accepted) {
+  const raw = input.toLowerCase().trim();
+  return accepted.some(a => a.toLowerCase() === raw);
+}
+
+let mode = 'choice';
+let activeFilter = 'Todos';
+let questions = [];
+let current = 0;
+let score = 0;
+let mistakes = [];
+let answered = false;
+let shuffledOpts = [];
+
+function setMode(m) {
+  mode = m;
+  document.querySelectorAll('.mode-btn').forEach(b => b.classList.remove('active'));
+  document.getElementById('btn' + m.charAt(0).toUpperCase() + m.slice(1)).classList.add('active');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'Todos' ? allQ : allQ.filter(q => q.cat === activeFilter);
+  questions = shuffle(pool);
+  current = 0; score = 0; mistakes = [];
+  document.getElementById('quizCard').style.display = 'block';
+  document.getElementById('resultsCard').classList.remove('show');
+  showQuestion();
+}
+
+function showQuestion() {
+  if (current >= questions.length) { showResults(); return; }
+  const q = questions[current];
+  answered = false;
+
+  document.getElementById('progressBar').style.width = (current / questions.length * 100) + '%';
+  document.getElementById('progressLabel').textContent = (current + 1) + ' / ' + questions.length;
+
+  const badge = document.getElementById('catBadge');
+  badge.textContent = q.cat;
+  badge.className = 'category-badge ' + q.badge;
+
+  const fb = document.getElementById('feedback');
+  fb.className = 'feedback'; fb.textContent = '';
+  document.getElementById('nextBtn').classList.remove('show');
+
+  ['choiceArea','writeArea','fraseArea'].forEach(id => document.getElementById(id).style.display = 'none');
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('questionText').textContent = '\u00ab' + q.q + '\u00bb \u2014 \u0447\u0442\u043e \u044d\u0442\u043e?';
+    const indexed = q.options.map((opt, i) => ({ opt, correct: i === q.answer }));
+    shuffledOpts = shuffle(indexed);
+    const div = document.getElementById('optionsDiv');
+    div.innerHTML = '';
+    shuffledOpts.forEach((item, i) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = item.opt;
+      btn.onclick = () => checkChoice(i, btn);
+      div.appendChild(btn);
+    });
+
+  } else if (mode === 'write') {
+    document.getElementById('writeArea').style.display = 'block';
+    document.getElementById('ruDisplay').textContent = q.answers[0];
+    document.getElementById('ruHintLine').textContent = q.hint + (q.answers.length > 1 ? '  \u00b7  ' + q.answers.slice(1).join(' / ') : '');
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnW').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+
+  } else {
+    document.getElementById('fraseArea').style.display = 'block';
+    const parts = q.sentence.split('___');
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blank = document.createElement('span');
+    blank.className = 'sentence-blank'; blank.textContent = '___'; blank.id = 'blankSpan';
+    sd.appendChild(blank);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('fraseHint').innerHTML = '\u041f\u0435\u0440\u0435\u0432\u043e\u0434: <span>' + q.answers[0] + '</span>  \u00b7  ' + q.hint;
+    const inp = document.getElementById('fraseInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtnF').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function checkChoice(idx, btn) {
+  if (answered) return;
+  answered = true;
+  const q = questions[current];
+  document.querySelectorAll('.option-btn').forEach((b, i) => {
+    b.disabled = true;
+    if (shuffledOpts[i].correct) b.classList.add('correct');
+  });
+  const fb = document.getElementById('feedback');
+  if (shuffledOpts[idx].correct) {
+    score++; btn.classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btn.classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. ' + q.explanation;
+    mistakes.push({ q: q.q, explanation: q.explanation });
+  }
+  showNext();
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnW').disabled = true;
+  const correct = matchPT(raw, q.ptAnswers);
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.ptAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.answers[0] + ' (' + q.hint + ')', explanation: 'Correto: ' + q.ptAnswers[0] });
+  }
+  showNext();
+}
+
+function checkFrase() {
+  if (answered) return;
+  const q = questions[current];
+  const inp = document.getElementById('fraseInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true; inp.disabled = true;
+  document.getElementById('checkBtnF').disabled = true;
+  const correct = matchPT(raw, q.sentenceAnswers);
+  const blank = document.getElementById('blankSpan');
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++;
+    blank.textContent = raw; blank.style.color = '#276749'; blank.style.borderColor = '#68d391';
+    inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    blank.textContent = q.sentenceAnswers[0]; blank.style.color = '#c53030'; blank.style.borderColor = '#fc8181';
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Errado. Correto: ' + q.sentenceAnswers[0] + '. ' + q.explanation;
+    mistakes.push({ q: q.sentence.replace('___', '___'), explanation: 'Correto: ' + q.sentenceAnswers[0] });
+  }
+  showNext();
+}
+
+function showNext() {
+  const btn = document.getElementById('nextBtn');
+  btn.textContent = current < questions.length - 1 ? 'Pr\u00f3xima \u2192' : 'Ver resultados \u2192';
+  btn.classList.add('show');
+}
+
+function nextQuestion() { current++; showQuestion(); }
+
+function showResults() {
+  document.getElementById('progressBar').style.width = '100%';
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('resultsCard').classList.add('show');
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = '/ ' + questions.length;
+  const pct = Math.round(score / questions.length * 100);
+  const msgs = [['Continua!','Revê as palavras e tenta outra vez.'],['Bom esforço!','Continua a praticar estas palavras.'],['Muito bem!','Só mais um pouco de prática.'],['Excelente!','Vocabulário dominado!']];
+  const m = msgs[pct>=90?3:pct>=70?2:pct>=50?1:0];
+  document.getElementById('resultTitle').textContent = m[0];
+  document.getElementById('resultMsg').textContent = pct + '% correto. ' + m[1];
+  const ml = document.getElementById('mistakesList');
+  if (mistakes.length > 0) {
+    ml.innerHTML = '<h3>Rever (' + mistakes.length + '):</h3>';
+    mistakes.forEach(m => { ml.innerHTML += '<div class="mistake-item"><div class="mq">' + m.q + '</div><div class="ma">' + m.explanation + '</div></div>'; });
+  } else {
+    ml.innerHTML = '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  }
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key === 'Enter') {
+    if (!answered) {
+      if (mode === 'write') checkWrite();
+      else if (mode === 'frase') checkFrase();
+    } else if (document.getElementById('nextBtn').classList.contains('show')) {
+      nextQuestion();
+    }
+  }
+});
+
+restart();
+</script>
+</body>
+</html>
