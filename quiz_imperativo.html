@@ -9,393 +9,384 @@
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
   .container { max-width: 680px; margin: 0 auto; }
   header { text-align: center; padding: 30px 0 20px; }
-  header h1 { font-size: 1.8rem; color: #744210; margin-bottom: 6px; }
+  header h1 { font-size: 1.8rem; color: #276749; margin-bottom: 6px; }
   header p { color: #718096; font-size: 0.95rem; }
   .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
-  .back-link:hover { color: #744210; }
-  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 20px 0; }
-  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #d69e2e, #f6e05e); transition: width 0.4s ease; }
-  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; }
+  .back-link:hover { color: #276749; }
+
+  /* Mode toggle */
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 20px; }
+  .mode-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 9px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; }
+  .mode-btn.active { background: #38a169; color: white; }
+
+  /* Filter */
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="todos"].active-f    { background: #edf2f7; }
+  .filter-btn[data-cat="presente"].active-f { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="pps"].active-f      { background: #f0fff4; color: #276749; }
+
+  /* Progress */
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #38a169, #68d391); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  /* Card */
   .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
   .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
-  .badge-gramática  { background: #fffbeb; color: #92400e; }
-  .badge-vocabulário { background: #ecfdf5; color: #065f46; }
-  .badge-prática { background: #eff6ff; color: #1e40af; }
+  .badge-presente { background: #faf5ff; color: #6b46c1; }
+  .badge-pps      { background: #f0fff4; color: #276749; }
+
+  /* Choice mode */
   .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
   .options { display: flex; flex-direction: column; gap: 10px; }
-  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s; color: #2d3748; }
-  .option-btn:hover:not(:disabled) { background: #fffbeb; border-color: #f6d860; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s ease; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #f0fff4; border-color: #9ae6b4; }
   .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
   .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
   .option-btn:disabled { cursor: default; }
+
+  /* Write mode */
+  .sentence-display { font-size: 1.1rem; font-weight: 500; line-height: 1.9; margin-bottom: 8px; }
+  .sentence-blank { display: inline-block; min-width: 90px; border-bottom: 3px solid #38a169; color: #38a169; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .verb-hint { font-size: 0.85rem; color: #a0aec0; margin-bottom: 18px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #9ae6b4; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #276749; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+  .accent-note { font-size: 0.78rem; color: #e67e22; margin-top: 8px; }
+
+  /* Feedback */
   .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
   .feedback.show { display: block; }
-  .feedback.ok  { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.ok { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
   .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
-  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; transition: background 0.15s; }
-  .next-btn:hover { background: #b7791f; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #276749; }
   .next-btn.show { display: block; }
+
+  /* Results */
   .results { display: none; text-align: center; padding: 40px 30px; }
   .results.show { display: block; }
-  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #d69e2e, #f6e05e); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #38a169, #68d391); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
   .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
   .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
   .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
   .results p { color: #718096; margin-bottom: 24px; }
   .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
-  .restart-btn { padding: 13px 32px; background: #d69e2e; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
-  .restart-btn:hover { background: #b7791f; }
+  .restart-btn { padding: 13px 32px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
   .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
-  .home-btn:hover { background: #e2e8f0; }
   .mistakes-list { text-align: left; margin-top: 28px; }
   .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
   .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
   .mistake-item strong { color: #c53030; }
   .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+  .filter-btn[data-cat="ar"].active-f { background: #faf5ff; color: #6b46c1; }
+  .cat-ar { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="er"].active-f { background: #ebf8ff; color: #2b6cb0; }
+  .cat-er { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="ir"].active-f { background: #f0fff4; color: #276749; }
+  .cat-ir { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="irreg"].active-f { background: #fff5f5; color: #c53030; }
+  .cat-irreg { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="uso"].active-f { background: #fffaf0; color: #c05621; }
+  .cat-uso { background: #fffaf0; color: #c05621; }
 </style>
 </head>
 <body>
 <div class="container">
+
   <a class="back-link" href="index.html">← Voltar ao menu</a>
   <header>
     <h1>Imperativo: tu · você · vocês</h1>
-    <p>Gramática · curso Portuguese class · 42 questões</p>
+    <p>fala! / não fales! / fale! / falem! · ser, estar, ir, dar · 42 questões</p>
   </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher (variantes)</button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever (digitar forma)</button>
+  </div>
+
+  <div class="filter-wrap">
+    <span class="filter-label">Tipo de verbo</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active-f" data-cat="todos" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" data-cat="ar" onclick="setFilter('ar',this)">-AR</button>
+      <button class="filter-btn" data-cat="er" onclick="setFilter('er',this)">-ER</button>
+      <button class="filter-btn" data-cat="ir" onclick="setFilter('ir',this)">-IR</button>
+      <button class="filter-btn" data-cat="irreg" onclick="setFilter('irreg',this)">Irregulares</button>
+      <button class="filter-btn" data-cat="uso" onclick="setFilter('uso',this)">Uso / contexto</button>
+    </div>
+  </div>
+
   <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
   <div class="progress-label" id="progressLabel"></div>
+
   <div class="card" id="quizCard">
     <div class="category-badge" id="badge"></div>
-    <div class="question" id="question"></div>
-    <div class="options" id="options"></div>
+
+    <!-- Choice mode -->
+    <div id="choiceArea">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+
+    <!-- Write mode -->
+    <div id="writeArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="verb-hint" id="verbHint"></div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="forma correta..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtn" onclick="checkWrite()">OK</button>
+      </div>
+      <div class="accent-note">Atenção: acentos obrigatórios (estás, chegámos...)</div>
+    </div>
+
     <div class="feedback" id="feedback"></div>
     <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
   </div>
+
   <div class="card results" id="results">
-    <div class="score-circle"><span class="num" id="scoreNum"></span><span class="denom" id="scoreDenom"></span></div>
-    <h2 id="resultsTitle"></h2><p id="resultsMsg"></p>
+    <div class="score-circle">
+      <span class="num" id="scoreNum"></span>
+      <span class="denom" id="scoreDenom"></span>
+    </div>
+    <h2 id="resultsTitle"></h2>
+    <p id="resultsMsg"></p>
     <div class="btn-row">
       <button class="restart-btn" onclick="restart()">Repetir quiz</button>
       <a class="home-btn" href="index.html">Menu principal</a>
     </div>
     <div class="mistakes-list" id="mistakesList"></div>
   </div>
+
 </div>
 <script>
+// writeAnswer = форма, которую нужно напечатать точно (с акцентами)
 const questions = [
-  {
-    "cat": "gramática",
-    "q": "Imperativo tu (afirmativo) de «falar»:",
-    "options": [
-      "Fale!",
-      "Fala!",
-      "Fales!",
-      "Falas!"
-    ],
-    "answer": 1,
-    "explanation": "Tu afirmativo = 3-е лицо ед.ч. presente: ele fala → Fala!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo tu (afirmativo) de «comer»:",
-    "options": [
-      "Coma!",
-      "Comes!",
-      "Come!",
-      "Comas!"
-    ],
-    "answer": 2,
-    "explanation": "Ele come → Come!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo tu (negativo) de «falar»:",
-    "options": [
-      "Não fala!",
-      "Não fale!",
-      "Não fales!",
-      "Não falas!"
-    ],
-    "answer": 2,
-    "explanation": "Tu negativo: берём eu falo → убираем -o → -ar глаголы получают -es: Não fales!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo tu (negativo) de «comer»:",
-    "options": [
-      "Não come!",
-      "Não comas!",
-      "Não comes!",
-      "Não coma!"
-    ],
-    "answer": 1,
-    "explanation": "Eu como → com- + -as: Não comas! (у -er/-ir окончание меняется на -a)."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo você de «abrir»:",
-    "options": [
-      "Abre!",
-      "Abra!",
-      "Abras!",
-      "Abri!"
-    ],
-    "answer": 1,
-    "explanation": "Você: eu abro → abr- + -a → Abra! (у -er/-ir → -a, у -ar → -e)."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo vocês de «falar»:",
-    "options": [
-      "Falam!",
-      "Falem!",
-      "Falai!",
-      "Falas!"
-    ],
-    "answer": 1,
-    "explanation": "Vocês: fal- + -em → Falem!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo você de «fazer»:",
-    "options": [
-      "Faça!",
-      "Faz!",
-      "Faze!",
-      "Fazia!"
-    ],
-    "answer": 0,
-    "explanation": "Eu faço → faç- + -a → Faça! (основа берётся от eu)."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo você de «trazer»: «_____-me outro galão, por favor.»",
-    "options": [
-      "Traz",
-      "Traga",
-      "Trazer",
-      "Trazes"
-    ],
-    "answer": 1,
-    "explanation": "Eu trago → trag- + -a → Traga-me."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo você de «pôr»:",
-    "options": [
-      "Põe!",
-      "Ponha!",
-      "Pões!",
-      "Pora!"
-    ],
-    "answer": 1,
-    "explanation": "Eu ponho → ponh- + -a → Ponha!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo você de «dormir»:",
-    "options": [
-      "Dorme!",
-      "Durma!",
-      "Dorma!",
-      "Dormes!"
-    ],
-    "answer": 1,
-    "explanation": "Eu durmo → durm- + -a → Durma!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo você de «ser»: «_____ bem-vindo!»",
-    "options": [
-      "Sê",
-      "Seja",
-      "És",
-      "Sejas"
-    ],
-    "answer": 1,
-    "explanation": "Ser — неправильный: não sejas / seja / sejam. Tu afirmativo — sê."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo tu negativo de «ir»:",
-    "options": [
-      "Não vais!",
-      "Não vá!",
-      "Não vás!",
-      "Não ides!"
-    ],
-    "answer": 2,
-    "explanation": "Ir — неправильный: não vás / vá / vão."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo vocês de «estar»: «_____ quietos!»",
-    "options": [
-      "Estão",
-      "Estejam",
-      "Estem",
-      "Estai"
-    ],
-    "answer": 1,
-    "explanation": "Estar: não estejas / esteja / estejam."
-  },
-  {
-    "cat": "gramática",
-    "q": "Imperativo vocês de «dar»:",
-    "options": [
-      "Dão!",
-      "Deem!",
-      "Dêem!",
-      "Dam!"
-    ],
-    "answer": 1,
-    "explanation": "Dar: não dês / dê / deem (по новой орфографии без ^)."
-  },
-  {
-    "cat": "gramática",
-    "q": "Placa: (сигарета перечёркнута) «Não _____!» (você)",
-    "options": [
-      "fuma",
-      "fume",
-      "fumes",
-      "fumar"
-    ],
-    "answer": 1,
-    "explanation": "Você negativo = та же форма, что и você afirmativo: Fume! → Não fume!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Onde é que lemos «Apertem os cintos»?",
-    "options": [
-      "Num avião.",
-      "No consultório.",
-      "Na pastelaria.",
-      "No jardim."
-    ],
-    "answer": 0,
-    "explanation": "Apertar os cintos — пристегнуть ремни (vocês)."
-  },
-  {
-    "cat": "gramática",
-    "q": "Onde é que lemos «Não pise a relva»?",
-    "options": [
-      "No parquímetro.",
-      "No jardim.",
-      "Numa etiqueta.",
-      "Na escola."
-    ],
-    "answer": 1,
-    "explanation": "Pisar a relva — ходить по газону."
-  },
-  {
-    "cat": "gramática",
-    "q": "Tu: «Fazer a cama» → afirmativo / negativo:",
-    "options": [
-      "Faz a cama! / Não faças a cama!",
-      "Faça a cama! / Não faça a cama!",
-      "Fazes a cama! / Não fazes a cama!",
-      "Faz a cama! / Não faz a cama!"
-    ],
-    "answer": 0,
-    "explanation": "Tu afirmativo: ele faz → Faz! Tu negativo: eu faço → Não faças!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Tu: «Ler esta revista» → negativo:",
-    "options": [
-      "Não lê esta revista!",
-      "Não leias esta revista!",
-      "Não leia esta revista!",
-      "Não lês esta revista!"
-    ],
-    "answer": 1,
-    "explanation": "Eu leio → lei- + -as → Não leias!"
-  },
-  {
-    "cat": "gramática",
-    "q": "Você: «(Ter) _____ cuidado com a sua saúde.»",
-    "options": [
-      "Tem",
-      "Tenha",
-      "Tens",
-      "Tenhas"
-    ],
-    "answer": 1,
-    "explanation": "Eu tenho → tenh- + -a → Tenha cuidado."
-  },
-  {"cat": "gramática", "q": "Qual é a forma correta do imperativo de 'ser' para 'tu'?", "options": ["seja", "sê", "és", "sejas"], "answer": 1, "explanation": "Форма императива глагола 'ser' для 'tu' — 'sê'. 'Seja' — это форма для 'você', а 'sejas' используется только в отрицательном императиве."},
-  {"cat": "gramática", "q": "Preenche o espaço: '_____ bem-vindos!' (vocês)", "options": ["Sejam", "Sê", "Seja", "São"], "answer": 0, "explanation": "'Sejam' — форма императива глагола 'ser' для 'vocês'. Именно эта форма используется, когда обращаемся к группе людей."},
-  {"cat": "gramática", "q": "Qual é a forma correta do imperativo de 'estar' para 'você'?", "options": ["está", "esteja", "estejas", "estejam"], "answer": 1, "explanation": "Для 'você' в императиве глагол 'estar' принимает форму 'esteja'. 'Está' — форма для 'tu', 'estejam' — для 'vocês'."},
-  {"cat": "gramática", "q": "Preenche o espaço: 'Dá-___ esta caneta, por favor.' (a mim)", "options": ["lhe", "nos", "me", "te"], "answer": 2, "explanation": "'Dá-me' = дай мне. Местоимение 'me' соответствует первому лицу единственного числа (a mim). В императиве оно присоединяется через дефис."},
-  {"cat": "gramática", "q": "Escolhe a frase correta no imperativo negativo para 'tu' com o verbo 'estar':", "options": ["Não está parado!", "Não estejas parado!", "Não esteja parado!", "Não estejam parados!"], "answer": 1, "explanation": "В отрицательном императиве для 'tu' глагол 'estar' принимает форму 'estejas'. Форма 'está' используется только в утвердительном императиве для 'tu'."},
-  {"cat": "gramática", "q": "Preenche o espaço: 'Não ___ muito chocolate ao João.' (dar, tu, negativo)", "options": ["dás", "dê", "dês", "dá"], "answer": 2, "explanation": "В отрицательном императиве для 'tu' глагол 'dar' принимает форму 'dês'. Форма 'dá' — утвердительный императив для 'tu', 'dê' — для 'você'."},
-  {"cat": "gramática", "q": "Qual é a forma do imperativo de 'ir' para 'vocês' (negativo)?", "options": ["não vão", "não vás", "não vá", "não ides"], "answer": 0, "explanation": "Отрицательный императив глагола 'ir' для 'vocês' — 'não vão'. Для 'tu' — 'não vás', для 'você' — 'não vá'."},
-  {"cat": "gramática", "q": "Traduz para português: 'Не беспокойся, они уже дома.' (для 'tu')", "options": ["Não te preocupes, eles já estão em casa.", "Não se preocupe, eles já estão em casa.", "Não estejas preocupado, eles vão estar em casa.", "Não preocupes-te, eles já são em casa."], "answer": 0, "explanation": "Для 'tu' отрицательный императив 'preocupar-se' → 'não te preocupes'. Местоимение 'te' стоит перед глаголом в отрицательной форме. 'Estão em casa' — правильное употребление глагола 'estar'."},
-  {"cat": "gramática", "q": "Escolhe a frase correta: Maria diz ao filho para ir buscar documentos à escola.", "options": ["Vão à escola, busca os documentos.", "Vai à escola, busca os documentos.", "Vai à escola buscar os documentos.", "Vá à escola buscar os documentos."], "answer": 2, "explanation": "Для 'tu' утвердительный императив 'ir' → 'vai'. Второй глагол стоит в инфинитиве без предлога после глагола движения: 'vai à escola buscar'. Форма 'vá' — для 'você'."},
-  {"cat": "gramática", "q": "Qual expressão usamos para dizer 'sinta-se como em casa' para um grupo (vocês)?", "options": ["Sente-se em casa!", "Sinta-se em casa!", "Sintam-se em casa!", "Sentem-se em casa!"], "answer": 2, "explanation": "'Sintam-se em casa' — императив глагола 'sentir-se' для 'vocês'. Местоимение '-se' присоединяется через дефис к глаголу в утвердительном императиве."},
-  {"cat": "gramática", "q": "Escolhe a resposta certa: Como se diz 'Не ходи туда, это опасно'? (para 'tu')", "options": ["Não vás ali, é perigoso.", "Não vai ali, é perigoso.", "Não vá ali, é perigoso.", "Não ias ali, é perigoso."], "answer": 0, "explanation": "Отрицательный императив глагола 'ir' для 'tu' — 'não vás'. Форма 'não vai' ошибочна, т.к. 'vai' — утвердительный императив. 'Não vá' — форма для 'você'."},
-  {"cat": "gramática", "q": "Qual é a regra do imperativo afirmativo para 'tu'?", "options": ["Igual à 1ª pessoa do presente (eu)", "Igual à 3ª pessoa do singular do presente (ele/ela)", "Igual ao infinitivo", "Igual à forma negativa"], "answer": 1, "explanation": "O imperativo afirmativo de 'tu' = 3ª pessoa do singular do Presente do Indicativo. Ex: ele fala → (tu) Fala! Atenção: só vale para o afirmativo — o negativo (não fales) usa outra forma."},
-  {"cat": "gramática", "q": "Qual é o imperativo afirmativo de 'dizer' para 'tu'?", "options": ["Diz!", "Dize!", "Digas!", "Dizes!"], "answer": 0, "explanation": "DIZER: ele diz → (tu) Diz! Segue a regra: imperativo afirmativo de tu = 3ª pessoa do presente do indicativo."},
-  {"cat": "gramática", "q": "Qual é o imperativo afirmativo de 'pôr' para 'tu'?", "options": ["Ponhas!", "Põe!", "Pões!", "Pôr!"], "answer": 1, "explanation": "PÔR: ele põe → (tu) Põe! 'Ponhas' seria a forma do imperativo negativo (não ponhas), que vem de outra base."},
-  {"cat": "gramática", "q": "Qual é o imperativo afirmativo de 'ir' para 'tu'?", "options": ["Vais!", "Vá!", "Vai!", "Vás!"], "answer": 2, "explanation": "IR é irregular: (tu) Vai! Mas o negativo é 'Não vás' — não segue a regra normal da 3ª pessoa, é uma exceção a decorar."},
-  {"cat": "gramática", "q": "Qual é o imperativo afirmativo de 'ver' para 'tu'?", "options": ["Vê!", "Veja!", "Vês!", "Veres!"], "answer": 0, "explanation": "VER: ele vê → (tu) Vê! Segue a regra geral: 3ª pessoa do presente do indicativo. 'Veja' seria a forma para 'você'."},
-  {"cat": "gramática", "q": "Qual é o imperativo (você) do verbo 'comprar'?", "options": ["Compre!", "Compra!", "Compras!", "Compre-se!"], "answer": 0, "explanation": "COMPRAR (-ar): eu compro → Compre! (você). A terminação -ar muda para -e no imperativo de 'você'."},
-  {"cat": "gramática", "q": "Qual é o imperativo negativo (tu) do verbo 'abrir'?", "options": ["Não abre!", "Não abras!", "Não abra!", "Não abrir!"], "answer": 1, "explanation": "ABRIR (-ir): eu abro → Não abras! (tu, negativo). A terminação -ir muda para -as no negativo de 'tu'. 'Não abra' seria para 'você'."},
-  {"cat": "gramática", "q": "Completa o conselho do médico: '___ mais a pé.' (andar, você)", "options": ["Anda", "Ande", "Andas", "Andar"], "answer": 1, "explanation": "ANDAR (-ar): eu ando → Ande! (você). 'O seu coração precisa de exercício. Ande mais a pé.'"},
-  {"cat": "gramática", "q": "Como se diz corretamente 'не ешьте жирное' para 'você'?", "options": ["Não come gorduras!", "Não coma gorduras!", "Não comas gorduras!", "Não comer gorduras!"], "answer": 1, "explanation": "COMER (-er): eu como → Não coma! (você, negativo). 'Não comas' seria a forma para 'tu'."},
-  {"cat": "gramática", "q": "Qual é o imperativo (você) do verbo 'ouvir'?", "options": ["Ouve!", "Ouça!", "Ouves!", "Ouvir!"], "answer": 1, "explanation": "OUVIR é irregular: eu ouço → Ouça! (você)."},
-  {"cat": "gramática", "q": "Qual é o imperativo (você) do verbo 'pagar'?", "options": ["Paga!", "Pague!", "Pagas!", "Pagar!"], "answer": 1, "explanation": "PAGAR: eu pago → Pague! (você) — atenção à mudança ortográfica g→gu antes de 'e', para manter o som [g]."},
+  {"cat": "ar", "q": "Imperativo tu (afirmativo) de «falar»:", "options": ["Fale!", "Fala!", "Fales!", "Falas!"], "answer": 1, "writeAnswer": "Fala!", "explanation": "Tu afirmativo = 3-е лицо ед.ч. presente: ele fala → Fala!"},
+  {"cat": "er", "q": "Imperativo tu (afirmativo) de «comer»:", "options": ["Coma!", "Comes!", "Come!", "Comas!"], "answer": 2, "writeAnswer": "Come!", "explanation": "Ele come → Come!"},
+  {"cat": "ar", "q": "Imperativo tu (negativo) de «falar»:", "options": ["Não fala!", "Não fale!", "Não fales!", "Não falas!"], "answer": 2, "writeAnswer": "Não fales!", "explanation": "Tu negativo: берём eu falo → убираем -o → -ar глаголы получают -es: Não fales!"},
+  {"cat": "er", "q": "Imperativo tu (negativo) de «comer»:", "options": ["Não come!", "Não comas!", "Não comes!", "Não coma!"], "answer": 1, "writeAnswer": "Não comas!", "explanation": "Eu como → com- + -as: Não comas! (у -er/-ir окончание меняется на -a)."},
+  {"cat": "ir", "q": "Imperativo você de «abrir»:", "options": ["Abre!", "Abra!", "Abras!", "Abri!"], "answer": 1, "writeAnswer": "Abra!", "explanation": "Você: eu abro → abr- + -a → Abra! (у -er/-ir → -a, у -ar → -e)."},
+  {"cat": "ar", "q": "Imperativo vocês de «falar»:", "options": ["Falam!", "Falem!", "Falai!", "Falas!"], "answer": 1, "writeAnswer": "Falem!", "explanation": "Vocês: fal- + -em → Falem!"},
+  {"cat": "irreg", "q": "Imperativo você de «fazer»:", "options": ["Faça!", "Faz!", "Faze!", "Fazia!"], "answer": 0, "writeAnswer": "Faça!", "explanation": "Eu faço → faç- + -a → Faça! (основа берётся от eu)."},
+  {"cat": "irreg", "q": "Imperativo você de «trazer»: «_____-me outro galão, por favor.»", "options": ["Traz", "Traga", "Trazer", "Trazes"], "answer": 1, "writeAnswer": "Traga", "explanation": "Eu trago → trag- + -a → Traga-me."},
+  {"cat": "irreg", "q": "Imperativo você de «pôr»:", "options": ["Põe!", "Ponha!", "Pões!", "Pora!"], "answer": 1, "writeAnswer": "Ponha!", "explanation": "Eu ponho → ponh- + -a → Ponha!"},
+  {"cat": "irreg", "q": "Imperativo você de «dormir»:", "options": ["Dorme!", "Durma!", "Dorma!", "Dormes!"], "answer": 1, "writeAnswer": "Durma!", "explanation": "Eu durmo → durm- + -a → Durma!"},
+  {"cat": "irreg", "q": "Imperativo você de «ser»: «_____ bem-vindo!»", "options": ["Sê", "Seja", "És", "Sejas"], "answer": 1, "writeAnswer": "Seja", "explanation": "Ser — неправильный: não sejas / seja / sejam. Tu afirmativo — sê."},
+  {"cat": "irreg", "q": "Imperativo tu negativo de «ir»:", "options": ["Não vais!", "Não vá!", "Não vás!", "Não ides!"], "answer": 2, "writeAnswer": "Não vás!", "explanation": "Ir — неправильный: não vás / vá / vão."},
+  {"cat": "irreg", "q": "Imperativo vocês de «estar»: «_____ quietos!»", "options": ["Estão", "Estejam", "Estem", "Estai"], "answer": 1, "writeAnswer": "Estejam", "explanation": "Estar: não estejas / esteja / estejam."},
+  {"cat": "irreg", "q": "Imperativo vocês de «dar»:", "options": ["Dão!", "Deem!", "Dêem!", "Dam!"], "answer": 1, "writeAnswer": "Deem!", "explanation": "Dar: não dês / dê / deem (по новой орфографии без ^)."},
+  {"cat": "uso", "q": "Placa: (сигарета перечёркнута) «Não _____!» (você)", "options": ["fuma", "fume", "fumes", "fumar"], "answer": 1, "writeAnswer": "fume", "explanation": "Você negativo = та же форма, что и você afirmativo: Fume! → Não fume!"},
+  {"cat": "uso", "q": "Onde é que lemos «Apertem os cintos»?", "options": ["Num avião.", "No consultório.", "Na pastelaria.", "No jardim."], "answer": 0, "writeAnswer": "Num avião.", "explanation": "Apertar os cintos — пристегнуть ремни (vocês)."},
+  {"cat": "uso", "q": "Onde é que lemos «Não pise a relva»?", "options": ["No parquímetro.", "No jardim.", "Numa etiqueta.", "Na escola."], "answer": 1, "writeAnswer": "No jardim.", "explanation": "Pisar a relva — ходить по газону."},
+  {"cat": "uso", "q": "Tu: «Fazer a cama» → afirmativo / negativo:", "options": ["Faz a cama! / Não faças a cama!", "Faça a cama! / Não faça a cama!", "Fazes a cama! / Não fazes a cama!", "Faz a cama! / Não faz a cama!"], "answer": 0, "writeAnswer": "Faz a cama! / Não faças a cama!", "explanation": "Tu afirmativo: ele faz → Faz! Tu negativo: eu faço → Não faças!"},
+  {"cat": "uso", "q": "Tu: «Ler esta revista» → negativo:", "options": ["Não lê esta revista!", "Não leias esta revista!", "Não leia esta revista!", "Não lês esta revista!"], "answer": 1, "writeAnswer": "Não leias esta revista!", "explanation": "Eu leio → lei- + -as → Não leias!"},
+  {"cat": "irreg", "q": "Você: «(Ter) _____ cuidado com a sua saúde.»", "options": ["Tem", "Tenha", "Tens", "Tenhas"], "answer": 1, "writeAnswer": "Tenha", "explanation": "Eu tenho → tenh- + -a → Tenha cuidado."},
+  {"cat": "irreg", "q": "Qual é a forma correta do imperativo de 'ser' para 'tu'?", "options": ["seja", "sê", "és", "sejas"], "answer": 1, "writeAnswer": "sê", "explanation": "Форма императива глагола 'ser' для 'tu' — 'sê'. 'Seja' — это форма для 'você', а 'sejas' используется только в отрицательном императиве."},
+  {"cat": "uso", "q": "Preenche o espaço: '_____ bem-vindos!' (vocês)", "options": ["Sejam", "Sê", "Seja", "São"], "answer": 0, "writeAnswer": "Sejam", "explanation": "'Sejam' — форма императива глагола 'ser' для 'vocês'. Именно эта форма используется, когда обращаемся к группе людей."},
+  {"cat": "irreg", "q": "Qual é a forma correta do imperativo de 'estar' para 'você'?", "options": ["está", "esteja", "estejas", "estejam"], "answer": 1, "writeAnswer": "esteja", "explanation": "Для 'você' в императиве глагол 'estar' принимает форму 'esteja'. 'Está' — форма для 'tu', 'estejam' — для 'vocês'."},
+  {"cat": "uso", "q": "Preenche o espaço: 'Dá-___ esta caneta, por favor.' (a mim)", "options": ["lhe", "nos", "me", "te"], "answer": 2, "writeAnswer": "me", "explanation": "'Dá-me' = дай мне. Местоимение 'me' соответствует первому лицу единственного числа (a mim). В императиве оно присоединяется через дефис."},
+  {"cat": "irreg", "q": "Escolhe a frase correta no imperativo negativo para 'tu' com o verbo 'estar':", "options": ["Não está parado!", "Não estejas parado!", "Não esteja parado!", "Não estejam parados!"], "answer": 1, "writeAnswer": "Não estejas parado!", "explanation": "В отрицательном императиве для 'tu' глагол 'estar' принимает форму 'estejas'. Форма 'está' используется только в утвердительном императиве для 'tu'."},
+  {"cat": "irreg", "q": "Preenche o espaço: 'Não ___ muito chocolate ao João.' (dar, tu, negativo)", "options": ["dás", "dê", "dês", "dá"], "answer": 2, "writeAnswer": "dês", "explanation": "В отрицательном императиве для 'tu' глагол 'dar' принимает форму 'dês'. Форма 'dá' — утвердительный императив для 'tu', 'dê' — для 'você'."},
+  {"cat": "irreg", "q": "Qual é a forma do imperativo de 'ir' para 'vocês' (negativo)?", "options": ["não vão", "não vás", "não vá", "não ides"], "answer": 0, "writeAnswer": "não vão", "explanation": "Отрицательный императив глагола 'ir' для 'vocês' — 'não vão'. Для 'tu' — 'não vás', для 'você' — 'não vá'."},
+  {"cat": "uso", "q": "Traduz para português: 'Не беспокойся, они уже дома.' (для 'tu')", "options": ["Não te preocupes, eles já estão em casa.", "Não se preocupe, eles já estão em casa.", "Não estejas preocupado, eles vão estar em casa.", "Não preocupes-te, eles já são em casa."], "answer": 0, "writeAnswer": "Não te preocupes, eles já estão em casa.", "explanation": "Для 'tu' отрицательный императив 'preocupar-se' → 'não te preocupes'. Местоимение 'te' стоит перед глаголом в отрицательной форме. 'Estão em casa' — правильное употребление глагола 'estar'."},
+  {"cat": "uso", "q": "Escolhe a frase correta: Maria diz ao filho para ir buscar documentos à escola.", "options": ["Vão à escola, busca os documentos.", "Vai à escola, busca os documentos.", "Vai à escola buscar os documentos.", "Vá à escola buscar os documentos."], "answer": 2, "writeAnswer": "Vai à escola buscar os documentos.", "explanation": "Для 'tu' утвердительный императив 'ir' → 'vai'. Второй глагол стоит в инфинитиве без предлога после глагола движения: 'vai à escola buscar'. Форма 'vá' — для 'você'."},
+  {"cat": "uso", "q": "Qual expressão usamos para dizer 'sinta-se como em casa' para um grupo (vocês)?", "options": ["Sente-se em casa!", "Sinta-se em casa!", "Sintam-se em casa!", "Sentem-se em casa!"], "answer": 2, "writeAnswer": "Sintam-se em casa!", "explanation": "'Sintam-se em casa' — императив глагола 'sentir-se' для 'vocês'. Местоимение '-se' присоединяется через дефис к глаголу в утвердительном императиве."},
+  {"cat": "uso", "q": "Escolhe a resposta certa: Como se diz 'Не ходи туда, это опасно'? (para 'tu')", "options": ["Não vás ali, é perigoso.", "Não vai ali, é perigoso.", "Não vá ali, é perigoso.", "Não ias ali, é perigoso."], "answer": 0, "writeAnswer": "Não vás ali, é perigoso.", "explanation": "Отрицательный императив глагола 'ir' для 'tu' — 'não vás'. Форма 'não vai' ошибочна, т.к. 'vai' — утвердительный императив. 'Não vá' — форма для 'você'."},
+  {"cat": "uso", "q": "Qual é a regra do imperativo afirmativo para 'tu'?", "options": ["Igual à 1ª pessoa do presente (eu)", "Igual à 3ª pessoa do singular do presente (ele/ela)", "Igual ao infinitivo", "Igual à forma negativa"], "answer": 1, "writeAnswer": "Igual à 3ª pessoa do singular do presente (ele/ela)", "explanation": "O imperativo afirmativo de 'tu' = 3ª pessoa do singular do Presente do Indicativo. Ex: ele fala → (tu) Fala! Atenção: só vale para o afirmativo — o negativo (não fales) usa outra forma."},
+  {"cat": "irreg", "q": "Qual é o imperativo afirmativo de 'dizer' para 'tu'?", "options": ["Diz!", "Dize!", "Digas!", "Dizes!"], "answer": 0, "writeAnswer": "Diz!", "explanation": "DIZER: ele diz → (tu) Diz! Segue a regra: imperativo afirmativo de tu = 3ª pessoa do presente do indicativo."},
+  {"cat": "irreg", "q": "Qual é o imperativo afirmativo de 'pôr' para 'tu'?", "options": ["Ponhas!", "Põe!", "Pões!", "Pôr!"], "answer": 1, "writeAnswer": "Põe!", "explanation": "PÔR: ele põe → (tu) Põe! 'Ponhas' seria a forma do imperativo negativo (não ponhas), que vem de outra base."},
+  {"cat": "irreg", "q": "Qual é o imperativo afirmativo de 'ir' para 'tu'?", "options": ["Vais!", "Vá!", "Vai!", "Vás!"], "answer": 2, "writeAnswer": "Vai!", "explanation": "IR é irregular: (tu) Vai! Mas o negativo é 'Não vás' — não segue a regra normal da 3ª pessoa, é uma exceção a decorar."},
+  {"cat": "irreg", "q": "Qual é o imperativo afirmativo de 'ver' para 'tu'?", "options": ["Vê!", "Veja!", "Vês!", "Veres!"], "answer": 0, "writeAnswer": "Vê!", "explanation": "VER: ele vê → (tu) Vê! Segue a regra geral: 3ª pessoa do presente do indicativo. 'Veja' seria a forma para 'você'."},
+  {"cat": "ar", "q": "Qual é o imperativo (você) do verbo 'comprar'?", "options": ["Compre!", "Compra!", "Compras!", "Compre-se!"], "answer": 0, "writeAnswer": "Compre!", "explanation": "COMPRAR (-ar): eu compro → Compre! (você). A terminação -ar muda para -e no imperativo de 'você'."},
+  {"cat": "ir", "q": "Qual é o imperativo negativo (tu) do verbo 'abrir'?", "options": ["Não abre!", "Não abras!", "Não abra!", "Não abrir!"], "answer": 1, "writeAnswer": "Não abras!", "explanation": "ABRIR (-ir): eu abro → Não abras! (tu, negativo). A terminação -ir muda para -as no negativo de 'tu'. 'Não abra' seria para 'você'."},
+  {"cat": "ar", "q": "Completa o conselho do médico: '___ mais a pé.' (andar, você)", "options": ["Anda", "Ande", "Andas", "Andar"], "answer": 1, "writeAnswer": "Ande", "explanation": "ANDAR (-ar): eu ando → Ande! (você). 'O seu coração precisa de exercício. Ande mais a pé.'"},
+  {"cat": "er", "q": "Como se diz corretamente 'не ешьте жирное' para 'você'?", "options": ["Não come gorduras!", "Não coma gorduras!", "Não comas gorduras!", "Não comer gorduras!"], "answer": 1, "writeAnswer": "Não coma gorduras!", "explanation": "COMER (-er): eu como → Não coma! (você, negativo). 'Não comas' seria a forma para 'tu'."},
+  {"cat": "irreg", "q": "Qual é o imperativo (você) do verbo 'ouvir'?", "options": ["Ouve!", "Ouça!", "Ouves!", "Ouvir!"], "answer": 1, "writeAnswer": "Ouça!", "explanation": "OUVIR é irregular: eu ouço → Ouça! (você)."},
+  {"cat": "ar", "q": "Qual é o imperativo (você) do verbo 'pagar'?", "options": ["Paga!", "Pague!", "Pagas!", "Pagar!"], "answer": 1, "writeAnswer": "Pague!", "explanation": "PAGAR: eu pago → Pague! (você) — atenção à mudança ortográfica g→gu antes de 'e', para manter o som [g]."},
 ];
-const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
-const classMap = { "gramática":"badge-gramática", "vocabulário":"badge-vocabulário", "prática":"badge-prática" };
-let current=0,score=0,answered=false,mistakes=[],shuffled=[];
-function shuffle(arr){return[...arr].sort(()=>Math.random()-0.5);}
-function start(){shuffled=shuffle(questions);current=0;score=0;answered=false;mistakes=[];document.getElementById('results').classList.remove('show');document.getElementById('quizCard').style.display='block';renderQuestion();}
-function renderQuestion(){
-  const q=shuffled[current],total=shuffled.length;
-  document.getElementById('progressBar').style.width=(current/total*100)+'%';
-  document.getElementById('progressLabel').textContent=`Questão ${current+1} de ${total}`;
-  const badge=document.getElementById('badge');
-  badge.textContent=labelMap[q.cat]||q.cat;badge.className='category-badge '+(classMap[q.cat]||'badge-prática');
-  document.getElementById('question').textContent=q.q;
-  const opts=document.getElementById('options');opts.innerHTML='';
-  q.options.forEach((opt,i)=>{
-    const btn=document.createElement('button');btn.className='option-btn';btn.textContent=opt;
-    btn.onclick=()=>selectAnswer(i,q);opts.appendChild(btn);
-  });
-  document.getElementById('feedback').className='feedback';
-  document.getElementById('feedback').textContent='';
-  document.getElementById('nextBtn').classList.remove('show');
-  answered=false;
+
+const labelMap = { ar:"-AR", er:"-ER", ir:"-IR", irreg:"Irregulares", uso:"Uso / contexto" };
+const classMap = { ar:"cat-ar", er:"cat-er", ir:"cat-ir", irreg:"cat-irreg", uso:"cat-uso" };
+
+let mode = 'choice', activeFilter = 'todos';
+let shuffled = [], current = 0, score = 0, answered = false, mistakes = [];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnChoice').classList.toggle('active', m === 'choice');
+  document.getElementById('btnWrite').classList.toggle('active', m === 'write');
+  restart();
 }
-function selectAnswer(i,q){
-  if(answered)return;answered=true;
-  const btns=document.querySelectorAll('.option-btn');
-  btns.forEach(b=>b.disabled=true);
-  const fb=document.getElementById('feedback');
-  if(i===q.answer){btns[i].classList.add('correct');score++;fb.className='feedback ok show';fb.textContent='✓ '+q.explanation;}
-  else{btns[i].classList.add('wrong');btns[q.answer].classList.add('correct');fb.className='feedback err show';fb.textContent='✗ '+q.explanation;mistakes.push({q:q.q,correct:q.options[q.answer]});}
-  document.getElementById('nextBtn').classList.add('show');
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
 }
-function nextQuestion(){
-  current++;
-  if(current>=shuffled.length){showResults();}else{renderQuestion();}
+
+function restart() {
+  let pool = activeFilter === 'todos' ? questions : questions.filter(q => q.cat === activeFilter);
+  if (mode === 'write') {
+    const w = pool.filter(q => q.q.includes('___') && !q.writeAnswer.includes(' '));
+    if (w.length) pool = w; else { mode = 'choice';
+      document.getElementById('btnChoice').classList.add('active'); document.getElementById('btnWrite').classList.remove('active'); }
+  }
+  if (!pool.length) pool = questions;
+  shuffled = shuffle(pool);
+  current = 0; score = 0; answered = false; mistakes = [];
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quizCard').style.display = 'block';
+  renderQuestion();
 }
-function showResults(){
-  document.getElementById('quizCard').style.display='none';
-  const res=document.getElementById('results');res.classList.add('show');
-  const pct=Math.round(score/shuffled.length*100);
-  document.getElementById('scoreNum').textContent=score;
-  document.getElementById('scoreDenom').textContent='/'+shuffled.length;
-  document.getElementById('resultsTitle').textContent=pct>=80?'Excelente!':pct>=60?'Muito bem!':'Continue a praticar!';
-  document.getElementById('resultsMsg').textContent=`${pct}% — ${score} de ${shuffled.length} corretas`;
-  const ml=document.getElementById('mistakesList');ml.innerHTML='';
-  if(mistakes.length){
-    const h=document.createElement('h3');h.textContent='Para rever:';ml.appendChild(h);
-    mistakes.forEach(m=>{const d=document.createElement('div');d.className='mistake-item';d.innerHTML=`<strong>${m.q}</strong><br>→ <span class="correct-ans">${m.correct}</span>`;ml.appendChild(d);});
+
+function renderQuestion() {
+  if (current >= shuffled.length) { showResults(); return; }
+  const q = shuffled[current];
+  const total = shuffled.length;
+
+  document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+  document.getElementById('progressLabel').textContent = 'Questão ' + (current + 1) + ' de ' + total;
+
+  const badge = document.getElementById('badge');
+  badge.textContent = labelMap[q.cat];
+  badge.className = 'category-badge ' + classMap[q.cat];
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+  answered = false;
+
+  document.getElementById('choiceArea').style.display = 'none';
+  document.getElementById('writeArea').style.display = 'none';
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('question').textContent = q.q;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    const indices = q.options.map((_,i) => i);
+    const si = shuffle(indices);
+    const newCorrect = si.indexOf(q.answer);
+    si.forEach((origIdx, newIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = q.options[origIdx];
+      btn.onclick = () => selectAnswer(newIdx, newCorrect, q);
+      optDiv.appendChild(btn);
+    });
+  } else {
+    document.getElementById('writeArea').style.display = 'block';
+    // Split question to show blank
+    const parts = q.q.split('___');
+    const verbMatch = q.q.match(/\(([^)]+)\)/);
+    const verbHintText = verbMatch ? 'Verbo: ' + verbMatch[1] : '';
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blankEl = document.createElement('span');
+    blankEl.className = 'sentence-blank';
+    blankEl.id = 'blankSpan';
+    blankEl.textContent = '___';
+    sd.appendChild(blankEl);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('verbHint').textContent = verbHintText;
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtn').disabled = false;
+    setTimeout(() => inp.focus(), 50);
   }
 }
-function restart(){start();}
-start();
+
+function selectAnswer(chosen, correct, q) {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[correct].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  if (chosen === correct) {
+    score++; btns[chosen].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[chosen].classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: btns[chosen].textContent, right: q.writeAnswer });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = shuffled[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true;
+  inp.disabled = true;
+  document.getElementById('checkBtn').disabled = true;
+
+  // Strict: exact match (case insensitive, accents required)
+  const correct = raw.toLowerCase() === q.writeAnswer.toLowerCase();
+  const blank = document.getElementById('blankSpan');
+  if (blank) {
+    blank.textContent = correct ? raw : q.writeAnswer;
+    blank.style.borderColor = correct ? '#68d391' : '#fc8181';
+    blank.style.color = correct ? '#276749' : '#c53030';
+  }
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Forma correta: «' + q.writeAnswer + '». ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: raw, right: q.writeAnswer });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() { current++; renderQuestion(); }
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('progressBar').style.width = '100%';
+  const total = shuffled.length;
+  const pct = Math.round(score / total * 100);
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = 'de ' + total;
+  const msgs = pct >= 90 ? ['Excelente!','Dominas os verbos!'] : pct >= 70 ? ['Muito bem!','Revê os erros abaixo.'] : pct >= 50 ? ['Continua!','Há espaço para melhorar.'] : ['Não desistas!','Revê as conjugações!'];
+  document.getElementById('resultsTitle').textContent = msgs[0];
+  document.getElementById('resultsMsg').textContent = pct + '% correto. ' + msgs[1];
+  const ml = document.getElementById('mistakesList');
+  ml.innerHTML = mistakes.length ? '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+    '<div class="mistake-item"><div>' + m.q + '</div><div>Escreveste: <strong>' + m.wrong + '</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">' + m.right + '</span></div></div>'
+  ).join('') : '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (!answered && mode === 'write') checkWrite();
+  else if (answered) { const nb = document.getElementById('nextBtn'); if (nb.classList.contains('show')) nextQuestion(); }
+});
+
+restart();
 </script>
 </body>
 </html>

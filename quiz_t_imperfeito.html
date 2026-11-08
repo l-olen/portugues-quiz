@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="pt">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Quiz -- Pretérito imperfeito</title>
+<style>
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
+  .container { max-width: 680px; margin: 0 auto; }
+  header { text-align: center; padding: 30px 0 20px; }
+  header h1 { font-size: 1.8rem; color: #276749; margin-bottom: 6px; }
+  header p { color: #718096; font-size: 0.95rem; }
+  .back-link { display: inline-block; margin-bottom: 16px; color: #718096; font-size: 0.88rem; text-decoration: none; }
+  .back-link:hover { color: #276749; }
+
+  /* Mode toggle */
+  .mode-wrap { display: flex; gap: 0; background: white; border-radius: 12px; padding: 4px; box-shadow: 0 2px 8px rgba(0,0,0,0.07); margin-bottom: 20px; }
+  .mode-btn { flex: 1; padding: 10px; border: none; background: transparent; border-radius: 9px; font-size: 0.88rem; font-weight: 600; cursor: pointer; color: #718096; transition: all 0.2s; }
+  .mode-btn.active { background: #38a169; color: white; }
+
+  /* Filter */
+  .filter-wrap { margin-bottom: 16px; }
+  .filter-label { font-size: 0.72rem; font-weight: 700; text-transform: uppercase; letter-spacing: 0.08em; color: #a0aec0; margin-bottom: 8px; display: block; }
+  .filter-buttons { display: flex; flex-wrap: wrap; gap: 7px; }
+  .filter-btn { font-size: 0.78rem; font-weight: 600; padding: 5px 12px; border-radius: 20px; border: 2px solid #e2e8f0; cursor: pointer; background: white; color: #4a5568; transition: all 0.15s; }
+  .filter-btn.active-f { border-color: currentColor; }
+  .filter-btn[data-cat="todos"].active-f    { background: #edf2f7; }
+  .filter-btn[data-cat="presente"].active-f { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="pps"].active-f      { background: #f0fff4; color: #276749; }
+
+  /* Progress */
+  .progress-bar-wrap { background: #e2e8f0; border-radius: 8px; height: 8px; margin: 16px 0 4px; }
+  .progress-bar { height: 8px; border-radius: 8px; background: linear-gradient(90deg, #38a169, #68d391); transition: width 0.4s ease; }
+  .progress-label { text-align: right; font-size: 0.82rem; color: #718096; margin-top: 4px; margin-bottom: 16px; }
+
+  /* Card */
+  .card { background: white; border-radius: 16px; padding: 30px; box-shadow: 0 2px 12px rgba(0,0,0,0.08); margin-bottom: 20px; }
+  .category-badge { display: inline-block; font-size: 0.75rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.05em; padding: 3px 10px; border-radius: 20px; margin-bottom: 14px; }
+  .badge-presente { background: #faf5ff; color: #6b46c1; }
+  .badge-pps      { background: #f0fff4; color: #276749; }
+
+  /* Choice mode */
+  .question { font-size: 1.15rem; font-weight: 600; line-height: 1.5; margin-bottom: 20px; }
+  .options { display: flex; flex-direction: column; gap: 10px; }
+  .option-btn { background: #f7fafc; border: 2px solid #e2e8f0; border-radius: 10px; padding: 13px 18px; font-size: 1rem; text-align: left; cursor: pointer; transition: all 0.15s ease; color: #2d3748; }
+  .option-btn:hover:not(:disabled) { background: #f0fff4; border-color: #9ae6b4; }
+  .option-btn.correct { background: #f0fff4; border-color: #68d391; color: #276749; font-weight: 600; }
+  .option-btn.wrong { background: #fff5f5; border-color: #fc8181; color: #c53030; }
+  .option-btn:disabled { cursor: default; }
+
+  /* Write mode */
+  .sentence-display { font-size: 1.1rem; font-weight: 500; line-height: 1.9; margin-bottom: 8px; }
+  .sentence-blank { display: inline-block; min-width: 90px; border-bottom: 3px solid #38a169; color: #38a169; font-weight: 700; text-align: center; padding: 0 4px; vertical-align: bottom; }
+  .verb-hint { font-size: 0.85rem; color: #a0aec0; margin-bottom: 18px; }
+  .write-row { display: flex; gap: 10px; }
+  .write-input { flex: 1; padding: 13px 16px; border: 2px solid #e2e8f0; border-radius: 10px; font-size: 1.05rem; font-family: inherit; color: #2d3748; outline: none; transition: border-color 0.15s; }
+  .write-input:focus { border-color: #9ae6b4; }
+  .write-input.correct-inp { border-color: #68d391; background: #f0fff4; }
+  .write-input.wrong-inp   { border-color: #fc8181; background: #fff5f5; }
+  .check-btn { padding: 13px 20px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 0.95rem; font-weight: 600; cursor: pointer; }
+  .check-btn:hover { background: #276749; }
+  .check-btn:disabled { background: #a0aec0; cursor: default; }
+  .accent-note { font-size: 0.78rem; color: #e67e22; margin-top: 8px; }
+
+  /* Feedback */
+  .feedback { margin-top: 16px; padding: 12px 16px; border-radius: 10px; font-size: 0.9rem; line-height: 1.5; display: none; }
+  .feedback.show { display: block; }
+  .feedback.ok { background: #f0fff4; color: #276749; border-left: 4px solid #68d391; }
+  .feedback.err { background: #fff5f5; color: #c53030; border-left: 4px solid #fc8181; }
+  .next-btn { display: none; margin-top: 18px; width: 100%; padding: 14px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .next-btn:hover { background: #276749; }
+  .next-btn.show { display: block; }
+
+  /* Results */
+  .results { display: none; text-align: center; padding: 40px 30px; }
+  .results.show { display: block; }
+  .score-circle { width: 120px; height: 120px; border-radius: 50%; background: linear-gradient(135deg, #38a169, #68d391); display: flex; flex-direction: column; align-items: center; justify-content: center; margin: 0 auto 20px; color: white; }
+  .score-circle .num { font-size: 2.2rem; font-weight: 700; line-height: 1; }
+  .score-circle .denom { font-size: 0.85rem; opacity: 0.85; }
+  .results h2 { font-size: 1.5rem; margin-bottom: 8px; }
+  .results p { color: #718096; margin-bottom: 24px; }
+  .btn-row { display: flex; gap: 12px; justify-content: center; flex-wrap: wrap; }
+  .restart-btn { padding: 13px 32px; background: #38a169; color: white; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; }
+  .home-btn { padding: 13px 32px; background: #edf2f7; color: #4a5568; border: none; border-radius: 10px; font-size: 1rem; font-weight: 600; cursor: pointer; text-decoration: none; display: inline-block; }
+  .mistakes-list { text-align: left; margin-top: 28px; }
+  .mistakes-list h3 { font-size: 1rem; color: #c53030; margin-bottom: 12px; }
+  .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
+  .mistake-item strong { color: #c53030; }
+  .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+  .filter-btn[data-cat="ar"].active-f { background: #faf5ff; color: #6b46c1; }
+  .cat-ar { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="er"].active-f { background: #ebf8ff; color: #2b6cb0; }
+  .cat-er { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="ir"].active-f { background: #f0fff4; color: #276749; }
+  .cat-ir { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="irreg"].active-f { background: #fff5f5; color: #c53030; }
+  .cat-irreg { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="uso"].active-f { background: #fffaf0; color: #c05621; }
+  .cat-uso { background: #fffaf0; color: #c05621; }
+</style>
+</head>
+<body>
+<div class="container">
+
+  <a class="back-link" href="index.html">← Voltar ao menu</a>
+  <header>
+    <h1>Pretérito imperfeito</h1>
+    <p>falava / comia · era, tinha, vinha, punha · PPS vs imperfeito · 65 questões</p>
+  </header>
+
+  <div class="mode-wrap">
+    <button class="mode-btn active" id="btnChoice" onclick="setMode('choice')">Escolher (variantes)</button>
+    <button class="mode-btn" id="btnWrite" onclick="setMode('write')">Escrever (digitar forma)</button>
+  </div>
+
+  <div class="filter-wrap">
+    <span class="filter-label">Tipo de verbo</span>
+    <div class="filter-buttons">
+      <button class="filter-btn active-f" data-cat="todos" onclick="setFilter('todos',this)">Todos</button>
+      <button class="filter-btn" data-cat="ar" onclick="setFilter('ar',this)">-AR</button>
+      <button class="filter-btn" data-cat="er" onclick="setFilter('er',this)">-ER</button>
+      <button class="filter-btn" data-cat="ir" onclick="setFilter('ir',this)">-IR</button>
+      <button class="filter-btn" data-cat="irreg" onclick="setFilter('irreg',this)">Irregulares</button>
+      <button class="filter-btn" data-cat="uso" onclick="setFilter('uso',this)">Uso / contexto</button>
+    </div>
+  </div>
+
+  <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
+  <div class="progress-label" id="progressLabel"></div>
+
+  <div class="card" id="quizCard">
+    <div class="category-badge" id="badge"></div>
+
+    <!-- Choice mode -->
+    <div id="choiceArea">
+      <div class="question" id="question"></div>
+      <div class="options" id="options"></div>
+    </div>
+
+    <!-- Write mode -->
+    <div id="writeArea" style="display:none">
+      <div class="sentence-display" id="sentenceDisplay"></div>
+      <div class="verb-hint" id="verbHint"></div>
+      <div class="write-row">
+        <input type="text" class="write-input" id="writeInput" placeholder="forma correta..." autocomplete="off" autocorrect="off" spellcheck="false">
+        <button class="check-btn" id="checkBtn" onclick="checkWrite()">OK</button>
+      </div>
+      <div class="accent-note">Atenção: acentos obrigatórios (estás, chegámos...)</div>
+    </div>
+
+    <div class="feedback" id="feedback"></div>
+    <button class="next-btn" id="nextBtn" onclick="nextQuestion()">Próxima questão →</button>
+  </div>
+
+  <div class="card results" id="results">
+    <div class="score-circle">
+      <span class="num" id="scoreNum"></span>
+      <span class="denom" id="scoreDenom"></span>
+    </div>
+    <h2 id="resultsTitle"></h2>
+    <p id="resultsMsg"></p>
+    <div class="btn-row">
+      <button class="restart-btn" onclick="restart()">Repetir quiz</button>
+      <a class="home-btn" href="index.html">Menu principal</a>
+    </div>
+    <div class="mistakes-list" id="mistakesList"></div>
+  </div>
+
+</div>
+<script>
+// writeAnswer = форма, которую нужно напечатать точно (с акцентами)
+const questions = [
+  {"cat": "ar", "q": "Imperfeito: eu ___ (falar)", "options": ["falei", "falava", "falo", "falei"], "answer": 1, "writeAnswer": "falava", "explanation": "Imperfeito de falar (-ar): eu falava, tu falavas, ele falava, nós falávamos, eles falavam."},
+  {"cat": "ar", "q": "Imperfeito: ela ___ todos os dias. (trabalhar)", "options": ["trabalhou", "trabalha", "trabalhava", "trabalhará"], "answer": 2, "writeAnswer": "trabalhava", "explanation": "Imperfeito: ação habitual no passado → ela trabalhava."},
+  {"cat": "ar", "q": "Imperfeito: nós ___ juntos quando éramos novos. (jogar)", "options": ["jogámos", "jogamos", "jogávamos", "jogam"], "answer": 2, "writeAnswer": "jogávamos", "explanation": "Imperfeito nós (-ar): -ávamos. \"Nós jogávamos juntos.\""},
+  {"cat": "ar", "q": "Imperfeito: eles ___ muito. (falar)", "options": ["falavam", "falaram", "falam", "falariam"], "answer": 0, "writeAnswer": "falavam", "explanation": "Imperfeito eles (-ar): -avam. \"Eles falavam muito.\""},
+  {"cat": "er", "q": "Imperfeito: eu ___ (comer)", "options": ["comi", "comia", "como", "comerei"], "answer": 1, "writeAnswer": "comia", "explanation": "Imperfeito de comer (-er): eu comia, tu comias, ele comia, nós comíamos, eles comiam."},
+  {"cat": "ir", "q": "Imperfeito: nós ___ muito. (partir)", "options": ["partimos", "partíamos", "partimos", "partiremos"], "answer": 1, "writeAnswer": "partíamos", "explanation": "Imperfeito nós (-ir): -íamos. \"Nós partíamos muito.\""},
+  {"cat": "er", "q": "Imperfeito: tu ___ (viver)", "options": ["viveste", "vivias", "vives", "viverás"], "answer": 1, "writeAnswer": "vivias", "explanation": "Imperfeito tu (-er): -ias. \"Tu vivias.\""},
+  {"cat": "irreg", "q": "Imperfeito de SER: eu ___", "options": ["fui", "sou", "era", "seria"], "answer": 2, "writeAnswer": "era", "explanation": "SER -- Imperfeito: eu era, tu eras, ele era, nós éramos, eles eram."},
+  {"cat": "irreg", "q": "Imperfeito de SER: nós ___", "options": ["somos", "fomos", "seríamos", "éramos"], "answer": 3, "writeAnswer": "éramos", "explanation": "SER -- Imperfeito nós: éramos. Com acento: éra-mos."},
+  {"cat": "irreg", "q": "Imperfeito de TER: ela ___", "options": ["teve", "tem", "tinha", "terá"], "answer": 2, "writeAnswer": "tinha", "explanation": "TER -- Imperfeito: eu tinha, tu tinhas, ele tinha, nós tínhamos, eles tinham."},
+  {"cat": "irreg", "q": "Imperfeito de TER: nós ___", "options": ["temos", "tivemos", "teríamos", "tínhamos"], "answer": 3, "writeAnswer": "tínhamos", "explanation": "TER -- Imperfeito nós: tínhamos. Com acento no í."},
+  {"cat": "irreg", "q": "Imperfeito de VIR: eu ___", "options": ["vim", "venho", "vinha", "virei"], "answer": 2, "writeAnswer": "vinha", "explanation": "VIR -- Imperfeito: eu vinha, tu vinhas, ele vinha, nós vínhamos, eles vinham."},
+  {"cat": "irreg", "q": "Imperfeito de PÔR: ela ___", "options": ["pôs", "põe", "punha", "porá"], "answer": 2, "writeAnswer": "punha", "explanation": "PÔR -- Imperfeito: eu punha, tu punhas, ele punha, nós púnhamos, eles punham."},
+  {"cat": "irreg", "q": "Imperfeito de IR: eles ___", "options": ["foram", "vão", "iam", "irão"], "answer": 2, "writeAnswer": "iam", "explanation": "IR -- Imperfeito: eu ia, tu ias, ele ia, nós íamos, eles iam."},
+  {"cat": "uso", "q": "O exame ___ difícil. (конкретное событие -- PPS)", "options": ["era", "estava", "foi", "esteve"], "answer": 2, "writeAnswer": "foi", "explanation": "Evento concluído → PPS: foi. \"O exame foi difícil.\""},
+  {"cat": "uso", "q": "Antigamente, a biblioteca ___ aqui. (Imperfeito)", "options": ["foi", "esteve", "era", "estava"], "answer": 2, "writeAnswer": "era", "explanation": "Estado habitual no passado → Imperfeito: era. \"Antigamente a biblioteca era aqui.\""},
+  {"cat": "ar", "q": "Quando era pequena, ___ muito. (brincar -- Imperfeito)", "options": ["brincou", "brinca", "brincava", "brincará"], "answer": 2, "writeAnswer": "brincava", "explanation": "Ação habitual no passado + \"quando era\" → Imperfeito: brincava."},
+  {"cat": "uso", "q": "Ontem o filme ___. (ser interessante -- PPS)", "options": ["era interessante", "foi interessante", "está interessante", "é interessante"], "answer": 1, "writeAnswer": "foi interessante", "explanation": "Ontem + evento concluído → PPS: foi interessante."},
+  {"cat": "irreg", "q": "Eu ___ um gato quando era jovem. (ter -- estado)", "options": ["tive", "tinha", "tenho", "terei"], "answer": 1, "writeAnswer": "tinha", "explanation": "Estado/posse habitual sem marco temporal → Imperfeito: tinha. PPS seria para plano cumprido."},
+  {"cat": "irreg", "q": "Ela ___ os planos e saiu. (ter -- plano cumprido)", "options": ["tinha", "tem", "teve", "terá"], "answer": 2, "writeAnswer": "teve", "explanation": "Plano concluído → PPS: teve. \"Ela teve os planos e saiu.\""},
+  {"cat": "uso", "q": "Voz educada: 'Quero um café' → forma mais educada:", "options": ["Quisera um café.", "Queria um café.", "Quero muito um café.", "Quereria um café."], "answer": 1, "writeAnswer": "Queria um café.", "explanation": "Imperfeito de cortesia: queria = forma mais educada do que quero."},
+  {"cat": "uso", "q": "Qual frase usa o Imperfeito de cortesia?", "options": ["Posso ajudar?", "Eu ia perguntar-te uma coisa.", "Eu preferia ir ao teatro.", "Eu vou ao cinema."], "answer": 2, "writeAnswer": "Eu preferia ir ao teatro.", "explanation": "\"Eu preferia ir ao teatro\" = Imperfeito de cortesia (preferência gentil)."},
+  {"cat": "ar", "q": "Situação hipotética: 'Eu ___ com ela, mas não tenho o número.' (falar)", "options": ["falei", "falo", "falava", "falarei"], "answer": 2, "writeAnswer": "falava", "explanation": "Situação hipotética com obstáculo → Imperfeito: falava. \"Eu falava com ela, mas...\""},
+  {"cat": "ar", "q": "Sonho: 'Eu ___ visitar todos os países do mundo.' (adorar)", "options": ["adorei", "adoro", "adorava", "adorarei"], "answer": 2, "writeAnswer": "adorava", "explanation": "Sonho / desejo impossível → Imperfeito: adorava. \"Eu adorava visitar...\""},
+  {"cat": "uso", "q": "Qual frase expressa um sonho com Imperfeito?", "options": ["Eu quero ter um avião.", "Eu queria ter um avião.", "Eu terei um avião.", "Eu tive um avião."], "answer": 1, "writeAnswer": "Eu queria ter um avião.", "explanation": "Sonho → Imperfeito: queria. Mais suave e melancólico do que quero."},
+  {"cat": "irreg", "q": "'Eu ___ ao concerto mas vou ter o teste.' (ir -- hipotética)", "options": ["fui", "vou", "ia", "irei"], "answer": 2, "writeAnswer": "ia", "explanation": "Hipotética com obstáculo → Imperfeito: ia. \"Eu ia ao concerto, mas...\""},
+  {"cat": "irreg", "q": "SER, imperfeito: «Antigamente eu ___ professora.»", "options": ["fui", "era", "sou", "seria"], "answer": 1, "writeAnswer": "era", "explanation": "SER imperfeito: eu ERA, tu eras, ele era, nós éramos, eles eram. Для характеристик/привычек в прошлом."},
+  {"cat": "irreg", "q": "SER imperfeito: «Nós ___ amigos.» (ударение правильное?)", "options": ["éramos", "eramos", "somos", "fomos"], "answer": 0, "writeAnswer": "éramos", "explanation": "ÉRAMOS -- обязательно с ударением на Е. Без ударения (eramos) -- это ошибка. nós éramos."},
+  {"cat": "irreg", "q": "SER imperfeito: «As aulas ___ mais fáceis no ano passado.»", "options": ["foram", "seriam", "eram", "são"], "answer": 2, "writeAnswer": "eram", "explanation": "ERAM -- привычное состояние в прошлом (imperfeito). Foram -- конкретное событие (PPS)."},
+  {"cat": "irreg", "q": "TER, imperfeito: «Ela ___ um cão quando era pequena.»", "options": ["teve", "tinha", "tem", "teria"], "answer": 1, "writeAnswer": "tinha", "explanation": "TER imperfeito: eu tinha, tu tinhas, ele TINHA, nós tínhamos, eles tinham. Предметы/животные → imperfeito."},
+  {"cat": "irreg", "q": "TER imperfeito: «Quando eu era criança, ___ muito tempo livre.»", "options": ["tive", "tinha", "tínhamos", "tenho"], "answer": 1, "writeAnswer": "tinha", "explanation": "TINHA -- обычное состояние в прошлом (детство = длительный период). TER + coisas/tempo → imperfeito."},
+  {"cat": "irreg", "q": "TER imperfeito: «Nós ___ muitos amigos em Lisboa.»", "options": ["tivemos", "tínhamos", "temos", "teriamos"], "answer": 1, "writeAnswer": "tínhamos", "explanation": "TÍNHAMOS -- с ударением на Í. nós tínhamos (imperfeito). tivemos = PPS (конкретный момент)."},
+  {"cat": "irreg", "q": "VIR, imperfeito: «Eles sempre ___ visitar-nos ao fim de semana.»", "options": ["vieram", "vinham", "vêm", "venham"], "answer": 1, "writeAnswer": "vinham", "explanation": "VIR imperfeito: eu vinha, tu vinhas, ele vinha, nós vínhamos, eles VINHAM. Регулярное действие в прошлом."},
+  {"cat": "irreg", "q": "VIR imperfeito: «Ela ___ de Lisboa todas as semanas.»", "options": ["veio", "vinha", "venho", "virá"], "answer": 1, "writeAnswer": "vinha", "explanation": "VINHA -- регулярное действие в прошлом. veio = PPS (один раз). vinha = привычка (imperfeito)."},
+  {"cat": "irreg", "q": "PÔR, presente: «Eu ___ os livros na mesa.»", "options": ["poo", "põe", "ponho", "põe"], "answer": 2, "writeAnswer": "ponho", "explanation": "PÔR presente: eu PONHO (исключение!), tu pões, ele põe, nós pomos, eles põem."},
+  {"cat": "irreg", "q": "PÔR, presente: «Ela ___ sal na sopa.»", "options": ["pona", "ponha", "põe", "pomos"], "answer": 2, "writeAnswer": "põe", "explanation": "PÔR: ele/ela PÕE. Atenção ao acento: põe (não: poe)."},
+  {"cat": "irreg", "q": "PÔR, imperfeito: «Antes ela sempre ___ a mesa.»", "options": ["punha", "põe", "pôs", "poria"], "answer": 0, "writeAnswer": "punha", "explanation": "PÔR imperfeito: eu PUNHA, tu punhas, ele punha, nós púnhamos, eles punham. Заметьте: punha (не: punhava)."},
+  {"cat": "irreg", "q": "PÔR, imperfeito: «Nós sempre ___ música durante o jantar.»", "options": ["puchamos", "púnhamos", "ponhamos", "pusemos"], "answer": 1, "writeAnswer": "púnhamos", "explanation": "PÔR imperfeito nós: PÚNHAMOS (com acento em Ú). pusemos = PPS (если бы существовало, но PPS de pôr = pus/puseste/pôs/pusemos/puseram)."},
+  {"cat": "uso", "q": "Qual frase usa PÔR corretamente?", "options": ["Ela pões os óculos.", "Eu ponho o casaco.", "Nós pois a mesa.", "Eles põmos a música."], "answer": 1, "writeAnswer": "Eu ponho o casaco.", "explanation": "EU PONHO -- правильная форма. pões = tu; pomos = nós (não põmos); põem = eles."},
+  {"cat": "irreg", "q": "IR, imperfeito: «Antigamente eles ___ à missa todos os domingos.»", "options": ["foram", "iam", "vão", "iriam"], "answer": 1, "writeAnswer": "iam", "explanation": "IR imperfeito: eu ia, tu ias, ele ia, nós íamos, eles IAM. Регулярное действие в прошлом."},
+  {"cat": "irreg", "q": "IR imperfeito: «Nós ___ à praia todos os verões.»", "options": ["fomos", "íamos", "vamos", "iríamos"], "answer": 1, "writeAnswer": "íamos", "explanation": "ÍAMOS -- с ударением на Í. nós íamos (imperfeito регулярное). fomos = PPS (один раз/конкретно)."},
+  {"cat": "ar", "q": "ESTAR, imperfeito: «Ela ___ triste quando eu cheguei.»", "options": ["esteve", "estava", "está", "estaria"], "answer": 1, "writeAnswer": "estava", "explanation": "ESTAR imperfeito: eu estava, tu estavas, ela ESTAVA, nós estávamos, eles estavam. Фоновое состояние = imperfeito."},
+  {"cat": "ar", "q": "ESTAR imperfeito: «Enquanto eu estudava, ele ___ a ver televisão.»", "options": ["esteve", "estava", "está", "esteve a ver"], "answer": 1, "writeAnswer": "estava", "explanation": "ESTAVA -- оба действия параллельны (enquanto + imperfeito + imperfeito). Фоновые действия."},
+  {"cat": "uso", "q": "«Eu queria um café, por favor.» Qual uso do Imperfeito é este?", "options": ["Sonho", "Hipótese", "Cortesia", "Hábito passado"], "answer": 2, "writeAnswer": "Cortesia", "explanation": "Imperfeito de CORTESIA: queria/preferia/podia/gostava (mais suave que quero/pode). «Eu queria um café» = Um café, por favor (очень вежливо)."},
+  {"cat": "ir", "q": "«Eu gostava de dormir mais.» Qual uso?", "options": ["Cortesia", "Sonho/Desejo", "Hipótese", "Hábito"], "answer": 1, "writeAnswer": "Sonho/Desejo", "explanation": "Imperfeito de SONHO/DESEJO: adorava visitar / queria ter / gostava de... Выражает мечты и желания."},
+  {"cat": "uso", "q": "«Eu ia correr, mas está a chover.» Qual uso?", "options": ["Sonho", "Cortesia", "Situação hipotética", "Hábito passado"], "answer": 2, "writeAnswer": "Situação hipotética", "explanation": "Imperfeito HIPOTÉTICO (condicional): ia/falava/conseguia... + mas + obstáculo. «Eu ia correr, mas...»"},
+  {"cat": "ar", "q": "«Antigamente eu costumava acordar cedo.» Qual uso?", "options": ["Cortesia", "Hipótese", "Sonho", "Hábito passado (costumar)"], "answer": 3, "writeAnswer": "Hábito passado (costumar)", "explanation": "COSTUMAR no Imperfeito = «used to» (раньше обычно делал). costumava acordar = eu acordava regularmente no passado."},
+  {"cat": "irreg", "q": "«Quando eu era criança, tinha 8 anos.» Por que Imperfeito?", "options": ["Cortesia", "Idade usa sempre Imperfeito", "Hipótese", "Sonho"], "answer": 1, "writeAnswer": "Idade usa sempre Imperfeito", "explanation": "IDADE (возраст) com TER → sempre Imperfeito. «Tinha 8 anos» (não «tive 8 anos»). Исключение: «tive 8 anos» = совершенно неестественно."},
+  {"cat": "uso", "q": "«As aulas eram às 9:00.» Por que Imperfeito?", "options": ["Característica geral", "Cortesia", "Horário habitual usa Imperfeito", "Hipótese"], "answer": 2, "writeAnswer": "Horário habitual usa Imperfeito", "explanation": "HORAS habituais (horário de funcionamento/aulas regulares) → Imperfeito. «As aulas eram às 9» = занятия были в 9 (регулярно). Mas: «O treino foi às 9» = конкретное событие."},
+  {"cat": "uso", "q": "«Enquanto ela cozinhava, eu lia o jornal.» Qual estrutura?", "options": ["PPS + PPS", "Imperfeito + Imperfeito", "Imperfeito + PPS", "PPS + Imperfeito"], "answer": 1, "writeAnswer": "Imperfeito + Imperfeito", "explanation": "ENQUANTO + duas ações simultâneas no passado = Imperfeito + Imperfeito. Оба действия длились параллельно."},
+  {"cat": "er", "q": "Enquanto eu ___ (fazer) o jantar, ele telefonou.", "options": ["fiz", "fazia", "faço", "fizera"], "answer": 1, "writeAnswer": "fazia", "explanation": "'enquanto' + ação contínua no passado → Imperfeito: fazia"},
+  {"cat": "er", "q": "Quando era pequena, ela ___ (trazer) flores para a professora.", "options": ["trouxe", "trazia", "traz", "trouxera"], "answer": 1, "writeAnswer": "trazia", "explanation": "Hábito no passado → Imperfeito: trazia"},
+  {"cat": "er", "q": "Eu sempre ___ (querer) visitar o Japão.", "options": ["quis", "quero", "queria", "quisei"], "answer": 2, "writeAnswer": "queria", "explanation": "Desejo habitual/duradouro no passado → Imperfeito: queria"},
+  {"cat": "ar", "q": "Eu ___ português antigamente. (falar)", "options": ["falo", "falava", "falei", "falavas"], "answer": 1, "writeAnswer": "falava", "explanation": "Imperfeito, verbo -AR: falava / falavas / falava / falávamos / falavam."},
+  {"cat": "ar", "q": "Nós ___ em Lisboa antigamente. (morar)", "options": ["moramos", "morámos", "morava", "morávamos"], "answer": 3, "writeAnswer": "morávamos", "explanation": "Imperfeito, verbo -AR: morava / moravas / morava / morávamos / moravam."},
+  {"cat": "ar", "q": "Tu ___ num banco antigamente. (trabalhar)", "options": ["trabalhas", "trabalhavas", "trabalhaste", "trabalhava"], "answer": 1, "writeAnswer": "trabalhavas", "explanation": "Imperfeito, verbo -AR: trabalhava / trabalhavas / trabalhava / trabalhávamos / trabalhavam."},
+  {"cat": "ar", "q": "Eles ___ à noite antigamente. (estudar)", "options": ["estudam", "estudaram", "estudava", "estudavam"], "answer": 3, "writeAnswer": "estudavam", "explanation": "Imperfeito, verbo -AR: estudava / estudavas / estudava / estudávamos / estudavam."},
+  {"cat": "er", "q": "Eles ___ peixe antigamente. (comer)", "options": ["comem", "comiam", "comeram", "comia"], "answer": 1, "writeAnswer": "comiam", "explanation": "Imperfeito, verbo -ER: comia / comias / comia / comíamos / comiam."},
+  {"cat": "er", "q": "A Ana ___ café antigamente. (beber)", "options": ["bebe", "bebeu", "bebias", "bebia"], "answer": 3, "writeAnswer": "bebia", "explanation": "Imperfeito, verbo -ER: bebia / bebias / bebia / bebíamos / bebiam."},
+  {"cat": "er", "q": "Eu ___ português antigamente. (aprender)", "options": ["aprendo", "aprendia", "aprendi", "aprendias"], "answer": 1, "writeAnswer": "aprendia", "explanation": "Imperfeito, verbo -ER: aprendia / aprendias / aprendia / aprendíamos / aprendiam."},
+  {"cat": "er", "q": "Nós ___ emails antigamente. (escrever)", "options": ["escrevemos", "escrevia", "escrevias", "escrevíamos"], "answer": 3, "writeAnswer": "escrevíamos", "explanation": "Imperfeito, verbo -ER: escrevia / escrevias / escrevia / escrevíamos / escreviam."},
+  {"cat": "ir", "q": "Nós ___ para o Porto antigamente. (partir)", "options": ["partimos", "partíamos", "partia", "partias"], "answer": 1, "writeAnswer": "partíamos", "explanation": "Imperfeito, verbo -IR: partia / partias / partia / partíamos / partiam."},
+  {"cat": "ir", "q": "Tu ___ a janela antigamente. (abrir)", "options": ["abres", "abriste", "abria", "abrias"], "answer": 3, "writeAnswer": "abrias", "explanation": "Imperfeito, verbo -IR: abria / abrias / abria / abríamos / abriam."},
+  {"cat": "ir", "q": "Eles ___ a data da viagem antigamente. (decidir)", "options": ["decidem", "decidiam", "decidiram", "decidia"], "answer": 1, "writeAnswer": "decidiam", "explanation": "Imperfeito, verbo -IR: decidia / decidias / decidia / decidíamos / decidiam."},
+  {"cat": "ir", "q": "A Ana ___ a conta antigamente. (dividir)", "options": ["divide", "dividiu", "dividias", "dividia"], "answer": 3, "writeAnswer": "dividia", "explanation": "Imperfeito, verbo -IR: dividia / dividias / dividia / dividíamos / dividiam."},
+];
+
+const labelMap = { ar:"-AR", er:"-ER", ir:"-IR", irreg:"Irregulares", uso:"Uso / contexto" };
+const classMap = { ar:"cat-ar", er:"cat-er", ir:"cat-ir", irreg:"cat-irreg", uso:"cat-uso" };
+
+let mode = 'choice', activeFilter = 'todos';
+let shuffled = [], current = 0, score = 0, answered = false, mistakes = [];
+
+function shuffle(arr) { return [...arr].sort(() => Math.random() - 0.5); }
+
+function setMode(m) {
+  mode = m;
+  document.getElementById('btnChoice').classList.toggle('active', m === 'choice');
+  document.getElementById('btnWrite').classList.toggle('active', m === 'write');
+  restart();
+}
+
+function setFilter(cat, btn) {
+  activeFilter = cat;
+  document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active-f'));
+  btn.classList.add('active-f');
+  restart();
+}
+
+function restart() {
+  let pool = activeFilter === 'todos' ? questions : questions.filter(q => q.cat === activeFilter);
+  if (mode === 'write') {
+    const w = pool.filter(q => q.q.includes('___') && !q.writeAnswer.includes(' '));
+    if (w.length) pool = w; else { mode = 'choice';
+      document.getElementById('btnChoice').classList.add('active'); document.getElementById('btnWrite').classList.remove('active'); }
+  }
+  if (!pool.length) pool = questions;
+  shuffled = shuffle(pool);
+  current = 0; score = 0; answered = false; mistakes = [];
+  document.getElementById('results').classList.remove('show');
+  document.getElementById('quizCard').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  if (current >= shuffled.length) { showResults(); return; }
+  const q = shuffled[current];
+  const total = shuffled.length;
+
+  document.getElementById('progressBar').style.width = (current / total * 100) + '%';
+  document.getElementById('progressLabel').textContent = 'Questão ' + (current + 1) + ' de ' + total;
+
+  const badge = document.getElementById('badge');
+  badge.textContent = labelMap[q.cat];
+  badge.className = 'category-badge ' + classMap[q.cat];
+
+  document.getElementById('feedback').className = 'feedback';
+  document.getElementById('nextBtn').className = 'next-btn';
+  answered = false;
+
+  document.getElementById('choiceArea').style.display = 'none';
+  document.getElementById('writeArea').style.display = 'none';
+
+  if (mode === 'choice') {
+    document.getElementById('choiceArea').style.display = 'block';
+    document.getElementById('question').textContent = q.q;
+    const optDiv = document.getElementById('options');
+    optDiv.innerHTML = '';
+    const indices = q.options.map((_,i) => i);
+    const si = shuffle(indices);
+    const newCorrect = si.indexOf(q.answer);
+    si.forEach((origIdx, newIdx) => {
+      const btn = document.createElement('button');
+      btn.className = 'option-btn';
+      btn.textContent = q.options[origIdx];
+      btn.onclick = () => selectAnswer(newIdx, newCorrect, q);
+      optDiv.appendChild(btn);
+    });
+  } else {
+    document.getElementById('writeArea').style.display = 'block';
+    // Split question to show blank
+    const parts = q.q.split('___');
+    const verbMatch = q.q.match(/\(([^)]+)\)/);
+    const verbHintText = verbMatch ? 'Verbo: ' + verbMatch[1] : '';
+    const sd = document.getElementById('sentenceDisplay');
+    sd.innerHTML = '';
+    sd.appendChild(document.createTextNode(parts[0]));
+    const blankEl = document.createElement('span');
+    blankEl.className = 'sentence-blank';
+    blankEl.id = 'blankSpan';
+    blankEl.textContent = '___';
+    sd.appendChild(blankEl);
+    sd.appendChild(document.createTextNode(parts[1] || ''));
+    document.getElementById('verbHint').textContent = verbHintText;
+    const inp = document.getElementById('writeInput');
+    inp.value = ''; inp.className = 'write-input'; inp.disabled = false;
+    document.getElementById('checkBtn').disabled = false;
+    setTimeout(() => inp.focus(), 50);
+  }
+}
+
+function selectAnswer(chosen, correct, q) {
+  if (answered) return;
+  answered = true;
+  const btns = document.querySelectorAll('.option-btn');
+  btns.forEach(b => b.disabled = true);
+  btns[correct].classList.add('correct');
+  const fb = document.getElementById('feedback');
+  if (chosen === correct) {
+    score++; btns[chosen].classList.add('correct');
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    btns[chosen].classList.add('wrong');
+    fb.className = 'feedback err show';
+    fb.textContent = 'Incorreto. ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: btns[chosen].textContent, right: q.writeAnswer });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function checkWrite() {
+  if (answered) return;
+  const q = shuffled[current];
+  const inp = document.getElementById('writeInput');
+  const raw = inp.value.trim();
+  if (!raw) return;
+  answered = true;
+  inp.disabled = true;
+  document.getElementById('checkBtn').disabled = true;
+
+  // Strict: exact match (case insensitive, accents required)
+  const correct = raw.toLowerCase() === q.writeAnswer.toLowerCase();
+  const blank = document.getElementById('blankSpan');
+  if (blank) {
+    blank.textContent = correct ? raw : q.writeAnswer;
+    blank.style.borderColor = correct ? '#68d391' : '#fc8181';
+    blank.style.color = correct ? '#276749' : '#c53030';
+  }
+  const fb = document.getElementById('feedback');
+  if (correct) {
+    score++; inp.className = 'write-input correct-inp';
+    fb.className = 'feedback ok show';
+    fb.textContent = 'Correto! ' + q.explanation;
+  } else {
+    inp.className = 'write-input wrong-inp';
+    fb.className = 'feedback err show';
+    fb.textContent = 'Forma correta: «' + q.writeAnswer + '». ' + q.explanation;
+    mistakes.push({ q: q.q, wrong: raw, right: q.writeAnswer });
+  }
+  document.getElementById('nextBtn').className = 'next-btn show';
+}
+
+function nextQuestion() { current++; renderQuestion(); }
+
+function showResults() {
+  document.getElementById('quizCard').style.display = 'none';
+  document.getElementById('progressBar').style.width = '100%';
+  const total = shuffled.length;
+  const pct = Math.round(score / total * 100);
+  document.getElementById('scoreNum').textContent = score;
+  document.getElementById('scoreDenom').textContent = 'de ' + total;
+  const msgs = pct >= 90 ? ['Excelente!','Dominas os verbos!'] : pct >= 70 ? ['Muito bem!','Revê os erros abaixo.'] : pct >= 50 ? ['Continua!','Há espaço para melhorar.'] : ['Não desistas!','Revê as conjugações!'];
+  document.getElementById('resultsTitle').textContent = msgs[0];
+  document.getElementById('resultsMsg').textContent = pct + '% correto. ' + msgs[1];
+  const ml = document.getElementById('mistakesList');
+  ml.innerHTML = mistakes.length ? '<h3>Erros para rever:</h3>' + mistakes.map(m =>
+    '<div class="mistake-item"><div>' + m.q + '</div><div>Escreveste: <strong>' + m.wrong + '</strong> &nbsp;|&nbsp; Correto: <span class="correct-ans">' + m.right + '</span></div></div>'
+  ).join('') : '<p style="color:#276749;margin-top:16px">Sem erros! Perfeito!</p>';
+  document.getElementById('results').classList.add('show');
+}
+
+document.addEventListener('keydown', e => {
+  if (e.key !== 'Enter') return;
+  if (!answered && mode === 'write') checkWrite();
+  else if (answered) { const nb = document.getElementById('nextBtn'); if (nb.classList.contains('show')) nextQuestion(); }
+});
+
+restart();
+</script>
+</body>
+</html>

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz -- Verbos</title>
+<title>Quiz -- Estar a · gerúndio · costumar · acabar de</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
@@ -88,6 +88,16 @@
   .mistake-item { background: #fff5f5; border-radius: 8px; padding: 10px 14px; margin-bottom: 8px; font-size: 0.88rem; line-height: 1.5; }
   .mistake-item strong { color: #c53030; }
   .mistake-item .correct-ans { color: #276749; font-weight: 600; }
+  .filter-btn[data-cat="ar"].active-f { background: #faf5ff; color: #6b46c1; }
+  .cat-ar { background: #faf5ff; color: #6b46c1; }
+  .filter-btn[data-cat="er"].active-f { background: #ebf8ff; color: #2b6cb0; }
+  .cat-er { background: #ebf8ff; color: #2b6cb0; }
+  .filter-btn[data-cat="ir"].active-f { background: #f0fff4; color: #276749; }
+  .cat-ir { background: #f0fff4; color: #276749; }
+  .filter-btn[data-cat="irreg"].active-f { background: #fff5f5; color: #c53030; }
+  .cat-irreg { background: #fff5f5; color: #c53030; }
+  .filter-btn[data-cat="uso"].active-f { background: #fffaf0; color: #c05621; }
+  .cat-uso { background: #fffaf0; color: #c05621; }
 </style>
 </head>
 <body>
@@ -95,8 +105,8 @@
 
   <a class="back-link" href="index.html">← Voltar ao menu</a>
   <header>
-    <h1>Verbos</h1>
-    <p>Presente do indicativo &amp; Pretérito Perfeito Simples</p>
+    <h1>Estar a · gerúndio · costumar · acabar de</h1>
+    <p>estou a fazer · acabei de chegar · costumo · vou andando · 24 questões</p>
   </header>
 
   <div class="mode-wrap">
@@ -105,11 +115,12 @@
   </div>
 
   <div class="filter-wrap">
-    <span class="filter-label">Tempo verbal</span>
+    <span class="filter-label">Tipo de verbo</span>
     <div class="filter-buttons">
       <button class="filter-btn active-f" data-cat="todos" onclick="setFilter('todos',this)">Todos</button>
-      <button class="filter-btn" data-cat="presente" onclick="setFilter('presente',this)">Presente</button>
-      <button class="filter-btn" data-cat="pps" onclick="setFilter('pps',this)">PPS</button>
+      <button class="filter-btn" data-cat="ar" onclick="setFilter('ar',this)">-AR</button>
+      <button class="filter-btn" data-cat="ir" onclick="setFilter('ir',this)">-IR</button>
+      <button class="filter-btn" data-cat="uso" onclick="setFilter('uso',this)">Uso / contexto</button>
     </div>
   </div>
 
@@ -158,47 +169,34 @@
 <script>
 // writeAnswer = форма, которую нужно напечатать точно (с акцентами)
 const questions = [
-  // PRESENTE: REGULARES
-  { cat:"presente", q:"Eu ___ português todos os dias. (FALAR)", options:["falas","falo","fala","falam"], answer:1, writeAnswer:"falo", explanation:"Verbos -AR, «eu»: falo. Tabela: eu falo / tu falas / ele fala / nós falamos / eles falam." },
-  { cat:"presente", q:"Eles ___ carne. (COMER)", options:["come","comem","comemos","comes"], answer:1, writeAnswer:"comem", explanation:"Verbos -ER, «eles»: comem. Tabela: eu como / tu comes / ele come / nós comemos / eles comem." },
-  { cat:"presente", q:"Nós ___ amanhã cedo. (PARTIR)", options:["partem","partimos","parte","partis"], answer:1, writeAnswer:"partimos", explanation:"Verbos -IR, «nós»: partimos. Tabela: eu parto / tu partes / ele parte / nós partimos / eles partem." },
-  { cat:"presente", q:"Tu ___ muito bem inglês. (FALAR)", options:["falo","fala","falas","falam"], answer:2, writeAnswer:"falas", explanation:"Verbos -AR, «tu»: falas." },
-  { cat:"presente", q:"Ela ___ às 7h todos os dias. (PARTIR)", options:["partimos","partem","parto","parte"], answer:3, writeAnswer:"parte", explanation:"Verbos -IR, «ela»: parte." },
-  { cat:"presente", q:"Vocês ___ muito nesta aula. (APRENDER)", options:["aprendes","aprende","aprendem","aprendemos"], answer:2, writeAnswer:"aprendem", explanation:"Verbos -ER, «vocês» = eles: aprendem." },
-  // PRESENTE: IRREGULARES
-  { cat:"presente", q:"Eu ___ de Lisboa. (SER)", options:["és","é","sou","somos"], answer:2, writeAnswer:"sou", explanation:"SER: eu sou / tu és / ele é / nós somos / eles são." },
-  { cat:"presente", q:"Eles ___ professores. (SER)", options:["somos","são","é","ser"], answer:1, writeAnswer:"são", explanation:"SER, «eles»: são." },
-  { cat:"presente", q:"Tu ___ em casa agora? (ESTAR)", options:["estou","está","estás","estamos"], answer:2, writeAnswer:"estás", explanation:"ESTAR: eu estou / tu estás / ele está / nós estamos / eles estão." },
-  { cat:"presente", q:"Nós ___ ao supermercado. (IR)", options:["imos","vamos","vão","vai"], answer:1, writeAnswer:"vamos", explanation:"IR: eu vou / tu vais / ele vai / nós vamos / eles vão." },
-  { cat:"presente", q:"Ele ___ de carro para o trabalho. (VIR)", options:["vim","vem","vens","viemos"], answer:1, writeAnswer:"vem", explanation:"VIR: eu venho / tu vens / ele vem / nós vimos / eles vêm." },
-  { cat:"presente", q:"Eu ___ um irmão mais velho. (TER)", options:["tem","tens","tenho","temos"], answer:2, writeAnswer:"tenho", explanation:"TER: eu tenho / tu tens / ele tem / nós temos / eles têm." },
-  { cat:"presente", q:"Eles ___ flores frescas. (TRAZER)", options:["traz","trazem","trago","trazes"], answer:1, writeAnswer:"trazem", explanation:"TRAZER: eu trago / tu trazes / ele traz / nós trazemos / eles trazem." },
-  { cat:"presente", q:"Tu ___ ir ao cinema hoje? (PODER)", options:["posso","podem","podes","pode"], answer:2, writeAnswer:"podes", explanation:"PODER: eu posso / tu podes / ele pode / nós podemos / eles podem." },
-  { cat:"presente", q:"Eu ___ um presente ao meu pai. (DAR)", options:["dá","dás","dou","damos"], answer:2, writeAnswer:"dou", explanation:"DAR: eu dou / tu dás / ele dá / nós damos / eles dão." },
-  { cat:"presente", q:"Eu ___ falar com ele. (CONSEGUIR)", options:["consegues","consigo","consegue","conseguimos"], answer:1, writeAnswer:"consigo", explanation:"CONSEGUIR: eu consigo / tu consegues / ele consegue / nós conseguimos / eles conseguem." },
-  { cat:"presente", q:"Nós ___ muito trabalho. (TER)", options:["têm","tenho","temos","tens"], answer:2, writeAnswer:"temos", explanation:"TER, «nós»: temos." },
-  { cat:"presente", q:"Ela ___ ao trabalho de metro. (IR)", options:["vou","vai","vais","vão"], answer:1, writeAnswer:"vai", explanation:"IR, «ela»: vai." },
-  // PPS: IRREGULARES
-  { cat:"pps", q:"Ontem eu ___ ao cinema. (IR)", options:["ia","fui","vou","foi"], answer:1, writeAnswer:"fui", explanation:"IR no PPS: eu fui / tu foste / ele foi / nós fomos / eles foram. (Mesmas formas que SER.)" },
-  { cat:"pps", q:"Ontem ele ___ muito cansado. (ESTAR)", options:["estava","esteve","estiveu","estou"], answer:1, writeAnswer:"esteve", explanation:"ESTAR no PPS: eu estive / tu estiveste / ele esteve / nós estivemos / eles estiveram." },
-  { cat:"pps", q:"Na semana passada nós ___ uma reunião. (TER)", options:["temos","tivemos","tiveram","teve"], answer:1, writeAnswer:"tivemos", explanation:"TER no PPS: eu tive / tu tiveste / ele teve / nós tivemos / eles tiveram." },
-  { cat:"pps", q:"Ontem eles ___ flores para a mãe. (TRAZER)", options:["trouxeram","trazeram","trouxiram","trouxerem"], answer:0, writeAnswer:"trouxeram", explanation:"TRAZER no PPS: eu trouxe / tu trouxeste / ele trouxe / nós trouxemos / eles trouxeram." },
-  { cat:"pps", q:"O que é que ela ___? (DIZER)", options:["dizeu","dizia","disse","diss"], answer:2, writeAnswer:"disse", explanation:"DIZER no PPS: eu disse / tu disseste / ele disse / nós dissemos / eles disseram." },
-  { cat:"pps", q:"Tu ___ vir ontem? (PODER)", options:["podeste","pudeste","podes","pudes"], answer:1, writeAnswer:"pudeste", explanation:"PODER no PPS: eu pude / tu pudeste / ele pôde / nós pudemos / eles puderam." },
-  { cat:"pps", q:"Ontem eu ___ um presente ao João. (DAR)", options:["dava","dei","deu","deste"], answer:1, writeAnswer:"dei", explanation:"DAR no PPS: eu dei / tu deste / ele deu / nós demos / eles deram." },
-  { cat:"pps", q:"Ele ___ de Lisboa ontem. (VIR)", options:["vinha","veio","vim","vieste"], answer:1, writeAnswer:"veio", explanation:"VIR no PPS: eu vim / tu vieste / ele veio / nós viemos / eles vieram." },
-  { cat:"pps", q:"Ontem nós ___ em casa o dia todo. (ESTAR)", options:["estivemos","estamos","estávamos","estiveram"], answer:0, writeAnswer:"estivemos", explanation:"ESTAR no PPS, «nós»: estivemos." },
-  { cat:"pps", q:"A festa ___ um grande sucesso ontem! (SER)", options:["era","é","foi","fomos"], answer:2, writeAnswer:"foi", explanation:"Evento concluído no passado → PPS. SER, «a festa» (=ele): foi." },
-  { cat:"pps", q:"Tu ___ a verdade? (DIZER)", options:["dizeste","disseste","disse","dizia"], answer:1, writeAnswer:"disseste", explanation:"DIZER no PPS, «tu»: disseste." },
-  { cat:"pps", q:"Ela ___ flores do jardim. (TRAZER)", options:["trazeu","trouxe","trouxeu","trazia"], answer:1, writeAnswer:"trouxe", explanation:"TRAZER no PPS, «ela»: trouxe." },
-  { cat:"pps", q:"Vocês ___ o dinheiro? (TER)", options:["tivemos","tiveram","tiveste","tinham"], answer:1, writeAnswer:"tiveram", explanation:"TER no PPS, «vocês»: tiveram." },
-  { cat:"pps", q:"Eu ___ muito bem ontem. (DORMIR)", options:["durmo","dormi","dormiu","dormia"], answer:1, writeAnswer:"dormi", explanation:"DORMIR é regular no PPS: eu dormi / tu dormiste / ele dormiu." },
-  { cat:"pps", q:"Nós ___ tarde ontem. (CHEGAR)", options:["chegamos","chegámos","chegaram","cheguei"], answer:1, writeAnswer:"chegámos", explanation:"CHEGAR é regular -AR no PPS: nós chegámos (com acento em PE)." },
-  {"cat": "presente", "q": "Qual é a primeira pessoa do singular do verbo 'seguir' no presente?", "options": ["seguio", "seguo", "sigo", "seguio"], "answer": 2, "explanation": "Глагол 'seguir' — исключение: eu sigo (не *seguo). Это нерегулярный глагол группы -ir с чередованием гласной в основе."},
+  {"cat": "ar", "q": "Что означает \"Ela está a falar ao telefone\"?", "options": ["Она будет говорить по телефону", "Она говорила по телефону", "Она сейчас говорит по телефону", "Она говорит по телефону (обычно)"], "answer": 2, "writeAnswer": "Она сейчас говорит по телефону", "explanation": "ESTAR + A + INFINITIVO = действие в процессе (прямо сейчас). \"Ela está a falar\" = она сейчас разговаривает."},
+  {"cat": "uso", "q": "Qual é a diferença: \"Eu como\" vs \"Eu estou a comer\"?", "options": ["Нет разницы", "Eu como = обычное действие; Eu estou a comer = сейчас ем", "Eu estou a comer = обычное; Eu como = сейчас", "Eu como используется только в прошлом"], "answer": 1, "writeAnswer": "Eu como = обычное действие; Eu estou a comer = сейчас ем", "explanation": "Presente simples = обычное действие (normalmente). ESTAR+A+INF = сейчас, в процессе. \"Eu como às 13:00\" vs \"Agora estou a comer.\""},
+  {"cat": "ir", "q": "\"A essa hora já vou estar a nadar.\" Что это значит?", "options": ["В то время я плавал", "В то время я уже буду плавать", "В то время я плаваю", "В то время мне нужно плавать"], "answer": 1, "writeAnswer": "В то время я уже буду плавать", "explanation": "IR + ESTAR + A + INF = буду заниматься чем-то в будущем (в процессе). \"Vou estar a nadar\" = буду плавать (в тот момент)."},
+  {"cat": "uso", "q": "\"Eu estava a comer quando ela chegou.\" Что это значит?", "options": ["Я ел, когда она пришла", "Я поел, и потом она пришла", "Я собирался есть, когда она пришла", "Я ел вместе с ней"], "answer": 0, "writeAnswer": "Я ел, когда она пришла", "explanation": "ESTAVA + A + INF = был в процессе (Imperfeito). \"Eu estava a comer\" = я ел (в процессе, фоновое действие). Quando + PPS = когда произошло другое событие."},
+  {"cat": "ar", "q": "\"Eu estou a estar com fome.\" Frase correta?", "options": ["Sim, está correto", "Não, deve ser: Eu estou com fome", "Não, deve ser: Eu tenho fome", "Sim, mas só em linguagem informal"], "answer": 1, "writeAnswer": "Não, deve ser: Eu estou com fome", "explanation": "ESTAR + A + ESTAR é impossível! Estados (fome, frio, calor, sono) não usam o contínuo. Correto: \"Eu estou com fome\" (simplesmente)."},
+  {"cat": "ar", "q": "\"Eu costumo acordar cedo.\" Что означает это предложение?", "options": ["Я обычно встаю рано", "Я привык вставать рано (раньше)", "Я хочу вставать рано", "Я буду вставать рано"], "answer": 0, "writeAnswer": "Я обычно встаю рано", "explanation": "COSTUMAR + INFINITIVO = обычно делать что-то (настоящее время). \"Eu costumo acordar cedo\" = я обычно встаю рано = \"Eu acordo cedo normalmente.\""},
+  {"cat": "ar", "q": "Qual frase está ERRADA?", "options": ["Eu costumo ler à noite.", "Normalmente eu costumo ler.", "Ele costuma fazer desporto.", "O café costuma estar fechado ao sábado."], "answer": 1, "writeAnswer": "Normalmente eu costumo ler.", "explanation": "COSTUMAR + NORMALMENTE é redundante (говорит одно и то же). Правило: costumar = normalmente, поэтому их нельзя использовать вместе. \"Normalmente eu leio\" ИЛИ \"Eu costumo ler\" -- только одно."},
+  {"cat": "ar", "q": "\"Eu costumava trabalhar na escola.\" Что это значит?", "options": ["Я обычно работаю в школе", "Раньше я обычно работал в школе", "Я привык работать в школе", "Я собираюсь работать в школе"], "answer": 1, "writeAnswer": "Раньше я обычно работал в школе", "explanation": "COSTUMAR в Imperfeito (costumava) = раньше обычно делал (\"used to\"). \"Eu costumava trabalhar na escola\" = я раньше работал в школе (регулярно)."},
+  {"cat": "uso", "q": "Completa a frase no estilo PE: «Eu ______ a ver um filme agora.»", "options": ["estou vendo", "estou a ver", "sou a ver", "estou ver"], "answer": 1, "writeAnswer": "estou a ver", "explanation": "В европейском португальском (PE) продолжительное действие выражается через estar a + infinitivo. Форма «estou vendo» — бразильский вариант."},
+  {"cat": "uso", "q": "Em PE (português europeu), como se diz «Eu estou a ler» (я читаю — в данный момент)?", "options": ["Eu estou lendo.", "Eu estou ler.", "Eu estou a ler.", "Eu estou de ler."], "answer": 2, "writeAnswer": "Eu estou a ler.", "explanation": "В европейском португальском герундий не используется. Конструкция «estar a + infinitivo» — аналог настоящего продолженного: «estou a ler»."},
+  {"cat": "uso", "q": "Qual é a forma correta em PE para «Vocês estão a fazer o quê?»", "options": ["Você estão fazendo o quê?", "Vocês estão fazendo o quê?", "Vocês estão a fazer o quê?", "Vós estais fazendo o quê?"], "answer": 2, "writeAnswer": "Vocês estão a fazer o quê?", "explanation": "В PE: «vocês» для группы (не «você» во мн.ч.) и «estar a + infinitivo» (не герундий «fazendo», который характерен для бразильского варианта)."},
+  {"cat": "uso", "q": "Qual frase está CORRETA em português europeu (PE)?", "options": ["Ela está comendo agora.", "Ela está a comer agora.", "Ela come agora mesmo.", "Ela está comida agora."], "answer": 1, "writeAnswer": "Ela está a comer agora.", "explanation": "В европейском португальском (PE) длящееся действие = 'estar a + infinitivo': está a comer, está a trabalhar. Форма 'está comendo' — бразильский португальский (PB)."},
+  {"cat": "uso", "q": "Como é que estás? / Vou ____________. (resposta idiomática com ir + gerúndio)", "options": ["andando", "andar", "a andar", "andado"], "answer": 0, "writeAnswer": "andando", "explanation": "\"Vou andando\" é uma expressão idiomática (ir + gerúndio) para responder a \"como vai a vida\" — algo entre \"vou indo\" e \"mais ou menos\"."},
+  {"cat": "uso", "q": "Qual frase está correta em português europeu para uma ação em curso agora?", "options": ["Eu estou a falar a verdade.", "Eu tou falando a verdade.", "Eu falando a verdade.", "Eu estou falar a verdade."], "answer": 0, "writeAnswer": "Eu estou a falar a verdade.", "explanation": "Em PE usa-se \"estar a + infinitivo\" para o progressivo (não o gerúndio simples, que é mais comum no Brasil)."},
+  {"cat": "uso", "q": "Andando devagar pelos trilhos, ____________ ver as montanhas.", "options": ["conseguimos", "consigamos", "conseguir", "conseguindo"], "answer": 0, "writeAnswer": "conseguimos", "explanation": "O gerúndio adverbial (\"andando\") introduz a circunstância; o verbo principal fica no presente do indicativo — \"conseguimos\"."},
+  {"cat": "uso", "q": "Comprando este casaco hoje, ____________ desconto de 10%.", "options": ["tens", "ter", "tendo", "tinhas"], "answer": 0, "writeAnswer": "tens", "explanation": "Gerúndio com valor condicional/adverbial (= \"se comprares\"): a frase principal continua no presente."},
+  {"cat": "uso", "q": "Выберите правильную форму для европейского португальского: «Ela ___ a ler o livro agora.»", "options": ["está lendo", "está a ler", "é lendo", "tem lendo"], "answer": 1, "writeAnswer": "está a ler", "explanation": "В европейском португальском (PE) для выражения действия в процессе используется estar a + infinitivo. Форма «está lendo» — бразильская норма."},
+  {"cat": "uso", "q": "Eu ____________ vou de férias sozinha — prefiro sempre companhia.", "options": ["nunca", "sempre", "às vezes", "todos os dias"], "answer": 0, "writeAnswer": "nunca", "explanation": "\"Nunca\" antes do verbo (sem duplo negativo em PE quando vem antes: \"nunca vou\", não \"não vou nunca\" nesta posição)."},
+  {"cat": "uso", "q": "Qual das frases tem o advérbio de frequência bem colocado?", "options": ["Nós fazemos às vezes caminhadas na montanha.", "Nós às caminhadas vezes fazemos na montanha.", "Nós fazemos caminhadas às vezes na montanha na.", "Às nós vezes fazemos caminhadas na montanha."], "answer": 0, "writeAnswer": "Nós fazemos às vezes caminhadas na montanha.", "explanation": "\"Às vezes\" pode vir no início da frase ou logo depois do verbo — \"Nós fazemos às vezes...\" é natural em PE."},
+  {"cat": "uso", "q": "O Gustavo já saiu? — Já. _____ sair. (há um minuto)", "options": ["Vai", "Está a", "Acabou de", "Acabou a"], "answer": 2, "writeAnswer": "Acabou de", "explanation": "Только что сделал — acabar de + infinitivo: acabei de, acabaste de, acabou de, acabámos de, acabaram de. Предлог именно 'de'."},
+  {"cat": "uso", "q": "O que é que a Daniela está a fazer? — _____ a mesa.", "options": ["Está a pôr", "Vai pôr", "Acabou de pôr", "Está pôr"], "answer": 0, "writeAnswer": "Está a pôr", "explanation": "Действие прямо сейчас — estar a + infinitivo: está a pôr. Без 'a' (está pôr) нельзя; 'está pondo' — бразильский вариант."},
+  {"cat": "uso", "q": "Já são 9h00 e ainda não estás pronta. — Pois não. _____ atrasada.", "options": ["Acabei de chegar", "Estou a chegar", "Vou chegar", "Chegava"], "answer": 2, "writeAnswer": "Vou chegar", "explanation": "Ближайшее будущее, которое уже понятно по ситуации — ir + infinitivo: vou chegar atrasada."},
+  {"cat": "uso", "q": "Ele está muito cansado. _____ de viagem.", "options": ["Vai chegar", "Acabou de chegar", "Está a chegar", "Chegará"], "answer": 1, "writeAnswer": "Acabou de chegar", "explanation": "Устал, потому что только что приехал — acabou de chegar."},
+  {"cat": "ar", "q": "Responde com 'acabar de': 'O Frederico já acordou?' (levantar-se)", "options": ["Já, acabou de levantar-se.", "Já, acabou a levantar-se.", "Já, vai levantar-se.", "Já, está a levantar-se."], "answer": 0, "writeAnswer": "Já, acabou de levantar-se.", "explanation": "Acabar de + infinitivo; как в ответах учебника (GA), местоимение ставим после инфинитива через дефис: acabou de levantar-se, acabou de vestir-se. Вариант «acabou de se levantar» тоже допустим (после предлога), но придерживаемся учебника."},
 ];
 
-const labelMap = { presente:"Presente", pps:"PPS – Pretérito Perfeito" };
-const classMap  = { presente:"badge-presente", pps:"badge-pps" };
+const labelMap = { ar:"-AR", er:"-ER", ir:"-IR", irreg:"Irregulares", uso:"Uso / contexto" };
+const classMap = { ar:"cat-ar", er:"cat-er", ir:"cat-ir", irreg:"cat-irreg", uso:"cat-uso" };
 
 let mode = 'choice', activeFilter = 'todos';
 let shuffled = [], current = 0, score = 0, answered = false, mistakes = [];
@@ -220,7 +218,13 @@ function setFilter(cat, btn) {
 }
 
 function restart() {
-  const pool = activeFilter === 'todos' ? questions : questions.filter(q => q.cat === activeFilter);
+  let pool = activeFilter === 'todos' ? questions : questions.filter(q => q.cat === activeFilter);
+  if (mode === 'write') {
+    const w = pool.filter(q => q.q.includes('___') && !q.writeAnswer.includes(' '));
+    if (w.length) pool = w; else { mode = 'choice';
+      document.getElementById('btnChoice').classList.add('active'); document.getElementById('btnWrite').classList.remove('active'); }
+  }
+  if (!pool.length) pool = questions;
   shuffled = shuffle(pool);
   current = 0; score = 0; answered = false; mistakes = [];
   document.getElementById('results').classList.remove('show');
