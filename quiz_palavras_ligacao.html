@@ -104,6 +104,9 @@ const questions = [
   { cat:"contexto", q:"Qual palavra NÃO serve para introduzir uma conclusão?", options:["Assim","Por isso","Portanto","Uma vez que"], answer:3, explanation:"Uma vez que вводит причину, а не вывод. Для вывода: Assim, Por isso, Portanto, Em conclusão." },
   { cat:"contexto", q:"\"___, hoje em dia as pessoas dão muita importância ao aspeto físico.\"", options:["No entanto","Por outro lado","Na minha opinião","Além disso"], answer:2, explanation:"Na minha opinião = по моему мнению. Типичное начало введения в сочинении." },
   { cat:"contexto", q:"\"Não só os jovens ___ os adultos usam redes sociais.\"", options:["mas também","como","porém","assim"], answer:1, explanation:"Não só... como... = не только... но и... \"Não só os jovens como os adultos...\"" },
+  {"cat": "contexto", "q": "Hoje está calor, ____________ não me apetece sair de casa.", "options": ["por isso", "por causa de", "porque", "para"], "answer": 0, "explanation": "\"Por isso\" introduz a consequência (está calor → não me apetece sair). \"Porque\" introduziria a causa depois do efeito."},
+  {"cat": "contexto", "q": "Não fui trabalhar ____________ estava doente.", "options": ["porque", "por isso", "por causa", "então"], "answer": 0, "explanation": "\"Porque\" liga o efeito (não fui trabalhar) à causa (estava doente), nessa ordem."},
+  {"cat": "contexto", "q": "Cancelaram o voo ____________ do mau tempo.", "options": ["por causa", "por isso", "porque", "por que"], "answer": 0, "explanation": "\"Por causa de\" + substantivo (\"do mau tempo\"), ao contrário de \"porque\" que introduz uma oração com verbo."},
 ];
 const labelMap = { traducao:"O que significa?", contexto:"No contexto" };
 const classMap = { traducao:"badge-traducao", contexto:"badge-contexto" };

@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz -- talheres: / Faca - нож                                         cortar / Garfo - вилка</title>
+<title>Quiz -- Doer · Magoar-se · Bater</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
@@ -58,8 +58,8 @@
 <div class="container">
   <a class="back-link" href="index.html">← Voltar ao menu</a>
   <header>
-    <h1>talheres: / Faca - нож                                         cortar / Garfo - вилка</h1>
-    <p>Урок 2026-07-04 · 18 вопросов</p>
+    <h1>Doer · Magoar-se · Bater</h1>
+    <p>17 questões</p>
   </header>
   <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
   <div class="progress-label" id="progressLabel"></div>
@@ -83,220 +83,208 @@
 <script>
 const questions = [
   {
-    "cat": "vocabulário",
-    "q": "Qual é a palavra portuguesa para «нож»?",
-    "options": [
-      "garfo",
-      "colher",
-      "faca",
-      "espátula"
-    ],
-    "answer": 2,
-    "explanation": "Faca — нож. Garfo — вилка, colher — ложка, espátula — лопатка."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Como se chama o animal marinho que pode ser perigoso na praia e é transparente? (медуза)",
-    "options": [
-      "alga",
-      "alforreca",
-      "golfinho",
-      "tubarão"
-    ],
-    "answer": 1,
-    "explanation": "Alforreca — медуза (в европейском португальском). Не путать с «caravela portuguesa» — это особый вид опасной медузы."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Em que recipiente se serve normalmente café num restaurante em Portugal?",
-    "options": [
-      "copo",
-      "caneca",
-      "chávena",
-      "taça"
-    ],
-    "answer": 2,
-    "explanation": "Chávena de café — так подают кофе в ресторане (версия для заведения). Caneca используется скорее для пива или кофе в большой кружке."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "O que é uma «gorjeta»?",
-    "options": [
-      "счёт в ресторане",
-      "чаевые",
-      "сдача",
-      "меню"
-    ],
-    "answer": 1,
-    "explanation": "Gorjeta — чаевые. Conta — счёт, troco — сдача, ementa/menu — меню."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Qual é o verbo associado à «faca»? (что делают ножом)",
-    "options": [
-      "virar",
-      "mergulhar",
-      "cortar",
-      "pisar"
-    ],
-    "answer": 2,
-    "explanation": "Cortar — резать, это глагол, связанный с ножом (faca). Virar — переворачивать (связан с garfo/лопаткой)."
-  },
-  {
     "cat": "gramática",
-    "q": "Completa a frase no estilo PE: «Eu ______ a ver um filme agora.»",
+    "q": "Qual frase está correta com o verbo 'doer' no presente?",
     "options": [
-      "estou vendo",
-      "estou a ver",
-      "sou a ver",
-      "estou ver"
-    ],
-    "answer": 1,
-    "explanation": "В европейском португальском (PE) продолжительное действие выражается через estar a + infinitivo. Форма «estou vendo» — бразильский вариант."
-  },
-  {
-    "cat": "gramática",
-    "q": "Qual é a forma correta do verbo «dar» no Pretérito Perfeito Simples para «tu»?",
-    "options": [
-      "tu davas",
-      "tu deste",
-      "tu dás",
-      "tu deu"
-    ],
-    "answer": 1,
-    "explanation": "Tu deste — форма P.P.S. глагола «dar» для tu. Davas — imperfeito, dás — presente, deu — forma para ele/ela."
-  },
-  {
-    "cat": "gramática",
-    "q": "Completa com a forma correta do Imperfeito: «Quando era criança, eu ______ muito à praia.» (dar)",
-    "options": [
-      "dei",
-      "dou",
-      "dava",
-      "derei"
-    ],
-    "answer": 2,
-    "explanation": "Eu dava — imperfeito глагола «dar» для eu. Imperfeito описывает регулярные или длительные действия в прошлом."
-  },
-  {
-    "cat": "gramática",
-    "q": "Escolhe a frase correta em PE sobre a posição do corpo: «O João ______ na areia a descansar.»",
-    "options": [
-      "está sentado",
-      "está deitado",
-      "está de pé",
-      "está parado"
-    ],
-    "answer": 1,
-    "explanation": "Estar deitado — лежать (на песке, отдыхая). Estar sentado — сидеть, estar de pé — стоять."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Como se diz «спасатель» (на пляже) em português europeu?",
-    "options": [
-      "empregado de mesa",
-      "nadador salvador",
-      "mergulhador",
-      "empregada de casa"
-    ],
-    "answer": 1,
-    "explanation": "Nadador salvador — спасатель на пляже (буквально «пловец-спаситель»). Empregado de mesa — официант."
-  },
-  {
-    "cat": "prática",
-    "q": "O cliente diz ao empregado: «Pode trazer a ______, por favor?» (он хочет заплатить)",
-    "options": [
-      "gorjeta",
-      "carta de vinhos",
-      "conta",
-      "ementa"
-    ],
-    "answer": 2,
-    "explanation": "Conta — счёт. Когда клиент хочет заплатить, он просит «a conta». Gorjeta — чаевые (клиент оставляет сам), ementa — меню."
-  },
-  {
-    "cat": "gramática",
-    "q": "Qual é a forma correta do Pretérito Perfeito Simples de «dar» para «nós»?",
-    "options": [
-      "nós dávamos",
-      "nós damos",
-      "nós demos",
-      "nós deram"
-    ],
-    "answer": 2,
-    "explanation": "Nós demos — P.P.S. глагола «dar» для nós. Dávamos — imperfeito, damos — presente, deram — для eles."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Qual é a diferença entre «taça» e «copo»?",
-    "options": [
-      "Taça é para água, copo é para vinho",
-      "Taça é uma tigela/recipiente largo (ex: taça de gelado), copo é um copo de vidro para bebidas",
-      "São sinónimos perfeitos",
-      "Taça é maior que uma caneca"
-    ],
-    "answer": 1,
-    "explanation": "Taça é um recipiente largo (для мороженого, салата, также «Taça de Portugal» — кубок). Copo — стакан для напитков (copo de água, copo de vinho)."
-  },
-  {
-    "cat": "prática",
-    "q": "Como se descreve o tempo nesta frase do professor: «Hoje está muito calor e está ______»? (душно, парко)",
-    "options": [
-      "frio",
-      "vento",
-      "abafado",
-      "nublado"
-    ],
-    "answer": 2,
-    "explanation": "Abafado — душно, парко, влажная жара. Из конспекта урока: «Hoje está muito calor e está abafado»."
-  },
-  {
-    "cat": "prática",
-    "q": "O turista quer deixar dinheiro extra ao empregado porque gostou do serviço. O que é que ele deixa?",
-    "options": [
-      "troco",
-      "gorjeta",
-      "conta",
-      "jarro"
-    ],
-    "answer": 1,
-    "explanation": "Gorjeta — чаевые. Глаголы: dar gorjeta, deixar gorjeta, pedir gorjeta. Troco — сдача (деньги, которые возвращают)."
-  },
-  {
-    "cat": "gramática",
-    "q": "Escolhe o diminutivo correto de «colher»:",
-    "options": [
-      "colherão",
-      "colherzinha",
-      "colherita",
-      "colherzão"
-    ],
-    "answer": 1,
-    "explanation": "Colherzinha — уменьшительное от colher (чайная ложечка). В португальском уменьшительный суффикс -inho/-inha, а при основе на -r добавляется -z-: colher → colherzinha."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Na praia, o que é que se usa para deitar e não molhar a roupa? (подстилка/матрас для пляжа)",
-    "options": [
-      "toalha",
-      "colchão",
-      "guardanapo",
-      "alga"
-    ],
-    "answer": 1,
-    "explanation": "Colchão (на пляже — надувной матрас или пляжный лежак). Toalha — полотенце (тоже используется на пляже, но это полотенце, а не матрас). Guardanapo — салфетка."
-  },
-  {
-    "cat": "prática",
-    "q": "Como se diz corretamente em PE: «Eles ______ muito dinheiro de gorjeta ontem.»",
-    "options": [
-      "deram",
-      "davam",
-      "dão",
-      "deram a dar"
+      "Dói-me a cabeça.",
+      "Doeu-me a cabeça agora.",
+      "Estou a doer a cabeça.",
+      "Doem-me a cabeça."
     ],
     "answer": 0,
-    "explanation": "Eles deram — P.P.S. глагола «dar» для eles/elas. Ontem (вчера) указывает на завершённое действие в прошлом → нужен P.P.S."
+    "explanation": "'Doer' conjugado no presente: 'dói' (singular) ou 'doem' (plural). 'Dói-me a cabeça' — у меня болит голова. 'Doeu' — это pretérito perfeito simples."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: 'A perna ___ ontem.' (doer, passado, singular)",
+    "options": [
+      "doía",
+      "dói",
+      "doeu",
+      "estava a doer"
+    ],
+    "answer": 2,
+    "explanation": "'Doeu' — форма pretérito perfeito simples (preterit) от 'doer' в единственном числе. 'Doía' — imperfeito (имперфект, прошедшее несовершенное)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Preenche o espaço: 'As costas ___ muito há dois dias.' (doer, imperfeito, plural)",
+    "options": [
+      "doíam",
+      "doeram",
+      "estavam a doer",
+      "dói"
+    ],
+    "answer": 0,
+    "explanation": "'Doíam' — форма imperfeito (имперфект) от 'doer' во множественном числе. 'Doeram' — это pretérito perfeito simples (прошедшее завершённое действие)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Como se diz 'у меня болит грудь' em português?",
+    "options": [
+      "Eu dói o peito.",
+      "Dói-me o peito.",
+      "Doem-me o peito.",
+      "Tenho dor o peito."
+    ],
+    "answer": 1,
+    "explanation": "DÓI-ME O PEITO — 'doer' concorda com a coisa que dói ('o peito', singular); o pronome (-me) indica quem sente a dor. Se fossem várias partes, seria 'doem-me'."
+  },
+  {
+    "cat": "gramática",
+    "q": "'Doem-me as pernas.' — porque é 'doem' e não 'dói'?",
+    "options": [
+      "Porque 'pernas' é plural",
+      "Porque é o imperfeito",
+      "Porque é imperativo",
+      "Não há razão, é um erro"
+    ],
+    "answer": 0,
+    "explanation": "'Doer' concorda com o sujeito gramatical — a parte do corpo que dói. 'As pernas' é plural → 'doem'. 'O peito' é singular → 'dói'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери правильную форму: «___ as pernas quando treino muito.»",
+    "options": [
+      "Doem-me",
+      "Dói-me",
+      "Doem-te",
+      "Dói-nos"
+    ],
+    "answer": 0,
+    "explanation": "Субъект — «as pernas» (множественное число), поэтому глагол стоит во множественном числе: «doem-me». Местоимение «me» указывает, кому больно."
+  },
+  {
+    "cat": "gramática",
+    "q": "Какая форма правильная для описания боли прямо сейчас (PE)? «A minha cabeça ___.»",
+    "options": [
+      "está me a doer",
+      "está doendo",
+      "dói-me agora mesmo",
+      "doeu"
+    ],
+    "answer": 0,
+    "explanation": "В PE для действия в процессе используется «estar a + infinitivo»: «está me a doer». Форма «está doendo» — это BP (бразильский португальский)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Заполни пропуск: «Eu ___ na perna quando estava a andar de patins.»",
+    "options": [
+      "magoei-me",
+      "magoou-se",
+      "magoar-me",
+      "me magoei"
+    ],
+    "answer": 0,
+    "explanation": "Pretérito Perfeito от «magoar-se» в 1-м лице ед.ч.: «magoei-me». В PE местоимение ставится после глагола через дефис."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери правильную форму Pretérito Imperfeito: «Antigamente ___ a perna quando estava frio.»",
+    "options": [
+      "doía-me",
+      "doeu-me",
+      "dói-me",
+      "doíam-me"
+    ],
+    "answer": 0,
+    "explanation": "Imperfeito от «doer» в 3-м л. ед.ч. — «doía». Imperfeito используется для привычных или повторяющихся состояний в прошлом."
+  },
+  {
+    "cat": "gramática",
+    "q": "Как сказать «эта вакцина не болит» по-португальски?",
+    "options": [
+      "Esta vacina não dói",
+      "Esta vacina não doeu",
+      "Esta vacina não está a doer",
+      "Esta vacina não doía"
+    ],
+    "answer": 0,
+    "explanation": "Presente Simples «dói» используется для общего утверждения о свойстве (вакцина как таковая). Субъект — «vacina» (ед.ч.), поэтому «dói», а не «doem»."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери правильную конструкцию с «magoar-se» + предлог: «Ele ___ perna.»",
+    "options": [
+      "magoou-se na",
+      "magoou-se em a",
+      "magoou-se de",
+      "magoou-se para a"
+    ],
+    "answer": 0,
+    "explanation": "После «magoar-se» часть тела вводится предлогом «em» + артикль: «em + a = na». Правильно: «magoou-se na perna»."
+  },
+  {
+    "cat": "gramática",
+    "q": "«É importante fazer alongamentos se não queres ___» — выбери правильный вариант:",
+    "options": [
+      "magoar-te",
+      "te magoar",
+      "magoares-te",
+      "magoar-se"
+    ],
+    "answer": 0,
+    "explanation": "После «querer» + infinitivo возвратное местоимение согласуется с субъектом «tu»: «magoar-te». В PE оно ставится после инфинитива."
+  },
+  {
+    "cat": "gramática",
+    "q": "Как правильно сказать по-португальски (PE): «Мои ноги сейчас болят»?",
+    "options": [
+      "As minhas pernas estão me a doer",
+      "As minhas pernas estão doendo",
+      "Doem-me as pernas agora",
+      "Ambas as opções A e C estão corretas"
+    ],
+    "answer": 3,
+    "explanation": "В PE обе формы корректны: «estão me a doer» (processo em curso) и «doem-me» (Presente Simples). «Estão doendo» — только BP."
+  },
+  {
+    "cat": "gramática",
+    "q": "Как изменится глагол «doer» в будущем? «Esta injeção ___ um pouco.»",
+    "options": [
+      "vai doer",
+      "vai a doer",
+      "doerá-me",
+      "vai doendo"
+    ],
+    "answer": 0,
+    "explanation": "Futuro perifrástico в PE: «ir + infinitivo» → «vai doer». Форма «vai a doer» не используется, «ir» не соединяется с инфинитивом через «a»."
+  },
+  {
+    "cat": "gramática",
+    "q": "Переведи: «Он ударился ногой о стол» — выбери правильный вариант:",
+    "options": [
+      "Ele bateu com a perna na mesa",
+      "Ele bateu a perna na mesa",
+      "Ele magoou a perna na mesa",
+      "Ele bateu na perna com a mesa"
+    ],
+    "answer": 0,
+    "explanation": "Конструкция «bater com ___ no/na ___» означает «ударить чем-то обо что-то». «Bater com a perna na mesa» — ударился ногой о стол."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери предложение с ОШИБКОЙ:",
+    "options": [
+      "Eu estou a doer",
+      "Doem-me os pés",
+      "Magoei-me no joelho",
+      "Esta vacina não dói"
+    ],
+    "answer": 0,
+    "explanation": "«Doer» — безличный глагол, как «gostar». Нельзя сказать «eu estou a doer». Правильно: «estou com dores» или «dói-me / está me a doer»."
+  },
+  {
+    "cat": "gramática",
+    "q": "«A música na festa de ontem ___» — выбери правильную форму Pretérito Perfeito глагола «bater»:",
+    "options": [
+      "bateu",
+      "batia",
+      "bate",
+      "tem batido"
+    ],
+    "answer": 0,
+    "explanation": "Pretérito Perfeito Simples «bateu» используется для завершённого события в прошлом («вчера»). «Batia» — Imperfeito, для длительных/привычных состояний."
   }
 ];
 const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };

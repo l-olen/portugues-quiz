@@ -253,7 +253,18 @@ const questions = [
     options: ["Porto", "o Porto", "ao Porto", "um Porto"],
     answer: 1,
     explanation: "Porto usa artigo: \"o Porto\", \"fui ao Porto\". Lisboa não usa: \"fui a Lisboa\"."
-  }
+  },
+  {"q": "Qual é o artigo correto? '___ Natal é no dia 25 de dezembro.'", "options": ["A", "O", "Um", "—"], "answer": 1, "explanation": "Праздники в португальском используются с определённым артиклем: o Natal, o Ano Novo, a Páscoa, o Carnaval."},
+  {"q": "Eu tenho ___ gato. ___ gato é preto. Выбери правильную пару артиклей.", "options": ["um / Um", "o / O", "um / O", "o / Um"], "answer": 2, "explanation": "Первое упоминание — неопределённый артикль 'um' (незнакомый предмет). Второе упоминание — определённый 'O' (уже известный читателю гato)."},
+  {"q": "Qual é o artigo correto? 'Eu gosto muito ___ verão.'", "options": ["de o", "do", "da", "de"], "answer": 1, "explanation": "Предлог 'de' + определённый артикль 'o' сливаются в 'do': gosto do verão, do Porto, do Brasil."},
+  {"q": "Qual frase usa o artigo definido INCORRETAMENTE segundo as regras da aula?", "options": ["a Joana está no café", "o meu aniversário é no dia 2 de agosto", "eu moro em a Lisboa", "o Continente está fechado"], "answer": 2, "explanation": "С большинством городов артикль не используется или сливается с предлогом: 'em Lisboa', а не 'em a Lisboa'. Правильно: 'em Lisboa'."},
+  {"q": "Qual é o artigo correto para este país? 'Eu sou de ___ Rússia.'", "options": ["— (sem artigo)", "o", "a", "um"], "answer": 2, "explanation": "По правилу: некоторые страны используются с определённым артиклем — a Rússia, a Alemanha, o Brasil. Россия — женского рода: 'a Rússia'."},
+  {"q": "Tens ___ caneta? Sim, tenho ___ caneta vermelha da BIC. Escolhe a opção correta.", "options": ["uma / uma", "a / uma", "uma / a", "a / a"], "answer": 0, "explanation": "В вопросе и при первом упоминании используется неопределённый артикль 'uma' — предмет ещё не известен собеседнику. Обе фразы — первое введение предмета в разговор."},
+  {"q": "Completa com o artigo correto: '_____ árvore tem flores bonitas e _____ jardins são muito verdes.'", "options": ["O / os", "A / os", "A / as", "O / as"], "answer": 1, "explanation": "Árvore — существительное женского рода → артикль a. Jardim (pl. jardins) — мужского рода → артикль os. Правило: определённые артикли — o/a (ед.ч.), os/as (мн.ч.)."},
+  {"q": "Qual é o plural correto de 'jardim'?", "options": ["jardims", "jardines", "jardins", "jardões"], "answer": 2, "explanation": "Слова на -m образуют множественное число по правилу -m → -ns: jardim → jardins, bombom → bombons, um → uns."},
+  {"q": "Qual é o plural correto de 'cão'?", "options": ["cãos", "cães", "cãoes", "cãns"], "answer": 1, "explanation": "Cão → cães — особая форма множественного числа. Слова на -ão имеют несколько моделей: -ões (pavão → pavões), -ães (cão → cães), -ãos."},
+  {"q": "Completa a frase: 'No jardim zoológico podemos ver pavões. Qual é o plural de 'pavão'?", "options": ["pavãos", "pavães", "pavões", "pavins"], "answer": 2, "explanation": "Pavão → pavões. Большинство слов на -ão образуют множественное число с -ões: pavão → pavões, leão → leões."},
+  {"q": "Complete: «___ sábado é o meu dia favorito.» (Суббота — мой любимый день.)", "options": ["O", "A", "Os", "As"], "answer": 0, "explanation": "«Sábado» — существительное мужского рода, ед.ч. Определённый артикль: «o». В португальском дни недели используются с артиклем «o/os»."},
 ];
 
 let current = 0, score = 0, answered = false, mistakes = [], shuffled = [];

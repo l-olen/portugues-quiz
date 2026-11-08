@@ -3,7 +3,7 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Quiz -- doer / dói-me                 está me a doer                 vai (me) doer / doem-me                 estão me a doer</title>
+<title>Quiz -- Algum · nenhum · muito · tanto · todo · qualquer</title>
 <style>
   * { box-sizing: border-box; margin: 0; padding: 0; }
   body { font-family: 'Segoe UI', Arial, sans-serif; background: #f0f4f8; color: #2d3748; min-height: 100vh; padding: 20px; }
@@ -58,8 +58,8 @@
 <div class="container">
   <a class="back-link" href="index.html">← Voltar ao menu</a>
   <header>
-    <h1>doer / dói-me                 está me a doer                 vai (me) doer / doem-me                 estão me a doer</h1>
-    <p>Урок 2026-07-31 · 18 вопросов</p>
+    <h1>Algum · nenhum · muito · tanto · todo · qualquer</h1>
+    <p>16 questões</p>
   </header>
   <div class="progress-bar-wrap"><div class="progress-bar" id="progressBar" style="width:0%"></div></div>
   <div class="progress-label" id="progressLabel"></div>
@@ -83,220 +83,196 @@
 <script>
 const questions = [
   {
-    "cat": "vocabulário",
-    "q": "Qual é o significado de «doer»?",
+    "cat": "gramática",
+    "q": "Выбери правильную форму: «У тебя есть ручка для меня?» — Tens ___ caneta para mim?",
     "options": [
-      "болеть / причинять боль",
-      "уставать",
-      "падать",
-      "лечить"
+      "alguma",
+      "algum",
+      "nenhuma",
+      "qualquer"
     ],
     "answer": 0,
-    "explanation": "«Doer» — глагол «болеть, причинять боль». Работает как «gostar»: согласуется с тем, что болит, а не с тем, кому больно."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Что означает выражение «magoar-se»?",
-    "options": [
-      "пораниться, ушибиться",
-      "устать",
-      "потеряться",
-      "упасть"
-    ],
-    "answer": 0,
-    "explanation": "«Magoar-se» — возвратный глагол «пораниться, травмироваться». В отличие от «doer», он описывает сам момент травмы."
+    "explanation": "'Caneta' — существительное женского рода, поэтому используем 'alguma'. Форма 'algum' — для мужского рода."
   },
   {
     "cat": "gramática",
-    "q": "Выбери правильную форму: «___ as pernas quando treino muito.»",
+    "q": "Заполни пропуск: Preciso de ___ tempo para descansar.",
     "options": [
-      "Doem-me",
-      "Dói-me",
-      "Doem-te",
-      "Dói-nos"
+      "algum",
+      "alguma",
+      "alguns",
+      "algumas"
     ],
     "answer": 0,
-    "explanation": "Субъект — «as pernas» (множественное число), поэтому глагол стоит во множественном числе: «doem-me». Местоимение «me» указывает, кому больно."
+    "explanation": "'Tempo' — существительное мужского рода единственного числа, поэтому используем 'algum'."
   },
   {
     "cat": "gramática",
-    "q": "Какая форма правильная для описания боли прямо сейчас (PE)? «A minha cabeça ___.»",
+    "q": "Что означает фраза «a qualquer hora»?",
     "options": [
-      "está me a doer",
-      "está doendo",
-      "dói-me agora mesmo",
-      "doeu"
+      "в любое время",
+      "в какое-то время",
+      "никогда",
+      "иногда"
     ],
     "answer": 0,
-    "explanation": "В PE для действия в процессе используется «estar a + infinitivo»: «está me a doer». Форма «está doendo» — это BP (бразильский португальский)."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "«Bater à porta» означает:",
-    "options": [
-      "стучать в дверь",
-      "открыть дверь",
-      "закрыть дверь",
-      "толкнуть дверь"
-    ],
-    "answer": 0,
-    "explanation": "«Bater à porta» — устойчивое выражение «стучать в дверь». Предлог «a» сливается с артиклем «a» → «à»."
+    "explanation": "'Qualquer' используется, когда мы согласны с любым вариантом и нам всё равно, какой выбрать. 'A qualquer hora' = в любое время."
   },
   {
     "cat": "gramática",
-    "q": "Заполни пропуск: «Eu ___ na perna quando estava a andar de patins.»",
+    "q": "Выбери правильную форму 'muito' в предложении: Há ___ pessoas na rua.",
     "options": [
-      "magoei-me",
-      "magoou-se",
-      "magoar-me",
-      "me magoei"
+      "muitas",
+      "muito",
+      "muita",
+      "muitos"
     ],
     "answer": 0,
-    "explanation": "Pretérito Perfeito от «magoar-se» в 1-м лице ед.ч.: «magoei-me». В PE местоимение ставится после глагола через дефис."
+    "explanation": "'Pessoas' — существительное женского рода во множественном числе, поэтому 'muito' принимает форму 'muitas'."
   },
   {
     "cat": "gramática",
-    "q": "Выбери правильную форму Pretérito Imperfeito: «Antigamente ___ a perna quando estava frio.»",
+    "q": "Заполни пропуск: Está ___ feliz porque não há escola.",
     "options": [
-      "doía-me",
-      "doeu-me",
-      "dói-me",
-      "doíam-me"
+      "muito",
+      "muita",
+      "muitos",
+      "muitas"
     ],
     "answer": 0,
-    "explanation": "Imperfeito от «doer» в 3-м л. ед.ч. — «doía». Imperfeito используется для привычных или повторяющихся состояний в прошлом."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "«Estas botas estão a magoar» — что это означает?",
-    "options": [
-      "Эти ботинки натирают / причиняют боль",
-      "Эти ботинки красивые",
-      "Эти ботинки дорогие",
-      "Эти ботинки старые"
-    ],
-    "answer": 0,
-    "explanation": "Глагол «magoar» (без возвратного «se») означает «причинять боль кому-то». Здесь ботинки — субъект, который причиняет боль."
+    "explanation": "Перед прилагательным или наречием 'muito' не изменяется по роду и числу: 'muito feliz', 'muito bem'."
   },
   {
     "cat": "gramática",
-    "q": "Как сказать «эта вакцина не болит» по-португальски?",
+    "q": "Выбери правильную форму: Não há ___ estrada por aqui.",
     "options": [
-      "Esta vacina não dói",
-      "Esta vacina não doeu",
-      "Esta vacina não está a doer",
-      "Esta vacina não doía"
+      "nenhuma",
+      "nenhum",
+      "nenhumas",
+      "alguma"
     ],
     "answer": 0,
-    "explanation": "Presente Simples «dói» используется для общего утверждения о свойстве (вакцина как таковая). Субъект — «vacina» (ед.ч.), поэтому «dói», а не «doem»."
+    "explanation": "'Estrada' — женского рода единственного числа, поэтому 'nenhuma'. 'Nenhum' — для мужского рода."
   },
   {
     "cat": "gramática",
-    "q": "Выбери правильную конструкцию с «magoar-se» + предлог: «Ele ___ perna.»",
+    "q": "Выбери правильную форму 'tanto': Eu já te disse isso ___ vezes!",
     "options": [
-      "magoou-se na",
-      "magoou-se em a",
-      "magoou-se de",
-      "magoou-se para a"
+      "tantas",
+      "tanto",
+      "tanta",
+      "tantos"
     ],
     "answer": 0,
-    "explanation": "После «magoar-se» часть тела вводится предлогом «em» + артикль: «em + a = na». Правильно: «magoou-se na perna»."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "Что означает «bateu a saudade»?",
-    "options": [
-      "Нахлынула тоска / ударила ностальгия",
-      "Прошла тоска",
-      "Появилась радость",
-      "Ударил кто-то"
-    ],
-    "answer": 0,
-    "explanation": "«Bater» в переносном смысле означает «накрыть, нахлынуть». «Bateu a saudade» — разговорное выражение «нахлынула тоска»."
+    "explanation": "'Vezes' — существительное женского рода множественного числа. 'Tanto' согласуется с существительным → 'tantas vezes'."
   },
   {
     "cat": "gramática",
-    "q": "«É importante fazer alongamentos se não queres ___» — выбери правильный вариант:",
+    "q": "Переведи на португальский: «Он так много учится!»",
     "options": [
-      "magoar-te",
-      "te magoar",
-      "magoares-te",
-      "magoar-se"
+      "Ele estuda tanto!",
+      "Ele estuda muitos!",
+      "Ele estuda tanta!",
+      "Ele estuda algum!"
     ],
     "answer": 0,
-    "explanation": "После «querer» + infinitivo возвратное местоимение согласуется с субъектом «tu»: «magoar-te». В PE оно ставится после инфинитива."
-  },
-  {
-    "cat": "prática",
-    "q": "Как правильно сказать по-португальски (PE): «Мои ноги сейчас болят»?",
-    "options": [
-      "As minhas pernas estão me a doer",
-      "As minhas pernas estão doendo",
-      "Doem-me as pernas agora",
-      "Ambas as opções A e C estão corretas"
-    ],
-    "answer": 3,
-    "explanation": "В PE обе формы корректны: «estão me a doer» (processo em curso) и «doem-me» (Presente Simples). «Estão doendo» — только BP."
-  },
-  {
-    "cat": "vocabulário",
-    "q": "«A bebida bateu» — что это означает в разговорном португальском?",
-    "options": [
-      "Напиток ударил / вставил (опьянел)",
-      "Напиток пролился",
-      "Напиток закончился",
-      "Напиток был вкусным"
-    ],
-    "answer": 0,
-    "explanation": "«Bater» в разговорной речи означает «ударить в голову, вставить». «A bebida bateu» — алкоголь подействовал."
+    "explanation": "Когда 'tanto' используется как наречие (без существительного рядом), оно не изменяется: 'estudar tanto', 'ajudar tanto'."
   },
   {
     "cat": "gramática",
-    "q": "Как изменится глагол «doer» в будущем? «Esta injeção ___ um pouco.»",
+    "q": "Какое выражение означает «что-либо / что угодно»?",
     "options": [
-      "vai doer",
-      "vai a doer",
-      "doerá-me",
-      "vai doendo"
+      "qualquer coisa",
+      "alguma coisa",
+      "nenhuma coisa",
+      "tanta coisa"
     ],
     "answer": 0,
-    "explanation": "Futuro perifrástico в PE: «ir + infinitivo» → «vai doer». Форма «vai a doer» не используется, «ir» не соединяется с инфинитивом через «a»."
-  },
-  {
-    "cat": "prática",
-    "q": "Переведи: «Он ударился ногой о стол» — выбери правильный вариант:",
-    "options": [
-      "Ele bateu com a perna na mesa",
-      "Ele bateu a perna na mesa",
-      "Ele magoou a perna na mesa",
-      "Ele bateu na perna com a mesa"
-    ],
-    "answer": 0,
-    "explanation": "Конструкция «bater com ___ no/na ___» означает «ударить чем-то обо что-то». «Bater com a perna na mesa» — ударился ногой о стол."
-  },
-  {
-    "cat": "prática",
-    "q": "Выбери предложение с ОШИБКОЙ:",
-    "options": [
-      "Eu estou a doer",
-      "Doem-me os pés",
-      "Magoei-me no joelho",
-      "Esta vacina não dói"
-    ],
-    "answer": 0,
-    "explanation": "«Doer» — безличный глагол, как «gostar». Нельзя сказать «eu estou a doer». Правильно: «estou com dores» или «dói-me / está me a doer»."
+    "explanation": "'Qualquer coisa' = что угодно/что-нибудь (любое из вариантов). 'Alguma coisa' скорее 'что-то конкретное' в вопросительном контексте."
   },
   {
     "cat": "gramática",
-    "q": "«A música na festa de ontem ___» — выбери правильную форму Pretérito Perfeito глагола «bater»:",
+    "q": "Выбери правильный вариант: ___ dias está muito calor em Lisboa.",
     "options": [
-      "bateu",
-      "batia",
-      "bate",
-      "tem batido"
+      "Todos os",
+      "Todo o",
+      "Todas as",
+      "Toda a"
     ],
     "answer": 0,
-    "explanation": "Pretérito Perfeito Simples «bateu» используется для завершённого события в прошлом («вчера»). «Batia» — Imperfeito, для длительных/привычных состояний."
+    "explanation": "'Todos os dias' = каждый день (множественное число мужского рода). 'Todo o dia' = весь день (единственное число)."
+  },
+  {
+    "cat": "gramática",
+    "q": "Что значит выражение «às tantas da noite»?",
+    "options": [
+      "Очень поздно ночью, точное время неизвестно",
+      "Ровно в полночь",
+      "Несколько раз за ночь",
+      "В любое время ночи"
+    ],
+    "answer": 0,
+    "explanation": "'Às tantas (da noite/da manhã)' — разговорное выражение, означающее, что что-то произошло очень поздно/рано, но точный час неизвестен."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери предложение с правильным использованием 'tanto faz':",
+    "options": [
+      "— Preferes café ou chá? — Tanto faz.",
+      "— Tens tanto faz de tempo?",
+      "— Tanto faz pessoas estão aqui!",
+      "— Ele é tanto faz cansado."
+    ],
+    "answer": 0,
+    "explanation": "'Tanto faz' — устойчивое выражение, означающее «всё равно / не имеет значения». Используется как самостоятельный ответ."
+  },
+  {
+    "cat": "gramática",
+    "q": "Заполни пропуск: Há ___ informação na Internet.",
+    "options": [
+      "muita",
+      "muito",
+      "muitos",
+      "muitas"
+    ],
+    "answer": 0,
+    "explanation": "'Informação' — существительное женского рода единственного числа, поэтому 'muito' принимает форму 'muita'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Выбери предложение, где 'algum/alguma' употреблено НЕПРАВИЛЬНО:",
+    "options": [
+      "Há algum problema? Não, nenhum.",
+      "Tens algum caneta?",
+      "Há alguma paragem de autocarro aqui perto?",
+      "Preciso de algum tempo."
+    ],
+    "answer": 1,
+    "explanation": "'Caneta' — женского рода, поэтому нужна форма 'alguma caneta', а не 'algum caneta'."
+  },
+  {
+    "cat": "gramática",
+    "q": "Что из перечисленного является 'quantificador' (квантификатором)?",
+    "options": [
+      "muitos",
+      "bonito",
+      "rapidamente",
+      "correr"
+    ],
+    "answer": 0,
+    "explanation": "Квантификаторы указывают на количество: muito, pouco, tanto, algum, nenhum и т.д. 'Bonito' — прилагательное, 'rapidamente' — наречие, 'correr' — глагол."
+  },
+  {
+    "cat": "gramática",
+    "q": "Переведи: «Я вижу так много людей на нашей улице каждый день.»",
+    "options": [
+      "Eu vejo tantas pessoas na nossa rua todos os dias.",
+      "Eu vejo muito pessoas na nossa rua todo os dias.",
+      "Eu vejo tanta pessoas na nossa rua todos os dias.",
+      "Eu vejo algumas pessoas na nossa rua todo dia."
+    ],
+    "answer": 0,
+    "explanation": "'Tantas' согласуется с 'pessoas' (ж.р., мн.ч.), а 'todos os dias' = каждый день (правильная форма для регулярного действия)."
   }
 ];
 const labelMap = { "gramática":"Gramática", "vocabulário":"Vocabulário", "prática":"Prática" };
